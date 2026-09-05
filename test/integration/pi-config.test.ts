@@ -5,10 +5,11 @@ const program = (body: string) =>
   `import { api } from '@cap/cli';\nexport async function main() { ${body} }`;
 
 test("STRATA_CONFIG cli-twin selects the CLI capability with an allowlist", async () => {
-  const session = await sessionFromConfig({
+  const configured = await sessionFromConfig({
     transport: "cli-twin",
     allow: ["customers", "invoices"],
   });
+  const session = configured.session;
   try {
     expect(session.declarations).toContain("@cap/cli");
     const composed = await session.run(

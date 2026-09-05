@@ -74,8 +74,7 @@ export function execute(
     worker.postMessage({
       type: "run",
       code,
-      capability: broker.manifest.id,
-      operations: broker.manifest.operations.map((op) => op.name),
+      surfaces: broker.surfaces,
       timeoutMs,
     });
   });

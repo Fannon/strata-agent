@@ -17,6 +17,9 @@ export function validator(schema: JsonSchema) {
       : ajv.errorsText(check.errors, { dataVar: "value" });
 }
 
+export const declarationsPreamble =
+  "declare const console: { log(...values: unknown[]): void };";
+
 export async function declarations(module: CapabilityModule): Promise<string> {
   const definitions: string[] = [];
   const methods: string[] = [];
@@ -40,5 +43,5 @@ export async function declarations(module: CapabilityModule): Promise<string> {
       `/** ${doc} */\n${JSON.stringify(op.name)}(input: Op${i}.${input}): Promise<${op.outputSchema ? `Op${i}.${output}` : "unknown"}>;`,
     );
   }
-  return `declare const console: { log(...values: unknown[]): void };\ndeclare module ${JSON.stringify("@cap/" + module.id)} {\n${definitions.join("\n")}\nexport const api: {\n${methods.join("\n")}\n};\n}\n`;
+  return `declare module ${JSON.stringify("@cap/" + module.id)} {\n${definitions.join("\n")}\nexport const api: {\n${methods.join("\n")}\n};\n}\n`;
 }

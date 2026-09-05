@@ -21,21 +21,44 @@ export interface Metrics {
   policyFailures: number;
 }
 export class CapabilityBroker {
-  private operations;
+  private modules = new Map<
+    string,
+    {
+      connector: CapabilityConnector;
+      allowed: ReadonlySet<string>;
+      inputs: Map<string, (value: unknown) => string | undefined>;
+      outputs: Map<string, ((value: unknown) => string | undefined) | undefined>;
+    }
+  >();
   constructor(
-    readonly manifest: CapabilityModule,
-    private connector: CapabilityConnector,
-    private allowed: ReadonlySet<string>,
+    manifest: CapabilityModule,
+    connector: CapabilityConnector,
+    allowed: ReadonlySet<string>,
   ) {
-    this.operations = new Map(
-      manifest.operations.map((op) => [
-        op.name,
-        {
-          input: validator(op.inputSchema),
-          output: op.outputSchema ? validator(op.outputSchema) : undefined,
-        },
-      ]),
-    );
+    this.addModule(manifest, connector, allowed);
+  }
+  /** Register another capability module in a live session (discovery load). */
+  addModule(
+    manifest: CapabilityModule,
+    connector: CapabilityConnector,
+    allowed: ReadonlySet<string>,
+  ) {
+    if (this.modules.has(manifest.id))
+      throw new Error(`Capability ${manifest.id} is already loaded`);
+    const inputs = new Map<string, (value: unknown) => string | undefined>();
+    const outputs = new Map<string, ((value: unknown) => string | undefined) | undefined>();
+    for (const op of manifest.operations) {
+      inputs.set(op.name, validator(op.inputSchema));
+      outputs.set(op.name, op.outputSchema ? validator(op.outputSchema) : undefined);
+    }
+    this.modules.set(manifest.id, { connector, allowed, inputs, outputs });
+  }
+  /** Loaded capability surfaces, for worker bindings. */
+  get surfaces(): Array<{ capability: string; operations: string[] }> {
+    return [...this.modules].map(([capability, module]) => ({
+      capability,
+      operations: [...module.inputs.keys()],
+    }));
   }
   async invoke(
     capability: string,
@@ -60,17 +83,19 @@ export class CapabilityBroker {
       if (stage === "input" || stage === "output") metrics.validationFailures++;
       throw new Error(`${capability}.${operation}: ${stage}: ${message}`);
     };
-    const op = this.operations.get(operation);
-    if (capability !== this.manifest.id || !op || !this.allowed.has(operation))
+    const module = this.modules.get(capability);
+    const inputValidator = module?.inputs.get(operation);
+    if (!module || !inputValidator || !module.allowed.has(operation))
       fail("policy", "operation is not locally allowed");
-    const inputError = op!.input(input);
+    const outputValidator = module!.outputs.get(operation);
+    const inputError = inputValidator!(input);
     if (inputError) fail("input", inputError);
     signal.throwIfAborted();
     record.invoked = true;
     metrics.capabilityCalls++;
     let result;
     try {
-      result = await this.connector.invoke(
+      result = await this.modules.get(capability)!.connector.invoke(
         operation,
         input as Record<string, unknown>,
         signal,
@@ -84,9 +109,9 @@ export class CapabilityBroker {
     record.rawBytes = result.rawBytes;
     metrics.rawCapabilityBytes += result.rawBytes;
     signal.throwIfAborted();
-    if (result.isError) fail("transport", "MCP server returned isError");
-    if (op!.output) {
-      const outputError = op!.output(result.structured);
+    if (result.isError) fail("transport", "capability returned isError");
+    if (outputValidator) {
+      const outputError = outputValidator(result.structured);
       if (outputError) fail("output", outputError);
       return result.structured;
     }

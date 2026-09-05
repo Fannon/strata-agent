@@ -1,6 +1,6 @@
 import { Workspace } from "./compiler/workspace.ts";
 import { CapabilityBroker, type Metrics } from "./capabilities/broker.ts";
-import { declarations } from "./capabilities/schemas.ts";
+import { declarations, declarationsPreamble } from "./capabilities/schemas.ts";
 import {
   bytes,
   type CapabilityModule,
@@ -13,13 +13,35 @@ export async function createSession(
   connector: CapabilityConnector,
   allowed: ReadonlySet<string>,
 ) {
-  const types = await declarations(manifest);
-  const workspace = new Workspace(types);
+  const texts = [await declarations(manifest)];
+  const joined = () => `${declarationsPreamble}\n${texts.join("\n")}`;
+  const workspace = new Workspace(joined());
   const broker = new CapabilityBroker(manifest, connector, allowed);
+  const connectors = [connector];
   const shutdown = new AbortController();
   const active = new Set<Promise<unknown>>();
   return {
-    declarations: types,
+    get declarations() {
+      return joined();
+    },
+    /** Register another capability module in this live session (discovery load).
+     * Returns the new module's declarations so the caller can hand the model
+     * its import block without a prompt reload. Loading never grants
+     * invocation: the given allowlist gates every call through the broker. */
+    async load(
+      module: CapabilityModule,
+      moduleConnector: CapabilityConnector,
+      moduleAllowed: ReadonlySet<string>,
+    ) {
+      // Declarations first: they can throw, and the broker must never gain
+      // a module whose types failed. The caller closes moduleConnector on error.
+      const text = await declarations(module);
+      broker.addModule(module, moduleConnector, moduleAllowed);
+      connectors.push(moduleConnector);
+      texts.push(text);
+      workspace.setDeclarations(joined());
+      return text;
+    },
     run(
       source: string,
       options: { signal?: AbortSignal; timeoutMs?: number } = {},
@@ -105,7 +127,7 @@ export async function createSession(
       shutdown.abort();
       await Promise.allSettled(active);
       workspace.close();
-      await connector.close();
+      for (const connector of connectors) await connector.close();
     },
   };
 }

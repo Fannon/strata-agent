@@ -116,6 +116,26 @@ STRATA_CONFIG=/absolute/path/to/twin.json bun run pi
 
 CLI/MCP twin parity is asserted in tests, so the two backends cannot drift apart silently.
 
+### Discovery: search and load further capabilities
+
+The extension always registers `search_capabilities` (lexical search over the local `catalog/`) and `load_capability` (adds an entry to the live session and returns its `@cap/` import block). Loading never grants invocation: every call still passes the configured allowlist and schema validation. The first catalog holds the twin split for benchmarking: always-loaded core (`customers`, `invoices`) with bulk `records` discovered on demand.
+
+```json
+{
+  "transport": "catalog",
+  "preload": ["cli"],
+  "allow": { "cli": ["customers", "invoices"], "cli-records": ["records"] }
+}
+```
+
+```sh
+STRATA_CONFIG=/absolute/path/to/catalog.json bun run pi
+# then: search_capabilities "bulk records" → load_capability "cli-records"
+# → import { api } from '@cap/cli-records'
+```
+
+Catalog files are single-file TypeScript: a standardized `meta` export (pure static data, extracted without executing the module) plus `bindings` (argv mappers, imported only on load). Only `cli-twin`-backed entries are supported; anything else fails with a clear error.
+
 ### Troubleshooting
 
 - **Bun required:** Strata runs Pi under Bun (`bun run pi`). Under plain Node the extension throws `Strata requires Bun. Start with bun run pi.` Tested with Bun 1.4.1 on Linux.

@@ -10,6 +10,8 @@ export interface CatalogOperationMeta {
 export interface CapabilityMeta {
   id: string;
   description?: string;
+  /** Backend needed to load this entry; only cli-twin is supported today. */
+  transport?: { kind: string };
   operations: CatalogOperationMeta[];
   dependsOn?: string[];
   related?: string[];
@@ -127,6 +129,15 @@ function assertMeta(value: unknown, file: string): CapabilityMeta {
   if (typeof meta.id !== "string" || !meta.id) return fail("id must be a non-empty string");
   if (meta.description !== undefined && typeof meta.description !== "string")
     return fail("description must be a string");
+  if (meta.transport !== undefined) {
+    const transport = meta.transport as Record<string, unknown>;
+    if (
+      !transport ||
+      typeof transport !== "object" ||
+      typeof transport.kind !== "string"
+    )
+      return fail("transport must be an object with a string kind");
+  }
   if (!Array.isArray(meta.operations) || !meta.operations.length)
     return fail("operations must be a non-empty array");
   for (const op of meta.operations) {
@@ -160,6 +171,9 @@ function assertMeta(value: unknown, file: string): CapabilityMeta {
   return {
     id: meta.id as string,
     ...(typeof meta.description === "string" ? { description: meta.description } : {}),
+    ...((meta.transport as { kind: string } | undefined)?.kind
+      ? { transport: meta.transport as { kind: string } }
+      : {}),
     operations: meta.operations as CatalogOperationMeta[],
     ...((meta.dependsOn as string[] | undefined)?.length ? { dependsOn: meta.dependsOn as string[] } : {}),
     ...((meta.related as string[] | undefined)?.length ? { related: meta.related as string[] } : {}),
@@ -170,6 +184,24 @@ function assertMeta(value: unknown, file: string): CapabilityMeta {
 export async function loadCatalogFile(file: string): Promise<CatalogEntry> {
   const { readFile } = await import("node:fs/promises");
   return { file, meta: extractMeta(await readFile(file, "utf8"), file) };
+}
+
+/** Index every catalog file in a directory (static extraction, no execution).
+ * Duplicate capability ids fail fast. */
+export async function loadIndex(dir: string): Promise<CatalogEntry[]> {
+  const { readdir } = await import("node:fs/promises");
+  const { join } = await import("node:path");
+  const files = (await readdir(dir)).filter((f) => f.endsWith(".ts")).sort();
+  const entries: CatalogEntry[] = [];
+  const seen = new Set<string>();
+  for (const file of files) {
+    const entry = await loadCatalogFile(join(dir, file));
+    if (seen.has(entry.meta.id))
+      throw new Error(`Duplicate catalog capability id "${entry.meta.id}" in ${dir}`);
+    seen.add(entry.meta.id);
+    entries.push(entry);
+  }
+  return entries;
 }
 
 export interface SearchHit {

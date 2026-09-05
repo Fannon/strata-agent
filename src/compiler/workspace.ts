@@ -10,8 +10,11 @@ const declarationPath = "/strata/capabilities.d.ts";
 export class Workspace {
   private source = "";
   private version = 0;
+  private declarations = "";
+  private declarationsVersion = 0;
   private service: ts.LanguageService;
   constructor(declarations: string) {
+    this.declarations = declarations;
     const options: ts.CompilerOptions = {
       target: ts.ScriptTarget.ES2022,
       module: ts.ModuleKind.ESNext,
@@ -26,7 +29,7 @@ export class Workspace {
       path === programPath
         ? this.source
         : path === declarationPath
-          ? declarations
+          ? this.declarations
           : path.startsWith(libDir + "/") &&
               /^lib\.[\w.]+\.d\.ts$/.test(path.slice(libDir.length + 1))
             ? ts.sys.readFile(path)
@@ -35,7 +38,11 @@ export class Workspace {
       getCompilationSettings: () => options,
       getScriptFileNames: () => [programPath, declarationPath],
       getScriptVersion: (path) =>
-        path === programPath ? String(this.version) : "0",
+        path === programPath
+          ? String(this.version)
+          : path === declarationPath
+            ? String(this.declarationsVersion)
+            : "0",
       getScriptSnapshot: (path) => {
         const source = read(path);
         return source === undefined
@@ -117,6 +124,11 @@ export class Workspace {
       diagnostics,
       code: emit.outputFiles.find((f) => f.name.endsWith(".js"))!.text,
     };
+  }
+  /** Replace the capability declarations (hot-add); next compile sees them. */
+  setDeclarations(declarations: string) {
+    this.declarations = declarations;
+    this.declarationsVersion++;
   }
   close() {
     this.service.dispose();

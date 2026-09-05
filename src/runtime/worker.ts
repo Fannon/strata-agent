@@ -11,7 +11,11 @@ self.onmessage = async (event: MessageEvent) => {
     return;
   }
   if (event.data.type !== "run") return;
-  const { code, capability, operations, timeoutMs } = event.data;
+  const { code, surfaces, timeoutMs } = event.data as {
+    code: string;
+    surfaces: Array<{ capability: string; operations: string[] }>;
+    timeoutMs: number;
+  };
   const QuickJS = await getQuickJS();
   const runtime = QuickJS.newRuntime();
   runtime.setMemoryLimit(64 * 1024 * 1024);
@@ -58,9 +62,11 @@ self.onmessage = async (event: MessageEvent) => {
   }).consume((fn) => vm.setProp(vm.global, "__log", fn));
   runtime.setModuleLoader((name) => {
     if (name === "program") return code;
-    if (name !== "@cap/" + capability)
-      throw new Error(`Module unavailable: ${name}`);
-    return `const invoke = globalThis.__invoke; export const api = Object.freeze(Object.fromEntries(${JSON.stringify(operations)}.map(name => [name, async input => JSON.parse(await invoke(${JSON.stringify(capability)}, name, JSON.stringify(input)))])));`;
+    const surface = surfaces.find((s) => "@cap/" + s.capability === name);
+    if (!surface) throw new Error(`Module unavailable: ${name}`);
+    const ops = JSON.stringify(surface.operations);
+    const cap = JSON.stringify(surface.capability);
+    return `const invoke = globalThis.__invoke; export const api = Object.freeze(Object.fromEntries(${ops}.map(name => [name, async input => JSON.parse(await invoke(${cap}, name, JSON.stringify(input)))])));`;
   });
   try {
     vm.unwrapResult(

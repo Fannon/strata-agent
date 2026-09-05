@@ -17,7 +17,11 @@ test("Pi jiti loader registers one tool; lifecycle initializes and cleans runtim
     e.tools.has("typed_program"),
   )!;
   expect(extension).toBeDefined();
-  expect([...extension.tools.keys()]).toEqual(["typed_program"]);
+  expect([...extension.tools.keys()]).toEqual([
+    "typed_program",
+    "search_capabilities",
+    "load_capability",
+  ]);
   try {
     for (const handler of extension.handlers.get("session_start") ?? [])
       await handler({ type: "session_start", reason: "startup" }, {});
