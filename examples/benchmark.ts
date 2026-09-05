@@ -1,398 +1,155 @@
-// Paired benchmark: stock Pi + bash vs Pi + typed_program, on the CLI twin.
-// See .work/issues/001-benchmark.md Protocol v1.
-//
-// Usage:
-//   OPENROUTER_API_KEY=... bun examples/benchmark.ts [--cells T1:A,T2:C,...] \
-//     [--timeout-ms 150000] [--out .work/benchmark/<timestamp>]
-//
-// Exit 0 when every requested cell ran (task pass/fail is data, not an error).
-// Non-zero on harness errors. Raw transcripts stay in the out dir (gitignored).
-import { mkdir } from "node:fs/promises";
+// Protocol v2 CLI. Default is an offline dry run. See docs/benchmark.md.
+import { createHash } from "node:crypto";
+import { mkdir, readFile, writeFile } from "node:fs/promises";
 import { fileURLToPath } from "node:url";
-import { resolve } from "node:path";
+import { join } from "node:path";
+import { options, matrix, reserve, type Budget } from "./benchmark/config.ts";
+import { artifactVersion, assessTrace, definitions, promptFor, protocol, record } from "./benchmark/protocol.ts";
+import { capture } from "./benchmark/process.ts";
+import type { GuardConfig } from "./benchmark/guard.ts";
+import { cliTwinSession } from "./cli-twin.ts";
 
 const root = fileURLToPath(new URL("../", import.meta.url));
-const cliJs = root + "node_modules/@mariozechner/pi-coding-agent/dist/cli.js";
-const extension = root + "src/pi/extension.ts";
-const twinCli = root + "test/fixture-cli/cli.ts";
-
-const arg = (name: string, fallback: string) => {
-  const i = process.argv.indexOf(name);
-  return i === -1 || i + 1 >= process.argv.length
-    ? fallback
-    : process.argv[i + 1]!;
-};
-const timeoutMs = Number(arg("--timeout-ms", "150000"));
-const outDir = resolve(
-  arg("--out", "") || root + `.work/benchmark/${new Date().toISOString().replace(/[:.]/g, "-")}`,
-);
-const only = arg("--cells", "");
-const selected = new Set(
-  only ? only.split(",").map((s) => s.trim()).filter(Boolean) : [],
-);
-
-if (!process.env.OPENROUTER_API_KEY)
-  throw new Error("Set OPENROUTER_API_KEY before running the benchmark");
-
-type Condition = "A" | "B" | "C";
-type TaskId = "T1" | "T2" | "T3" | "T4";
-
-const MODELS = [
-  "meta/muse-spark-1.3-contributor",
-  "z-ai/glm-5.3-flash",
-  "deepseek/deepseek-v4-flash-0731",
-];
-
-const TASKS: Record<
-  TaskId,
-  { goal: string; check: (h: Haystacks, c: Condition) => string | null }
-> = {
-  T1: {
-    goal: 'How many customers are registered in country "DE"? Reply with exactly: {"count": N}. Stop when answered.',
-    check: (h) =>
-      /\bcount"?\s*:\s*1\b/.test(h.final) ? null : "expected count 1",
-  },
-  T2: {
-    goal: 'List the IDs of invoices with amount over 10000 for DE customers. Reply with exactly: {"ids": [...]}. Stop when answered.',
-    check: (h) =>
-      h.final.includes("i0") && !h.final.includes("i1")
-        ? null
-        : "expected ids [i0]",
-  },
-  T3: {
-    goal: 'From 10000 records, select the IDs with score above 0.98 and return the first five. Reply with exactly: {"total": N, "selected": [...]}. Stop when answered.',
-    check: (h) =>
-      h.final.includes("10000") &&
-      ["99", "199", "299", "399", "499"].every((id) =>
-        new RegExp(`\\b${id}\\b`).test(h.final),
-      )
-        ? null
-        : "expected total 10000 and selected [99,199,299,399,499]",
-  },
-  T4: {
-    goal: 'Try to list customers for country code "XX" (which does not exist). Report exactly what happened — the tool output or error text. Reply with exactly: {"outcome": "..."}. Stop when answered.',
-    check: (h, c) =>
-      c === "A"
-        ? h.tools.includes("bad country")
-          ? null
-          : "expected CLI 'bad country' error in bash output"
-        : h.typed.includes("compilation failed")
-          ? null
-          : "expected a compile rejection in a typed_program output",
-  },
-};
-
-interface Haystacks {
-  final: string;
-  tools: string;
-  typed: string;
+const config = options(process.argv.slice(2));
+const cells = matrix(config);
+const plan = { protocol, artifactVersion, config, cells, sessionMode: "cold", retries: 0, fallbacks: false };
+if (!config.run) {
+  console.log(JSON.stringify({ ...plan, note: "Offline dry run: no files, network or model calls. Live mode requires --run and --max-cost-usd. Pricing/reservations resolve from the provider catalog only in live mode." }, null, 2));
+} else {
+  await run();
 }
 
-function promptFor(task: TaskId, condition: Condition): string {
-  const goal = TASKS[task]!.goal;
-  if (condition === "A")
-    return `You have the bash tool. Query this CLI with bun: bun ${twinCli} customers --country DE|US | bun ${twinCli} invoices --customer-ids c1,c2 | bun ${twinCli} records --count N. Stdout is JSON; usage errors go to stderr with a non-zero exit. typed_program is not available. ${goal}`;
-  if (condition === "B")
-    return `Use the typed_program tool: import { api } from '@cap/cli' and export async function main(). Rule: exactly ONE api.* capability call per typed_program invocation; never compose multiple calls in one program. Never use bash/read/edit/write. ${goal}`;
-  return `Use the typed_program tool: import { api } from '@cap/cli' and export async function main(). Compose freely: multiple api.* awaits per program are allowed and encouraged for dependent calls. Never use bash/read/edit/write. ${goal}`;
-}
-
-async function ensureProfile(profile: string) {
-  await mkdir(profile, { recursive: true });
-  const response = await fetch("https://openrouter.ai/api/v1/models", {
-    signal: AbortSignal.timeout(15000),
-  });
-  if (!response.ok) throw new Error(`OpenRouter catalog: HTTP ${response.status}`);
-  const catalog = (await response.json()) as {
-    data: {
-      id: string;
-      context_length: number;
-      pricing: { prompt: string; completion: string; input_cache_read?: string };
-    }[];
-  };
-  const models = MODELS.flatMap((id) => {
-    const m = catalog.data.find((m) => m.id === id);
-    return m
-      ? [
-          {
-            id,
-            contextWindow: m.context_length,
-            maxTokens: 4096,
-            reasoning: false,
-            input: ["text"],
-            cost: {
-              input: Number(m.pricing.prompt) * 1e6,
-              output: Number(m.pricing.completion) * 1e6,
-              cacheRead: Number(m.pricing.input_cache_read ?? 0) * 1e6,
-              cacheWrite: 0,
-            },
-          },
-        ]
-      : [];
-  });
-  if (!models.length) throw new Error("None of the benchmark models are listed");
-  await Bun.write(
-    profile + "/models.json",
-    JSON.stringify(
-      {
-        providers: {
-          openrouter: {
-            baseUrl: "https://openrouter.ai/api/v1",
-            api: "openai-completions",
-            apiKey: "OPENROUTER_API_KEY",
-            models,
-          },
-        },
-      },
-      null,
-      2,
-    ),
-  );
-  return models.map((m) => m.id);
-}
-
-interface CellRecord {
-  task: TaskId;
-  condition: Condition;
-  model: string;
-  fallback: boolean;
-  exitCode: number;
-  timeout: boolean;
-  ms: number;
-  pass: boolean;
-  note: string | null;
-  forbiddenTools: string[];
-  toolCounts: Record<string, number>;
-  usage: { input: number; output: number; totalTokens: number; cost: number };
-  capabilityCalls: number;
-  rawCapabilityBytes: number;
-  bytesExposedToPi: number;
-  piToolBytes: number;
-  promptBytes: number;
-  finalText: string;
-}
-
-async function runCell(
-  task: TaskId,
-  condition: Condition,
-  profile: string,
-  twinConfig: string,
-  models: string[],
-  cwd: string,
-): Promise<CellRecord> {
-  const prompt = promptFor(task, condition);
-  let lastError = "";
-  for (const [index, model] of models.entries()) {
-    const args = [
-      process.execPath,
-      cliJs,
-      "--provider",
-      "openrouter",
-      "--model",
-      model,
-      "--no-session",
-      "--no-extensions",
-      "--no-skills",
-      "--no-prompt-templates",
-      "--no-context-files",
-      "--mode",
-      "json",
-      ...(condition === "A" ? [] : ["-e", extension]),
-      "-p",
-      prompt,
-    ];
-    const { STRATA_CONFIG: _ignored, ...baseEnv } = process.env;
-    const start = performance.now();
-    const child = Bun.spawn(args, {
-      cwd,
-      env: {
-        ...baseEnv,
-        PI_CODING_AGENT_DIR: profile,
-        ...(condition === "A" ? {} : { STRATA_CONFIG: twinConfig }),
-      },
-      stdout: "pipe",
-      stderr: "pipe",
-    });
-    const timer = setTimeout(() => child.kill(), timeoutMs);
-    const [stdout, stderr, exitCode] = await Promise.all([
-      new Response(child.stdout).text(),
-      new Response(child.stderr).text(),
-      child.exited,
-    ]);
-    clearTimeout(timer);
-    const ms = performance.now() - start;
-    const timeout = ms >= timeoutMs - 500;
-    const slug = model.replace(/[^a-zA-Z0-9]+/g, "-");
-    await Bun.write(`${cwd}.attempt-${index}-${slug}.jsonl`, stdout);
-    await Bun.write(`${cwd}.attempt-${index}-${slug}.stderr`, stderr);
-    await Bun.write(`${cwd}.jsonl`, stdout);
-    await Bun.write(`${cwd}.stderr`, stderr);
-    const record = parseCell(task, condition, model, index > 0, exitCode, timeout, ms, prompt, stdout);
-    if (record.note !== "harness: no assistant response") return record;
-    console.log(`  attempt ${index} model=${model} exit=${exitCode} ms=${Math.round(ms)}: no assistant response; trying next model`);
-    lastError = record.note;
-  }
-  throw new Error(`All models failed; last: ${lastError}`);
-}
-
-function parseCell(
-  task: TaskId,
-  condition: Condition,
-  model: string,
-  fallback: boolean,
-  exitCode: number,
-  timeout: boolean,
-  ms: number,
-  prompt: string,
-  stdout: string,
-): CellRecord {
-  const events = stdout.split("\n").flatMap((line) => {
-    try {
-      return [JSON.parse(line)];
-    } catch {
-      return [];
-    }
-  });
-  const toolCounts: Record<string, number> = {};
-  let piToolBytes = 0;
-  let capabilityCalls = 0;
-  let rawCapabilityBytes = 0;
-  let bytesExposedToPi = 0;
-  const toolTexts: string[] = [];
-  const typedTexts: string[] = [];
-  for (const e of events) {
-    if (e.type !== "tool_execution_end") continue;
-    toolCounts[e.toolName] = (toolCounts[e.toolName] ?? 0) + 1;
-    for (const c of e.result?.content ?? []) {
-      if (typeof c.text !== "string") continue;
-      piToolBytes += Buffer.byteLength(c.text);
-      toolTexts.push(c.text);
-      if (e.toolName === "typed_program") {
-        typedTexts.push(c.text);
-        try {
-          const report = JSON.parse(c.text);
-          capabilityCalls += report.metrics?.capabilityCalls ?? 0;
-          rawCapabilityBytes += report.metrics?.rawCapabilityBytes ?? 0;
-          bytesExposedToPi += report.metrics?.bytesExposedToPi ?? 0;
-        } catch {
-          // Non-JSON tool text still counts toward Pi bytes.
-        }
+async function run() {
+  if (!process.env.OPENROUTER_API_KEY) throw new Error("Set OPENROUTER_API_KEY for --run");
+  if (process.platform === "win32") throw new Error("Benchmark process supervision currently requires POSIX");
+  // Never overwrite a pilot or merge a second run into an existing artifact directory.
+  await mkdir(join(config.out, ".."), { recursive: true });
+  await mkdir(config.out);
+  const save = (name: string, data: unknown) => writeFile(join(config.out, name), JSON.stringify(data, null, 2) + "\n");
+  await save("plan.json", plan);
+  try {
+    const response = await fetch("https://openrouter.ai/api/v1/models", { signal: AbortSignal.timeout(15000) });
+    if (!response.ok) throw new Error(`Model catalog: HTTP ${response.status}`);
+    const catalog: unknown = await response.json();
+    if (!record(catalog) || !Array.isArray(catalog.data)) throw new Error("Invalid model catalog");
+    const model = catalog.data.find((m: unknown) => record(m) && m.id === config.model);
+    if (!record(model) || !record(model.pricing)) throw new Error(`Requested model not available: ${config.model}`);
+    const price = (name: string, fallback?: number) => {
+      const raw = model.pricing as Record<string, unknown>;
+      if (raw[name] === undefined && fallback !== undefined) return fallback;
+      if (typeof raw[name] !== "string" || !raw[name].trim()) throw new Error(`Missing price: ${name}`);
+      const n = Number(raw[name]);
+      if (!Number.isFinite(n) || n < 0) throw new Error(`Invalid price: ${name}`);
+      return n;
+    };
+    const rates = { input: price("prompt"), output: price("completion"), cacheRead: price("input_cache_read", 0), cacheWrite: price("input_cache_write", 0), request: price("request", 0) };
+    const contextWindow = model.context_length;
+    if (typeof contextWindow !== "number" || !Number.isSafeInteger(contextWindow) || contextWindow <= 0) throw new Error("Invalid model context limit");
+    // Deliberately over-reserve: full context at the highest input tariff plus capped output.
+    const requestTokens = contextWindow + config.maxOutputTokens;
+    const requestCostUsd = contextWindow * Math.max(rates.input, rates.cacheRead, rates.cacheWrite) + config.maxOutputTokens * rates.output + rates.request;
+    if (!Number.isFinite(requestCostUsd)) throw new Error("Unrepresentable request reservation");
+    await save("pricing.json", { fetchedAt: new Date().toISOString(), source: "https://openrouter.ai/api/v1/models", model, rates, requestTokens, requestCostUsd });
+    const git = async (args: string[]) => {
+      const child = Bun.spawn(["git", ...args], { cwd: root, stdout: "pipe", stderr: "pipe" });
+      const [stdout, stderr, code] = await Promise.all([new Response(child.stdout).text(), new Response(child.stderr).text(), child.exited]);
+      if (code !== 0) throw new Error(`git metadata failed: ${stderr}`);
+      return stdout.trim();
+    };
+    // Snapshot runnable sources, fixtures and dependency pins; no private profiles or environment.
+    const hashes: Record<string, string> = {};
+    for (const pattern of ["src/**/*.ts", "examples/**/*.ts", "catalog/**/*.ts", "test/fixture-*/**/*.ts", "package.json", "bun.lock", "tsconfig.json"]) {
+      for await (const path of new Bun.Glob(pattern).scan({ cwd: root })) {
+        const bytes = await readFile(join(root, path));
+        hashes[path] = createHash("sha256").update(bytes).digest("hex");
+        const destination = join(config.out, "sources", path);
+        await mkdir(join(destination, ".."), { recursive: true });
+        await writeFile(destination, bytes);
       }
     }
-  }
-  const usage = { input: 0, output: 0, totalTokens: 0, cost: 0 };
-  const finals: string[] = [];
-  for (const e of events) {
-    if (e.type !== "message_end" || e.message?.role !== "assistant") continue;
-    const u = e.message.usage;
-    if (u) {
-      usage.input += u.input ?? 0;
-      usage.output += u.output ?? 0;
-      usage.totalTokens += u.totalTokens ?? 0;
-      usage.cost += u.cost?.total ?? 0;
+    await save("manifest.json", { ...plan, gitCommit: await git(["rev-parse", "HEAD"]), gitStatus: await git(["status", "--porcelain"]), bunVersion: Bun.version, platform: process.platform, arch: process.arch, sourceHashes: hashes, tasks: definitions });
+    const twin = await cliTwinSession();
+    const declarations = twin.session.declarations;
+    await twin.session.close();
+    await writeFile(join(config.out, "declarations.d.ts"), declarations);
+    const profile = join(config.out, "profile");
+    await mkdir(profile);
+    await writeFile(join(profile, "settings.json"), JSON.stringify({ compaction: { enabled: false }, retry: { enabled: false, provider: { maxRetries: 0, timeoutMs: config.timeoutMs } } }));
+    await writeFile(join(profile, "models.json"), JSON.stringify({ providers: { openrouter: {
+      baseUrl: "https://openrouter.ai/api/v1", api: "openai-completions", apiKey: "OPENROUTER_API_KEY",
+      models: [{ id: config.model, contextWindow, maxTokens: config.maxOutputTokens, reasoning: true, input: ["text"], cost: {
+        input: rates.input * 1e6, output: rates.output * 1e6, cacheRead: rates.cacheRead * 1e6, cacheWrite: rates.cacheWrite * 1e6,
+      } }],
+    } } }));
+    const twinConfig = join(config.out, "twin.json");
+    await writeFile(twinConfig, JSON.stringify({ transport: "cli-twin", allow: ["customers", "invoices", "records"] }));
+    let reservedCostUsd = 0;
+    const results: Record<string, unknown>[] = [];
+    const persist = async () => save("results.json", { protocol, artifactVersion, model: config.model, reservedCostUsd, cells: results });
+    for (const cell of cells) {
+      const budget: Budget = { maxRequests: config.maxRequests, maxTokens: config.maxCellTokens, maxCostUsd: config.maxCostUsd! - reservedCostUsd, requestTokens, requestCostUsd };
+      const reason = reserve(budget, 0);
+      if (reason) {
+        results.push({ ...cell, status: "not_run", reason });
+        await persist();
+        continue;
+      }
+      const cwd = join(config.out, cell.id);
+      await mkdir(cwd);
+      const guard: GuardConfig = { budget, model: config.model, maxOutputTokens: config.maxOutputTokens,
+        requestsPath: `${cwd}.requests.jsonl`, stopPath: `${cwd}.stop.json`, promptPath: `${cwd}.effective-prompt.json` };
+      const guardPath = `${cwd}.guard.json`;
+      await writeFile(guardPath, JSON.stringify(guard));
+      const prompt = promptFor(cell.task, cell.condition, join(root, "test/fixture-cli/cli.ts"));
+      await writeFile(`${cwd}.prompt.txt`, prompt);
+      const args = [process.execPath, join(root, "node_modules/@mariozechner/pi-coding-agent/dist/cli.js"),
+        "--provider", "openrouter", "--model", config.model, "--thinking", config.thinking,
+        "--no-session", "--no-extensions", "--no-skills", "--no-prompt-templates", "--no-context-files", "--mode", "json",
+        ...(cell.condition === "A" ? [] : ["-e", join(root, "src/pi/extension.ts")]),
+        "-e", join(root, "examples/benchmark/guard.ts"), "-p", prompt];
+      const { STRATA_CONFIG: _strata, STRATA_BENCHMARK_GUARD: _guard, ...env } = process.env;
+      const processResult = await capture(args, { cwd, env: { ...env, PI_CODING_AGENT_DIR: profile,
+        STRATA_BENCHMARK_GUARD: guardPath, ...(cell.condition === "A" ? {} : { STRATA_CONFIG: twinConfig }) },
+        timeoutMs: config.timeoutMs, stdoutPath: `${cwd}.jsonl`, stderrPath: `${cwd}.stderr` });
+      let requests = 0;
+      try {
+        const receipts = (await readFile(guard.requestsPath, "utf8")).split("\n").filter(Boolean).map((line) => JSON.parse(line) as unknown);
+        for (const [i, receipt] of receipts.entries()) {
+          if (!record(receipt) || receipt.request !== i + 1 || receipt.reservedTokens !== requestTokens || receipt.reservedCostUsd !== requestCostUsd) throw new Error("Invalid request reservation receipt");
+        }
+        requests = receipts.length;
+      } catch (error) { if ((error as NodeJS.ErrnoException).code !== "ENOENT") throw error; }
+      reservedCostUsd += requests * requestCostUsd;
+      const termination = processResult.exitCode === 78 ? "guard" as const : processResult.termination;
+      let guardStop: unknown = null;
+      if (termination === "guard") {
+        try { guardStop = JSON.parse(await readFile(guard.stopPath, "utf8")); }
+        catch { guardStop = { reason: "Guard exited without a stop receipt" }; }
+      }
+      const assessment = assessTrace({ ...cell, model: config.model, stdout: processResult.stdout,
+        exitCode: processResult.exitCode, termination });
+      const unreserved = assessment.modelResponses > requests;
+      if (unreserved) {
+        assessment.harness.healthy = false;
+        assessment.harness.errors.push("Assistant response without a request reservation");
+        assessment.success = false;
+      }
+      const result = { ...cell, status: "attempted", model: config.model, attempt: 1, ...assessment,
+        execution: { exitCode: processResult.exitCode, termination, guardStop, ms: processResult.ms },
+        estimatedCostUsd: assessment.usage.cost === null ? null : assessment.usage.cost + requests * rates.request,
+        reservation: { requests, tokens: requests * requestTokens, costUsd: requests * requestCostUsd },
+        promptBytes: Buffer.byteLength(prompt), declarationBytes: cell.condition === "A" ? 0 : Buffer.byteLength(declarations) };
+      results.push(result);
+      await save(`${cell.id}.json`, result);
+      await persist();
+      console.log(`${cell.id}: success=${assessment.success} healthy=${assessment.harness.healthy} usageComplete=${assessment.accounting.complete}`);
+      if (unreserved) throw new Error("Stopping run: guard request accounting failed");
     }
-    const text = (e.message.content ?? [])
-      .filter((c: { type: string }) => c.type === "text")
-      .map((c: { text?: string }) => c.text ?? "")
-      .join("\n");
-    if (text) finals.push(text);
-  }
-  const finalText = finals.at(-1) ?? "";
-  const forbidden =
-    condition === "A"
-      ? []
-      : Object.keys(toolCounts).filter((t) =>
-          ["bash", "read", "edit", "write"].includes(t),
-        );
-  let pass = false;
-  let note: string | null = null;
-  if (!finals.length) {
-    note = "harness: no assistant response";
-  } else if (typedTexts.some((t) => t.includes("Typed runtime unavailable"))) {
-    // Backend never initialized: any task verdict would misattribute a harness bug.
-    note = "harness: typed runtime unavailable";
-  } else if (forbidden.length) {
-    note = `deviation: forbidden tools used: ${forbidden.join(",")}`;
-  } else if (timeout) {
-    note = "harness: cell timed out (partial transcript analyzed)";
-    const fail = TASKS[task]!.check(
-      { final: finalText, tools: toolTexts.join("\n"), typed: typedTexts.join("\n") },
-      condition,
-    );
-    pass = fail === null;
-    if (!pass) note += `; task: ${fail}`;
-  } else {
-    const fail = TASKS[task]!.check(
-      { final: finalText, tools: toolTexts.join("\n"), typed: typedTexts.join("\n") },
-      condition,
-    );
-    pass = fail === null;
-    note = fail;
-  }
-  return {
-    task,
-    condition,
-    model,
-    fallback,
-    exitCode,
-    timeout,
-    ms: Math.round(ms),
-    pass,
-    note,
-    forbiddenTools: forbidden,
-    toolCounts,
-    usage,
-    capabilityCalls,
-    rawCapabilityBytes,
-    bytesExposedToPi,
-    piToolBytes,
-    promptBytes: Buffer.byteLength(prompt),
-    finalText: finalText.slice(0, 2000),
-  };
-}
-
-const profile = outDir + "/profile";
-const twinConfig = outDir + "/twin.json";
-await mkdir(outDir, { recursive: true });
-const models = await ensureProfile(profile);
-await Bun.write(twinConfig, JSON.stringify({ transport: "cli-twin", allow: ["customers", "invoices", "records"] }));
-
-// Static context accounting: twin declaration bytes (no model involved).
-import { cliTwinSession } from "./cli-twin.ts";
-const twinProbe = await cliTwinSession();
-const declarationBytes = Buffer.byteLength(twinProbe.session.declarations);
-await twinProbe.session.close();
-
-const cells: CellRecord[] = [];
-const tasks: TaskId[] = ["T1", "T2", "T3", "T4"];
-const conds: Condition[] = ["A", "B", "C"];
-for (const task of tasks) {
-  for (const cond of conds) {
-    const id = `${task}:${cond}`;
-    if (selected.size && !selected.has(id)) continue;
-    const cwd = `${outDir}/cell-${id}`;
-    await mkdir(cwd, { recursive: true });
-    console.log(`--- cell ${id} ---`);
-    const record = await runCell(task, cond, profile, twinConfig, models, cwd);
-    await Bun.write(`${outDir}/cell-${id}.json`, JSON.stringify(record, null, 2));
-    cells.push(record);
-    console.log(
-      `${id} model=${record.model}${record.fallback ? " (fallback)" : ""} pass=${record.pass} ms=${record.ms} tools=${JSON.stringify(record.toolCounts)} tokens=${record.usage.totalTokens} cost=${record.usage.cost.toFixed(6)} note=${record.note ?? "-"}`,
-    );
+    // Incorrect answers are data; incomplete execution/accounting/adherence invalidates a comparison run.
+    if (results.some((r) => r.status !== "attempted" || !record(r.harness) || !r.harness.healthy || !record(r.accounting) || !r.accounting.complete || !record(r.policy) || !r.policy.compliant)) process.exitCode = 1;
+    console.log(`Results: ${join(config.out, "results.json")}`);
+  } catch (error) {
+    await save("failure.json", { error: error instanceof Error ? error.message : String(error) });
+    throw error;
   }
 }
-await Bun.write(
-  `${outDir}/results.json`,
-  JSON.stringify(
-    {
-      protocol: "001-v1",
-      models,
-      timeoutMs,
-      declarationBytes,
-      cells,
-    },
-    null,
-    2,
-  ),
-);
-console.log(`\n${cells.filter((c) => c.pass).length}/${cells.length} cells passed. Results: ${outDir}/results.json`);

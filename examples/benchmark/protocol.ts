@@ -82,7 +82,7 @@ export interface Usage {
 export interface TraceInput {
   task: Task; condition: Condition; model: string;
   stdout: string; exitCode: number | null;
-  termination: "timeout" | "output_limit" | "budget" | "spawn_error" | null;
+  termination: "timeout" | "output_limit" | "budget" | "guard" | "spawn_error" | null;
 }
 
 /** Parse Pi's event stream, never console/tool text impersonating an assistant. */
@@ -107,10 +107,12 @@ export function assessTrace(input: TraceInput) {
     if (!record(event) || typeof event.type !== "string") { errors.push("Invalid event shape"); continue; }
     if (event.type === "session") continue;
     if (ended) { errors.push("Event after agent_end"); continue; }
+    if (!started && event.type !== "agent_start") errors.push("Event before agent_start");
     if (event.type === "agent_start") {
       if (started) errors.push("Duplicate agent_start");
       started = true;
     } else if (event.type === "agent_end") {
+      if (!Array.isArray(event.messages)) errors.push("Invalid agent_end");
       ended = true;
     } else if (event.type === "tool_execution_start") {
       if (typeof event.toolCallId !== "string" || typeof event.toolName !== "string" || seenCalls.has(event.toolCallId)) {
@@ -147,7 +149,7 @@ export function assessTrace(input: TraceInput) {
         capabilityCalls += m.capabilityCalls as number;
         rawCapabilityBytes += m.rawCapabilityBytes as number;
         bytesExposedToPi += m.bytesExposedToPi as number;
-        if (input.condition === "B" && (m.calls.length > 1 || (m.diagnostics.length === 0 && m.calls.length !== 1))) {
+        if (input.condition === "B" && ((m.capabilityCalls as number) > 1 || m.calls.length > 1 || (m.diagnostics.length === 0 && m.calls.length !== 1))) {
           violations.push("B requires one attempted capability call per executed program");
         }
         const rejected = event.isError && m.capabilityCalls === 0 && m.calls.length === 0 &&
@@ -174,6 +176,7 @@ export function assessTrace(input: TraceInput) {
       const content = textContent(message.content);
       finalText = content ?? "";
       if (content === null) errors.push("Invalid assistant content");
+      if (message.stopReason === "stop" && Array.isArray(message.content) && message.content.some((b) => record(b) && b.type === "toolCall")) errors.push("Final answer contains an unexecuted tool call");
       if (message.model !== input.model || message.provider !== "openrouter") errors.push("Unexpected model/provider");
       if (["error", "aborted", "length"].includes(String(message.stopReason))) errors.push(`Assistant stopped: ${message.stopReason}`);
       const u = record(message.usage) ? message.usage : {};
@@ -208,7 +211,7 @@ export function assessTrace(input: TraceInput) {
     policy: { compliant: violations.length === 0, violations: [...new Set(violations)] },
     harness: { healthy, errors: [...new Set(errors)] },
     accounting: { complete: assistantCount > 0 && accounting.length === 0, issues: [...new Set(accounting)] },
-    usage, toolCounts, finalText,
+    usage, toolCounts, finalText, modelResponses: assistantCount,
     metrics: { piToolBytes, capabilityCalls: typedMetricsComplete && input.condition !== "A" ? capabilityCalls : null,
       rawCapabilityBytes: typedMetricsComplete && input.condition !== "A" ? rawCapabilityBytes : null,
       bytesExposedToPi: typedMetricsComplete && input.condition !== "A" ? bytesExposedToPi : null },
