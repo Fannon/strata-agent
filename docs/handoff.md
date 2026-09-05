@@ -12,11 +12,11 @@ Updated 2026-09-05 after import-alias `4875c8c`; implementation/verification cla
 
 ## Delivered and verified
 
-The Pi extension provides checked fresh TypeScript programs, a multi-module policy/validation broker, MCP/CLI fixtures and lexical catalog search/load. Capability modules import as `@c/<id>` (`@cap/<id>` remains accepted). Native filesystem/search/Git APIs, parameter-aware filesystem grants and mechanically strict tool profiles are not built.
+The Pi extension provides checked fresh TypeScript programs, a multi-module policy/validation broker, MCP/CLI fixtures and lexical catalog search/load. Capability modules import as `@c/<id>` (`@cap/<id>` remains accepted). A native read-only repository capability (`readText`, literal `searchText`, fixed-argv `gitStatus`) enforces root scoping and byte/match/file caps in trusted host code; `STRATA_STRICT=1` blocks direct file/shell tools for typed-only comparisons. Native filesystem/search/Git APIs beyond this slice, parameter-aware mutation grants and persistent typed state are not built.
 
 The fixture runner now uses independent exact answer oracles and complete Pi event traces. It separates correctness, tool adherence, harness health and accounting; incomplete executions cannot be completed successes. Cold repeats have unique artifacts and rotated condition order. Conservative reservations precede each model request; failed receipt writes stop dispatch. Missing usage remains null. Requests, effective prompts, task/source hashes, pricing and every cell's outputs/verdicts are retained locally. No automatic retries or fallback models.
 
-Typecheck and 53 tests pass. A real pinned Pi CLI is exercised against a loopback fake SSE provider, including compile rejection, successful typed recovery and refusal before an excess request. No paid v2 benchmark was run. The old 9/12 fixture pilot remains historical evidence and does not establish product advantage.
+Typecheck and 66 tests pass. A 27-cell feasibility pilot (3 seeded repo tasks × stock/typed+tools/typed-only × 3 repeats, muse-spark-1.3-contributor, $0.013) solved every cell; typed arms used only `typed_program`, stock used read/bash. Mean tokens: stock ≈2.8k, typed-only ≈4.7k, hybrid ≈5.7k — declarations dominate on tiny payloads, so no cost advantage at this scale. Wiring evidence only: tasks are easy and the strict arm met no temptation. A real pinned Pi CLI is exercised against a loopback fake SSE provider, including compile rejection, successful typed recovery and refusal before an excess request. No paid v2 fixture benchmark was run. The old 9/12 fixture pilot remains historical evidence and does not establish product advantage.
 
 ```sh
 bun run check

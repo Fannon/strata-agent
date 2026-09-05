@@ -10,8 +10,30 @@ import {
   type CatalogEntry,
 } from "../capabilities/catalog.ts";
 import { createSession } from "../session.ts";
+import { connectRepo } from "../capabilities/repo/connector.ts";
 import { fixtureSession, fixtureAllowed } from "../../examples/fixture.ts";
 import { cliTwinConnection } from "../../examples/cli-twin.ts";
+
+/**
+ * Strict profile: direct-effect Pi tools blocked at the `tool_call` hook so a
+ * typed-only arm cannot quietly fall back to shell/filesystem tools.
+ * Exported for unit testing; the hook itself fires in the agent loop.
+ */
+export const strictBlockedTools = new Set([
+  "bash",
+  "read",
+  "write",
+  "edit",
+  "find",
+  "grep",
+  "ls",
+]);
+export function isStrictBlocked(toolName: string): boolean {
+  return strictBlockedTools.has(toolName);
+}
+export function strictMode(): boolean {
+  return process.env.STRATA_STRICT === "1";
+}
 
 type Session = Awaited<ReturnType<typeof createSession>>;
 type AllowFor = (id: string) => ReadonlySet<string> | undefined;
@@ -140,6 +162,39 @@ export async function sessionFromConfig(
       throw error;
     }
   }
+  if (record.transport === "repo") {
+    const { root, allow, maxReadBytes, maxMatches, maxFilesScanned } =
+      record as Record<string, unknown>;
+    if (
+      typeof root !== "string" ||
+      !Array.isArray(allow) ||
+      !allow.every((a) => typeof a === "string")
+    )
+      throw new Error(
+        "STRATA_CONFIG repo requires root: string, allow: string[]",
+      );
+    const { manifest, connector } = await connectRepo({
+      root: root as string,
+      ...(typeof maxReadBytes === "number" ? { maxReadBytes } : {}),
+      ...(typeof maxMatches === "number" ? { maxMatches } : {}),
+      ...(typeof maxFilesScanned === "number" ? { maxFilesScanned } : {}),
+    });
+    try {
+      const session = await createSession(
+        manifest,
+        connector,
+        new Set(allow as string[]),
+      );
+      return {
+        session,
+        allowFor: () => new Set(allow as string[]),
+        initialIds: ["repo"],
+      };
+    } catch (error) {
+      await connector.close();
+      throw error;
+    }
+  }
   const { id, command, args, allow } = record;
   if (
     typeof id !== "string" ||
@@ -186,6 +241,14 @@ export default function strata(pi: ExtensionAPI) {
   const loaded = new Set<string>();
   const loadedTexts = new Map<string, string>();
   let startupError: string | undefined;
+  pi.on("tool_call", async (event) => {
+    if (strictMode() && isStrictBlocked(event.toolName))
+      return {
+        block: true,
+        reason: `STRATA_STRICT: ${event.toolName} is disabled; use typed_program with @c/repo instead.`,
+      };
+    return undefined;
+  });
   pi.on("session_start", async () => {
     try {
       if (typeof Bun === "undefined")
