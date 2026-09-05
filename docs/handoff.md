@@ -1,5 +1,7 @@
 # Next-agent handoff
 
+**Architecture update (takes precedence over older sequencing below):** The enduring architecture is the typed capability layer: discoverable contracts, semantic checking, composable repository/API/MCP functions, runtime validation, permission-aware implementations and observability. The execution engine is an implementation choice. QuickJS remains the implemented baseline; direct Bun is a first-class planned alternative, without a prerequisite to prove QuickJS is slow. Execution containment is a separate concern. This documentation decision does not itself implement or select a runtime migration. Next planning sequence: reconcile delivered slices, select minimal 026 tracing plus 027 executor comparison, run deterministic checks, then matched repository trials under an explicit budget. Full observability and a new sandbox are not prerequisites. Preserve completed results and do not redo completed cancellation/read work.
+
 Updated 2026-09-05 after import-alias `4875c8c`; implementation/verification claims refer to that revision. Recheck current Git status and coordinate concurrent edits before starting. The user requested a return to planning/architecture/documentation after completing and pushing that repair. Remaining implementations are recommendations awaiting selection, not an instruction to start every issue.
 
 ## Read in this order

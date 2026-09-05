@@ -14,6 +14,12 @@ Protocol `009-v2` delivers exact schema/value oracles, structured trace assessme
 
 The [next-agent handoff](handoff.md) prioritizes useful native tasks before a full fixture repeat campaign. Start with a feasible stock/hybrid/strict pilot; reuse this plan for later robust held-out evaluation. [Code Mode research](research/code-mode.md) motivates a separate semantic-checking ablation once task value is established.
 
+## Execution engine as an independent dimension
+
+Compare direct Bun with the existing QuickJS executor without first requiring a QuickJS bottleneck. Keep capability schemas/backends, semantic checking, tasks, model, prompts and fresh execution semantics matched. Record engine/version, Pi tool profile, external containment and enforced-versus-observed API adherence separately. Removing direct Pi tools does not constrain ambient Bun access.
+
+Start with deterministic no-op, trivial-call, payload-size and computation probes, then useful repository tasks. Separate compiler time, executor startup, bridge/serialization, adapter work and end-to-end latency; measure memory and tracing overhead. Keep the stock Pi baseline free to write scripts under equivalent external restrictions where possible; report mismatches. Do not disable typechecking or add persistence in the same comparison. This is a bounded executor experiment, not a requirement for a full factorial campaign. Cooperative API use and bypass resistance answer different questions.
+
 ## Questions and conditions
 
 Primary question: with equivalent access and a fixed model, does Strata preserve task success while lowering total token cost, elapsed time, or retries on useful repository workflows?

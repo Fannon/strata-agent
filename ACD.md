@@ -4,6 +4,8 @@ Status: proposed direction, 2026-09-05. This ACD describes the next experiment; 
 
 ## Product question
 
+**Revised architectural decision (2026-09-05):** The enduring architecture is the typed capability layer: discoverable contracts, semantic checking, composable repository/API/MCP functions, runtime validation, permission-aware implementations and observability. The execution engine is an implementation choice. QuickJS remains the implemented baseline; direct Bun is a first-class planned alternative, without a prerequisite to prove QuickJS is slow. Execution containment is a separate concern. This documentation decision does not itself implement or select a runtime migration.
+
 Can a coding agent complete real repository work more reliably or cheaply by composing typed operations in small TypeScript programs? Strata tests that question inside Pi, retaining its model integration and agent loop. The desired improvement is less work spent constructing shell strings, parsing output, recovering from interface mistakes, and moving intermediate data through model context.
 
 The value is an experiment, not an assumed superiority of TypeScript. Bash already composes well and models have extensive experience with CLI conventions. Python/IPython offers another capable programming environment. A negative result that explains where typed interfaces help or hurt, and teaches us about Pi and harness design, is a successful project outcome.
@@ -130,8 +132,8 @@ For a small local read-only experiment, trusted adapters plus scoped checks and 
 | Alternative | Decision / revisit trigger |
 | --- | --- |
 | Improve stock Pi prompts and shell recipes only | Keep as a strong baseline; it may win through familiar interfaces and low overhead |
-| Execute generated TS directly in Bun | Defer: native ergonomics come with ambient host authority unless an external sandbox enforces policy; changing runtime also confounds evaluation |
-| Current QuickJS plus narrow native adapters | Recommended next slice: reuse the working compiler/broker while adding useful repository semantics |
+| Execute generated TS directly in Bun | Next planned executor comparison; preserve contracts/checking and explicitly label ambient authority or externally enforced containment |
+| Current QuickJS plus narrow native adapters | Implemented baseline and constrained execution option; not the mandatory future engine |
 | Wrap all Unix commands one-for-one | Reject as the design goal: preserves incidental flags and parsing; support actual workflows incrementally |
 | Persistent TypeScript REPL like IPython | Defer until rerun costs/state needs are measured; adds hidden state, replay and invalidation burdens |
 | Automatically resolve dependency/supersession graphs | Defer; static related metadata is enough until discovery evidence demands more |
@@ -148,8 +150,48 @@ Supersession means a declared compatibility/replacement relationship, not the sa
 
 The decision criteria, failure taxonomy and evidence artifact contract are in [the evaluation plan](docs/evaluation.md). No paid experiment or implementation beyond documentation is implied by this plan.
 
+## Critical assessment and evidence priorities
+
+Separate four hypotheses: structured operation contracts reduce interface mistakes; code composition reduces model round trips and intermediate context; semantic TypeScript checking prevents enough failed calls to justify its cost; mediated execution improves control and diagnosis. Success of one does not establish the others. Stock Pi must be allowed to compose shell commands and write Python/Bun scripts: the motivating semicolon-separated orientation command is already one execution. Compare total task effort, not an unfiltered baseline against a filtered Strata result.
+
+Expect the strongest opportunity in predictable dependent operations and structured aggregation. Exploratory debugging needs intermediate observations and may benefit from shorter programs. A type-correct program can still search the wrong files or compute the wrong answer. Count declaration/source tokens, diagnostics, repair attempts, compile/runtime overhead and failures alongside reductions in returned data. A hybrid toolset is a credible product outcome; strict mode is also an experimental instrument for measuring capability gaps. Keep persistent state, broad catalogs and capability relationship machinery conditional on evidence.
+
+For backend selection, start with native Bun APIs, then the Node-compatible standard library. Add a library only for a demonstrated semantic gap, material maintenance savings or measured benefit over the applicable built-in. Bun.Glob is the first path-discovery candidate; fast-glob is conditional. Native speed is not assumed, and milliseconds saved in an adapter must be assessed against end-to-end model latency. Preserve mature executables where their semantics earn the subprocess cost.
+
+## Permission-aware functions and execution alternatives
+
+Permission handling inside provided functions is part of the intended architecture. Keep common validation, operation grants and instrumentation in the broker; keep resource resolution and operation-specific enforcement in trusted implementations close to I/O. This avoids scattering independent approval systems across functions. The generated program may freely perform pure computation; the restriction concerns access to effects, not whether every function call belongs to our API.
+
+Static source checks are useful early feedback, but do not by themselves make wrappers unavoidable. In a runtime with ambient filesystem, network or process authority, a program could access those facilities through globals or other reachable objects without an approved import. Type assertions and computed access also limit what syntax checks establish. Do not claim that checking imports, hiding declarations or scanning function names provides runtime confinement.
+
+The present design combines restricted source imports with a QuickJS module loader exposing only loaded capability modules and explicit host bridges. Even direct use of the internal invocation bridge must pass the broker's validation and grants. Trusted host dependencies retain host authority; this is not OS isolation. Repository resource checks are best-effort and retain the documented path-check/open race limitation.
+
+Three alternatives deserve distinct labels:
+
+| Execution choice | What it provides / costs |
+| --- | --- |
+| QuickJS plus brokered Bun functions (current) | Deliberate host access surface; extra runtime, serialization and integration work |
+| Direct Bun plus checked imports and permission-aware wrappers | Simpler experiment for cooperative code; ambient access can bypass wrappers, so neither complete enforcement nor complete tracing is established |
+| Direct Bun inside an independently enforced sandbox | Potential native execution benefits; requires a concrete supported containment mechanism and equivalent resource policy, while direct operations still need instrumentation |
+
+Evaluate direct Bun as a first-class alternative; simpler integration and native ergonomics are hypotheses alongside performance. Retain QuickJS for comparison, without making evidence of a bottleneck a prerequisite. A direct-Bun experiment must hold API/task/policy differences explicit and test bypasses as well as performance; it is not authorized by documenting the alternative. No language runtime speed claim substitutes for a task-level comparison.
+
+Keep discovery, contracts, checking, broker policy and instrumentation independent of executor-specific handles/messages. Introduce only the small execution interface required by the second implementation: checked emitted code and capability bindings in; result, diagnostics, cancellation and trace events out. Direct Bun should start in a disposable worker/process, not evaluate generated code in Pi's host context. A worker is a lifecycle boundary, not filesystem/network containment. Preserve fresh-run semantics initially; persistence and disabling typechecking are separate experiments.
+
+Record engine, tool profile and containment independently. Removing Pi's bash/read/write tools does not prevent a Bun program using ambient APIs. Such runs measure cooperative API adherence unless an independent enforcement mechanism establishes exclusivity. Use the same external restrictions as the scripting baseline where possible and document mismatches. Wrapper traces describe mediated calls, not proof of all effects.
+
+## Observability: current foundation and missing contract
+
+Source inspection on 2026-09-05 (`src/session.ts`, `src/capabilities/broker.ts`) finds source bytes, aggregate compilation/execution durations, bounded diagnostics/logs, operation attempts, whether the connector was invoked, failure stages, raw result bytes and bytes exposed to Pi. Benchmark artifacts separately retain model requests and traces. These are useful diagnostics, not yet a complete operational trace.
+
+Missing pieces include session/program/call correlation, per-operation durations, explicit cancellation/timeout/resource-denial categories, backend identity, discovery/load timing and a bounded durable developer trace separate from model-facing output. Today connector exceptions become `transport` failures, including repository policy denials; `invoked` means connector entry, not proof that a filesystem or Git effect occurred. Report truncation can remove call detail, so the model report cannot serve as the sole audit record.
+
+Add a small versioned event contract and optional local JSONL sink before considering a telemetry platform. Each attempted call needs a correlated outcome, monotonic duration, operation/backend identity, bounded size/completeness metadata and a machine-readable policy/error category. Distinguish queue, approval and adapter time when present; overlapping call durations cannot simply be summed into wall-clock time. Correlate with Pi model timing/usage where available, preserving missing values rather than reporting zero.
+
+Default diagnostics should exclude raw file contents, arguments, source and secrets; resource metadata and errors need redaction too. Make detailed capture explicit and bounded, with retention and dropped-event counts. Define behavior when the sink fails; diagnostic collection and any future mandatory audit mode have different requirements. Trace replay must never automatically re-execute effects. Local issues 026/027 cover implementation and the runtime alternative; 012 owns resource authorization.
+
 ## Prior-art and handoff refinement
 
 [Cloudflare Code Mode](docs/research/code-mode.md) shares the core tools-as-code mechanism. Strata's incremental question is whether semantic checking, purpose-designed local APIs and Bun-backed adapters earn their cost. A future checked/unchecked ablation must preserve schemas, runtime policy and task access; it is not a faithful Cloudflare runtime comparison. Prime's local source is available for studying persistence, feedback and orchestration separately from language choice.
 
-The recommended next slice in [handoff](docs/handoff.md) is cancellation → scoped reads → one expressible seeded repository workflow → stock/hybrid/strict feasibility pilot. A hybrid-versus-strict pair measures shell removal; stock Pi is required to assess value over the existing approach. One run is a wiring check, not a claim about model training or general performance. Native Bun remains behind trusted operation boundaries; a different execution engine needs its own justified experiment.
+The recommended next slice in [handoff](docs/handoff.md) is cancellation → scoped reads → one expressible seeded repository workflow → stock/hybrid/strict feasibility pilot. A hybrid-versus-strict pair measures shell removal; stock Pi is required to assess value over the existing approach. One run is a wiring check, not a claim about model training or general performance. The current QuickJS implementation keeps Bun behind trusted operation boundaries. The revised executor comparison evaluates direct Bun separately, preserving API contracts and labeling ambient access explicitly.

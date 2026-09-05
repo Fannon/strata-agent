@@ -4,7 +4,7 @@
 
 Coding agents often spend a tool call assembling shell commands to read files, list directories, inspect Git, and parse the resulting text. Strata explores a different interface: purposeful typed functions that return structured values, composed with ordinary TypeScript. The agent can fetch, filter and combine data in one checked program, returning only what the next reasoning step needs.
 
-The intended payoff is fewer interface mistakes, less intermediate data in context, and fewer model round trips. Those are hypotheses. Bash already composes well, models know its conventions, and compilation/declarations add overhead. The experiment is worthwhile even if the result is a narrower useful tool or a better understanding of Pi and agent harnesses.
+The execution engine is replaceable; typed capabilities are the architectural commitment. The intended payoff is fewer interface mistakes, less intermediate data in context, and fewer model round trips. Those are hypotheses. Bash already composes well, models know its conventions, and compilation/declarations add overhead. The experiment is worthwhile even if the result is a narrower useful tool or a better understanding of Pi and agent harnesses.
 
 Strata currently extends [Pi](https://github.com/earendil-works/pi), with Bun hosting a TypeScript checker and fresh QuickJS executions. It adds `typed_program`, `search_capabilities`, and `load_capability`. Programs call schema-derived `api.*` functions; a broker validates inputs/outputs and applies local operation allowlists. MCP, a deterministic CLI twin, and a minimal multi-module catalog work today. Pi's normal tools remain available.
 
@@ -193,6 +193,8 @@ MCP metadata first becomes a protocol-independent `CapabilityModule`. This manif
 TypeScript cannot express every JSON Schema constraint: integers, bounds and other constraints still need runtime checks. Type assertions can bypass static checking, so the broker validates even a program using `as any`. Diagnostic-suppression comments are rejected. JSON Schema generation uses `json-schema-to-typescript`; validation uses AJV's 2020-12 implementation with formats. Local schema references are supported; external file/HTTP references fail setup rather than fetching dependencies. Schemas that cannot be compiled fail setup instead of silently degrading to a fabricated type.
 
 ### Why Bun plus QuickJS?
+
+QuickJS is the current executor, not a product requirement. The lasting interface is the typed capability layer spanning repository operations, APIs and MCP. Direct Bun is a planned alternative using the same contracts, semantic checker, permission-aware functions and instrumentation. Import checks alone do not establish containment. See the [ACD](ACD.md#permission-aware-functions-and-execution-alternatives).
 
 Bun hosts Pi, the language service, MCP connections, and worker scheduling. Programs execute **inside QuickJS compiled to WebAssembly**, not directly in Bun. They see standard ECMAScript computation and the generated capability bindings, without `Bun`, `process`, filesystem libraries, `fetch`, or host module loading. The worker can be terminated without terminating Pi; QuickJS has an interrupt handler and a memory limit.
 

@@ -4,6 +4,8 @@ Prototype reviewed at `5079c4d`; benchmark repair delivered in `1513917` on 2026
 
 ## Decision
 
+This document describes the implemented QuickJS executor. The revised [ACD](ACD.md#product-question) makes the typed capability layer enduring and execution replaceable. Direct Bun is a planned comparison, not implemented behavior; preserve contracts, semantic checking, broker validation and observability across engines.
+
 Strata is a Pi extension, with Bun as its host runtime and QuickJS/WASM inside a fresh Bun worker for every checked program. A persistent TypeScript 5.9.3 language service checks complete modules. MCP tool metadata is normalized before generating declarations or invoking operations. One broker owns local authorization, validation and per-call instrumentation across all loaded capability modules, keyed by capability and operation.
 
 No Pi core blocker was found; no core files were changed. This prototype requires starting Pi under Bun. Node-hosted Pi support would need a different worker host or a Bun subprocess bridge, not a core fork.
