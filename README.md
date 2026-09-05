@@ -217,6 +217,7 @@ The live smoke test additionally records Pi's model usage. Generated declaration
 - `src/capabilities/`: manifest, schema tooling and policy/validation broker.
 - `src/capabilities/mcp/`: metadata adapter and MCP SDK connector.
 - `src/capabilities/cli/`: process-based connector (argv arrays, JSON stdout, exit/stderr translation).
+- `src/capabilities/repo/`: native read-only repository connector (root-scoped `readText`, literal `searchText`, fixed-argv `gitStatus`) with best-effort path containment.
 - `src/capabilities/catalog.ts`: single-file TS catalog, static `meta` extraction, lexical search.
 - `catalog/`: capability entries (core + records-on-demand twin split).
 - `src/runtime/`: Bun worker lifecycle and QuickJS execution.
