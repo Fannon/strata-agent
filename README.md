@@ -1,6 +1,6 @@
 # strata-agent
 
-**Small TypeScript programs for coding-agent work, with typed tools and controlled effects.**
+**Strata is a coding agent that calls its tools from small TypeScript programs — checked before execution, authorized at every call.**
 
 Coding agents often spend a tool call assembling shell commands to read files, list directories, inspect Git, and parse the resulting text. Strata explores a different interface: purposeful typed functions that return structured values, composed with ordinary TypeScript. The agent can fetch, filter and combine data in one checked program, returning only what the next reasoning step needs.
 
