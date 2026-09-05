@@ -5,7 +5,12 @@ export interface CapabilityOperation {
   description?: string;
   inputSchema: JsonSchema;
   outputSchema?: JsonSchema;
-  metadata?: { readOnly?: boolean; destructive?: boolean; idempotent?: boolean; openWorld?: boolean };
+  metadata?: {
+    readOnly?: boolean;
+    destructive?: boolean;
+    idempotent?: boolean;
+    openWorld?: boolean;
+  };
 }
 export interface CapabilityModule {
   id: string;
@@ -19,7 +24,12 @@ export interface CapabilityResult {
   rawBytes: number;
 }
 export interface CapabilityConnector {
-  invoke(operation: string, input: Record<string, unknown>, signal: AbortSignal): Promise<CapabilityResult>;
+  invoke(
+    operation: string,
+    input: Record<string, unknown>,
+    signal: AbortSignal,
+  ): Promise<CapabilityResult>;
   close(): Promise<void>;
 }
-export const bytes = (value: unknown): number => Buffer.byteLength(JSON.stringify(value) ?? "null");
+export const bytes = (value: unknown): number =>
+  Buffer.byteLength(JSON.stringify(value) ?? "null");

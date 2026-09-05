@@ -1,3 +1,4 @@
+declare const console: { log(...values: unknown[]): void };
 declare module "@cap/fixture" {
 namespace Op0 {
 export interface Input0 {}
