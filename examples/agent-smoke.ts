@@ -68,6 +68,9 @@ await Bun.write(
 const prompt = `Test typed_program using only its fixture API. First intentionally call customers with county instead of country and verify the compiler rejects it. Then use one valid typed_program call to: fetch DE customers, fetch their invoices, fetch 10000 records, and return exactly {customerIds: customers.map(c=>c.id), invoiceIds: invoices.map(i=>i.id), recordIds: records.filter(r=>r.score>0.98).slice(0,3).map(r=>r.id)} (adapt variable names to the actual structured response). Do not use bash/read/edit/write or any other tool. Report the observed results and rawCapabilityBytes versus bytesExposedToPi. Stop after those checks.`;
 for (const model of models) {
   console.log(`Testing openrouter/${model.id}`);
+  // Fixture selection is explicit: the child gets no STRATA_CONFIG at all.
+  // (Unset, empty or whitespace-only all select the deterministic fixture.)
+  const { STRATA_CONFIG: _ignored, ...baseEnv } = process.env;
   const child = Bun.spawn(
     [
       process.execPath,
@@ -92,7 +95,7 @@ for (const model of models) {
     ],
     {
       cwd,
-      env: { ...process.env, PI_CODING_AGENT_DIR: profile, STRATA_CONFIG: "" },
+      env: { ...baseEnv, PI_CODING_AGENT_DIR: profile },
       stdout: "pipe",
       stderr: "pipe",
     },

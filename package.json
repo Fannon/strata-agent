@@ -13,7 +13,7 @@
     "check": "tsc --noEmit",
     "demo": "bun examples/demo.ts",
     "generate": "bun examples/generate.ts",
-    "pi": "bun node_modules/@mariozechner/pi-coding-agent/dist/cli.js -e ./src/pi/extension.ts",
+    "pi": "bun node_modules/@mariozechner/pi-coding-agent/dist/cli.js --no-extensions -e ./src/pi/extension.ts",
     "test:agent": "bun examples/agent-smoke.ts"
   },
   "pi": {

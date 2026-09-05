@@ -6,6 +6,8 @@ The vision is an agent whose tool execution flows through explicit, typed APIs�
 
 The first proof of concept is a small experiment built on [Pi](https://github.com/badlogic/pi-mono), hosted by Bun. It adds one tool, `typed_program`: the agent writes a complete TypeScript program against schema-derived capability functions, Strata checks it before execution, and a broker validates and authorizes every capability call. This first slice derives typed functions from MCP schemas. Typed CLI wrappers are a future step; Pi's normal `read`, `edit`, `write`, and `bash` tools remain available.
 
+> **What the model sees:** one Pi tool (`typed_program`) containing many typed functions (`api.*` inside the program). `bash` stays as the intentional escape hatch and benchmark baseline — replacing it with typed CLI wrappers is tracked work, not shipped behavior.
+
 The hypothesis: small programs can replace repeated tool-call round trips when a task needs structured composition, filtering, or aggregation. A deterministic demo processes **1,947,738 bytes** from an MCP capability and returns **about 400 bytes** to Pi, including execution metrics. This demonstrates data-volume reduction, not yet better task success or lower overall model cost.
 
 ## Get started
@@ -87,6 +89,13 @@ STRATA_CONFIG=/absolute/path/to/config.json bun run pi
 The model can then `import { api } from '@cap/catalog'`. Use exact original MCP tool names: `api.search(...)`, or `api['search-records'](...)`. Names are preserved as quoted TypeScript properties, avoiding collisions caused by camel-casing or punctuation replacement. Duplicate names are rejected.
 
 Configuration is trusted operator input. `allow` is an explicit local allowlist; missing operations are denied even if the server advertises them as read-only. The MVP connects one **stdio** MCP server per session. Authentication configuration, HTTP transports, and capability discovery are not built yet. The MCP SDK controls the subprocess environment; Strata does not expose environment variables to generated programs.
+
+### Troubleshooting
+
+- **Bun required:** Strata runs Pi under Bun (`bun run pi`). Under plain Node the extension throws `Strata requires Bun. Start with bun run pi.` Tested with Bun 1.4.1 on Linux.
+- **Broken global Pi extensions:** `bun run pi` passes `--no-extensions` so a broken user-level package (e.g. `npm:pi-lean-portal` failing with `Cannot find module '@earendil-works/pi-server'`) cannot abort startup; the Strata extension still loads via explicit `-e`. Manage globals with `pi list` / `pi remove <source>`.
+- **`STRATA_CONFIG`:** must be an absolute path to the JSON file. Unset, empty or whitespace-only selects the deterministic fixture — no MCP setup needed.
+- **Model keys:** no API key is needed for `check`, `test`, `demo` or fixture `pi` runs. Only `bun run test:agent` needs `OPENROUTER_API_KEY`.
 
 ## How it works
 

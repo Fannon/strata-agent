@@ -5,12 +5,12 @@ import { connectMcp } from "../capabilities/mcp/connector.ts";
 import { createSession } from "../session.ts";
 import { fixtureSession } from "../../examples/fixture.ts";
 
-/** Trusted operator configuration, read once at session startup. */
+/** Trusted operator configuration, read once at session startup.
+ * An unset, empty or whitespace-only STRATA_CONFIG selects the deterministic fixture. */
 async function configuredSession() {
-  if (!process.env.STRATA_CONFIG) return fixtureSession();
-  const config: unknown = JSON.parse(
-    await readFile(process.env.STRATA_CONFIG, "utf8"),
-  );
+  const raw = (process.env.STRATA_CONFIG ?? "").trim();
+  if (!raw) return fixtureSession();
+  const config: unknown = JSON.parse(await readFile(raw, "utf8"));
   if (!config || typeof config !== "object")
     throw new Error("STRATA_CONFIG must contain an object");
   const { id, command, args, allow } = config as Record<string, unknown>;
