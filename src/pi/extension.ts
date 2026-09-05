@@ -223,6 +223,7 @@ export default function strata(pi: ExtensionAPI) {
     parameters: Parameters<typeof pi.registerTool>[0]["parameters"],
     execute: (
       params: Record<string, unknown>,
+      signal?: AbortSignal,
     ) => Promise<{ content: [{ type: "text"; text: string }]; details: object }>,
   ) =>
     pi.registerTool({
@@ -231,8 +232,8 @@ export default function strata(pi: ExtensionAPI) {
       description,
       promptSnippet,
       parameters,
-      async execute(_id, params) {
-        return execute(params as Record<string, unknown>);
+      async execute(_id, params, signal) {
+        return execute(params as Record<string, unknown>, signal);
       },
     });
   tool(
@@ -247,12 +248,15 @@ export default function strata(pi: ExtensionAPI) {
         maxLength: 32768,
       }),
     }),
-    async (params) => {
+    async (params, signal) => {
       if (!session)
         throw new Error(
           `Typed runtime unavailable: ${startupError ?? "session not started"}`,
         );
-      const report = await session.run(params.source as string, {});
+      const report = await session.run(
+        params.source as string,
+        signal ? { signal } : {},
+      );
       if (report.error) throw new Error(report.text);
       return {
         content: [{ type: "text" as const, text: report.text }],
