@@ -1,14 +1,18 @@
 # strata-agent
 
-**A Bun-based coding agent harness where tools become typed TypeScript functions.**
+**Small TypeScript programs for coding-agent work, with typed tools and controlled effects.**
 
-The vision is an agent whose tool execution flows through explicit, typed APIs—including CLI commands wrapped as typed functions. Instead of assembling shell strings and interpreting text output at every step, the agent writes small TypeScript programs that call tools, compose their results, and return what matters. Programs are checked before execution; external effects pass through controlled runtime bindings.
+Coding agents often spend a tool call assembling shell commands to read files, list directories, inspect Git, and parse the resulting text. Strata explores a different interface: purposeful typed functions that return structured values, composed with ordinary TypeScript. The agent can fetch, filter and combine data in one checked program, returning only what the next reasoning step needs.
 
-The first proof of concept is a small experiment built on [Pi](https://github.com/badlogic/pi-mono), hosted by Bun. It adds one tool, `typed_program`: the agent writes a complete TypeScript program against schema-derived capability functions, Strata checks it before execution, and a broker validates and authorizes every capability call. This first slice derives typed functions from MCP schemas. Typed CLI wrappers are a future step; Pi's normal `read`, `edit`, `write`, and `bash` tools remain available.
+The intended payoff is fewer interface mistakes, less intermediate data in context, and fewer model round trips. Those are hypotheses. Bash already composes well, models know its conventions, and compilation/declarations add overhead. The experiment is worthwhile even if the result is a narrower useful tool or a better understanding of Pi and agent harnesses.
 
-> **What the model sees:** one Pi tool (`typed_program`) containing many typed functions (`api.*` inside the program). `bash` stays as the intentional escape hatch and benchmark baseline — replacing it with typed CLI wrappers is tracked work, not shipped behavior.
+Strata currently extends [Pi](https://github.com/earendil-works/pi), with Bun hosting a TypeScript checker and fresh QuickJS executions. It adds `typed_program`, `search_capabilities`, and `load_capability`. Programs call schema-derived `api.*` functions; a broker validates inputs/outputs and applies local operation allowlists. MCP, a deterministic CLI twin, and a minimal multi-module catalog work today. Pi's normal tools remain available.
 
-The hypothesis: small programs can replace repeated tool-call round trips when a task needs structured composition, filtering, or aggregation. A deterministic demo processes **1,947,738 bytes** from an MCP capability and returns **about 400 bytes** to Pi, including execution metrics. This demonstrates data-volume reduction, not yet better task success or lower overall model cost.
+**Next experiment:** replace common repository-inspection shell scripts with a small filesystem/search/Git API. Prefer Bun's native host APIs for file work and mature engines behind typed adapters where useful. No model-authored shell does not require eliminating Git subprocesses. Native repository capabilities, scoped filesystem grants, and a strictly typed tool profile are planned, not shipped. Bun APIs are not exposed directly to generated programs.
+
+The deterministic demo reduces 1,947,738 capability bytes to about 400 bytes of Pi tool content. A first fixture pilot recorded 9/12 accepted cells; it used single attempts and permissive grading. Neither establishes better overall task success or cost. The [evaluation plan](docs/evaluation.md) defines fair stock-Pi and Prime/IPython comparisons, held-out repository tasks, total-cost accounting, and criteria to continue, narrow or stop.
+
+Read the [technical concept / ACD](ACD.md), [implemented architecture](ARCHITECTURE.md), and [primary-source research](docs/research/typed-agent-prior-art.md). The local implementation order and TODOs live in [.work/issues/index.md](.work/issues/index.md); that board is gitignored and may be absent in a fresh clone.
 
 ## Get started
 
@@ -88,7 +92,7 @@ STRATA_CONFIG=/absolute/path/to/config.json bun run pi
 
 The model can then `import { api } from '@cap/catalog'`. Use exact original MCP tool names: `api.search(...)`, or `api['search-records'](...)`. Names are preserved as quoted TypeScript properties, avoiding collisions caused by camel-casing or punctuation replacement. Duplicate names are rejected.
 
-Configuration is trusted operator input. `allow` is an explicit local allowlist; missing operations are denied even if the server advertises them as read-only. The MVP connects one **stdio** MCP server per session. Authentication configuration, HTTP transports, and capability discovery are not built yet. The MCP SDK controls the subprocess environment; Strata does not expose environment variables to generated programs.
+Configuration is trusted operator input. `allow` is an explicit local allowlist; missing operations are denied even if the server advertises them as read-only. This configuration connects one **stdio** MCP server. Multi-module discovery exists for the local CLI-twin catalog; MCP-backed catalog entries, authentication configuration and HTTP transports are not built yet. The MCP SDK controls the subprocess environment; Strata does not expose environment variables to generated programs.
 
 ### Benchmark backend: CLI twin
 
@@ -141,7 +145,7 @@ Catalog files are single-file TypeScript: a standardized `meta` export (pure sta
 - **Bun required:** Strata runs Pi under Bun (`bun run pi`). Under plain Node the extension throws `Strata requires Bun. Start with bun run pi.` Tested with Bun 1.4.1 on Linux.
 - **Broken global Pi extensions:** `bun run pi` passes `--no-extensions` so a broken user-level package (e.g. `npm:pi-lean-portal` failing with `Cannot find module '@earendil-works/pi-server'`) cannot abort startup; the Strata extension still loads via explicit `-e`. Manage globals with `pi list` / `pi remove <source>`.
 - **`STRATA_CONFIG`:** must be an absolute path to the JSON file. Unset, empty or whitespace-only selects the deterministic fixture — no MCP setup needed.
-- **Model keys:** no API key is needed for `check`, `test`, `demo` or fixture `pi` runs. Only `bun run test:agent` needs `OPENROUTER_API_KEY`.
+- **Model keys:** `check`, `test`, `demo` and declaration generation are local. Interactive Pi needs its configured model credentials; the opt-in smoke and benchmark runners use `OPENROUTER_API_KEY`.
 
 ## How it works
 
@@ -158,7 +162,7 @@ Fresh Bun worker + QuickJS interpreter
   ▼
 Capability broker: local policy → input validation
   ▼
-MCP connector → server
+MCP connector → server, or CLI connector → fixture process
   ▼
 Broker: output validation → worker
   │ local filtering / composition
@@ -166,7 +170,7 @@ Broker: output validation → worker
 Bounded JSON result + logs + metrics → Pi
 ```
 
-MCP metadata first becomes a protocol-independent `CapabilityModule`. This manifest feeds both declaration generation and runtime bindings. The broker depends on a small connector interface rather than MCP types, so another source of capabilities would not require rewriting the compiler or authorization path. Only MCP is implemented.
+MCP metadata first becomes a protocol-independent `CapabilityModule`. This manifest feeds both declaration generation and runtime bindings. The broker depends on a small connector interface rather than MCP types, so the compiler and validation path can serve both implemented MCP and CLI-twin connectors. Native repository adapters will reuse this contract; resource-aware policy still needs implementation.
 
 ### What is actually typed?
 
@@ -188,7 +192,7 @@ This is a constrained execution environment, **not a claim of a hardened securit
 
 ### Persistence and limits
 
-The compiler service, declarations, MCP connection, broker and validators persist for the Pi session. Each execution gets a fresh worker and interpreter. Cancellation and session shutdown abort execution and pending broker calls; shutdown closes the MCP connection and disposes the language service. Cancellation cannot undo an operation already accepted by a server.
+The compiler service, declarations, MCP connection, broker and validators persist for the Pi session. Each execution gets a fresh worker and interpreter. The session API supports cancellation, and session shutdown aborts execution and pending broker calls; shutdown closes the MCP connection and disposes the language service. Cancellation cannot undo an operation already accepted by a server. Known integration gap: the current Pi tool wrapper drops Pi’s per-tool abort signal, so interactive tool cancellation does not yet reach this path; repair is planned before broader workloads.
 
 Default limits: 32 KiB source, 5 seconds execution including worker startup, 64 MiB interpreter heap, 100 attempted capability calls, 2 KiB captured logs, an 8,192-character result, and 24,000 bytes of final tool content. Oversized results return an error asking for aggregation. Compilation is synchronous and has no hard deadline; the execution timer starts after typechecking. MCP payloads are materialized in host memory before interpreter delivery, so the interpreter limit is not a host-process memory quota.
 
@@ -211,9 +215,9 @@ The live smoke test additionally records Pi's model usage. Generated declaration
 - `src/session.ts`: composition root, hot-add (`load()`), and bounded reports.
 - `test/fixture-mcp/`: deterministic server, including deliberately broken and denied operations.
 - `test/integration/`: compiler/runtime/MCP and real Pi loader tests.
-- `examples/benchmark.ts`: paired stock-Pi vs typed runner (protocol v1, 9/12 baseline for $0.0062).
+- `examples/benchmark.ts`: exploratory A/B/C fixture runner (protocol v1); grader/repeat improvements are planned.
 - `examples/`: deterministic demo, declaration generation and opt-in model smoke test.
 
 The tests cover the seven core claims: compile rejection without calls, typed invocation, composition, invalid output rejection, honest untyped results, context-volume reduction, and policy interception. Additional checks cover cancellation, timeout recovery, host API exclusion, schema name collisions and lifecycle integration.
 
-No Pi core fork, extra adapters, dynamic authorization, persistent typed REPL, object store, agent planning framework, or memory system. Discovery is minimal by design (lexical search, static allowlist, `cli-twin` transports only). Benchmark repeats, warm sessions, wider tasks, and prompt tuning are filed follow-ups. The local build tracker lives in gitignored `.work/PLAN.md`.
+There is no Pi core fork, native repository API, dynamic authorization, persistent typed REPL, object store or additional agent planning/memory system. Discovery stays minimal: lexical search, static allowlists and `cli-twin` catalog entries. The next stages are cancellation/evaluator repair, scoped native repository reads, and repeated comparisons before broader editing or discovery work. See the [ACD](ACD.md#delivery-and-decision-gates) and local [.work/PLAN.md](.work/PLAN.md).
