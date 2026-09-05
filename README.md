@@ -10,9 +10,9 @@ Strata currently extends [Pi](https://github.com/earendil-works/pi), with Bun ho
 
 **Next experiment:** replace common repository-inspection shell scripts with a small filesystem/search/Git API. Prefer Bun's native host APIs for file work and mature engines behind typed adapters where useful. No model-authored shell does not require eliminating Git subprocesses. Native repository capabilities, scoped filesystem grants, and a strictly typed tool profile are planned, not shipped. Bun APIs are not exposed directly to generated programs.
 
-The deterministic demo reduces 1,947,738 capability bytes to about 400 bytes of Pi tool content. A first fixture pilot recorded 9/12 accepted cells; it used single attempts and permissive grading. Neither establishes better overall task success or cost. The [evaluation plan](docs/evaluation.md) defines fair stock-Pi and Prime/IPython comparisons, held-out repository tasks, total-cost accounting, and criteria to continue, narrow or stop.
+The deterministic demo reduces 1,947,738 capability bytes to about 400 bytes of Pi tool content. A first fixture pilot recorded 9/12 accepted cells; it used single attempts and permissive grading. Neither establishes better overall task success or cost. The [v2 fixture runner](docs/benchmark.md) now has exact grading, repeated cold sessions, request-budget reservations and offline integration tests; no paid v2 baseline has run. The [evaluation plan](docs/evaluation.md) defines fair stock-Pi and Prime/IPython comparisons, held-out repository tasks, total-cost accounting, and criteria to continue, narrow or stop.
 
-Read the [technical concept / ACD](ACD.md), [implemented architecture](ARCHITECTURE.md), and [primary-source research](docs/research/typed-agent-prior-art.md). The local implementation order and TODOs live in [.work/issues/index.md](.work/issues/index.md); that board is gitignored and may be absent in a fresh clone.
+Read the [technical concept / ACD](ACD.md), [implemented architecture](ARCHITECTURE.md), [next-agent handoff](docs/handoff.md), and [prior-art research](docs/research/typed-agent-prior-art.md), including [Cloudflare Code Mode](docs/research/code-mode.md). The local implementation order and TODOs live in [.work/issues/index.md](.work/issues/index.md); that board is gitignored and may be absent in a fresh clone.
 
 ## Get started
 
@@ -120,6 +120,14 @@ STRATA_CONFIG=/absolute/path/to/twin.json bun run pi
 
 CLI/MCP twin parity is asserted in tests, so the two backends cannot drift apart silently.
 
+### Plan a fixture benchmark without model calls
+
+```sh
+bun examples/benchmark.ts --dry-run --cells T1:A,T1:B,T1:C --repeats 3
+```
+
+Dry run is also the default. It prints the matrix and limits without network access or artifacts. Paid execution requires explicit `--run` and `--max-cost-usd`; see [runner documentation](docs/benchmark.md) for conservative budget reservations, result semantics and limitations. The ordinary test suite uses a loopback fake provider for Pi integration and never calls a paid model.
+
 ### Discovery: search and load further capabilities
 
 The extension always registers `search_capabilities` (lexical search over the local `catalog/`) and `load_capability` (adds an entry to the live session and returns its `@cap/` import block). Loading never grants invocation: every call still passes the configured allowlist and schema validation. The first catalog holds the twin split for benchmarking: always-loaded core (`customers`, `invoices`) with bulk `records` discovered on demand.
@@ -215,9 +223,9 @@ The live smoke test additionally records Pi's model usage. Generated declaration
 - `src/session.ts`: composition root, hot-add (`load()`), and bounded reports.
 - `test/fixture-mcp/`: deterministic server, including deliberately broken and denied operations.
 - `test/integration/`: compiler/runtime/MCP and real Pi loader tests.
-- `examples/benchmark.ts`: exploratory A/B/C fixture runner (protocol v1); grader/repeat improvements are planned.
+- `examples/benchmark.ts` and `examples/benchmark/`: protocol v2 runner, exact task grading, trace assessment, request guard and process supervision.
 - `examples/`: deterministic demo, declaration generation and opt-in model smoke test.
 
 The tests cover the seven core claims: compile rejection without calls, typed invocation, composition, invalid output rejection, honest untyped results, context-volume reduction, and policy interception. Additional checks cover cancellation, timeout recovery, host API exclusion, schema name collisions and lifecycle integration.
 
-There is no Pi core fork, native repository API, dynamic authorization, persistent typed REPL, object store or additional agent planning/memory system. Discovery stays minimal: lexical search, static allowlists and `cli-twin` catalog entries. The next stages are cancellation/evaluator repair, scoped native repository reads, and repeated comparisons before broader editing or discovery work. See the [ACD](ACD.md#delivery-and-decision-gates) and local [.work/PLAN.md](.work/PLAN.md).
+There is no Pi core fork, native repository API, dynamic authorization, persistent typed REPL, object store or additional agent planning/memory system. Discovery stays minimal: lexical search, static allowlists and `cli-twin` catalog entries. The next stages are cancellation repair, scoped native repository reads, and useful stock/hybrid/strict comparisons before broader editing or discovery work. See the [ACD](ACD.md#delivery-and-decision-gates) and local [.work/PLAN.md](.work/PLAN.md).

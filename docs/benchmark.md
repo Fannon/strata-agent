@@ -42,7 +42,7 @@ A benchmark-only extension runs in every condition. Before provider dispatch it 
 
 The guard caps the provider output field and exits before another request when request/token/cost limits are exhausted. Configuration, model, context-reservation or receipt-write failures also stop dispatch. It exits rather than throwing because Pi catches extension-hook exceptions. Provider/context/price compliance is assumed; these controls are not a billing guarantee or a security boundary against an agent using shell to call another service. `usage.cost` is Pi's token-cost estimate; `estimatedCostUsd` additionally includes the catalog's fixed request fee. Neither is a billing reconciliation.
 
-The parent caps stdout and stderr at 16 MiB each and kills the owned POSIX process group on timeout/output overflow or parent-process completion. This does not contain a hostile child that creates a new session. Independent interactive cancellation remains issue 016 in the Strata extension. Warm sessions and OS isolation are separate future work.
+The parent caps stdout and stderr at 16 MiB each and kills the owned POSIX process group on timeout/output overflow or Pi cell-process exit. Abrupt termination of the benchmark parent is not yet supervised by a dedicated SIGINT/SIGTERM cleanup handler. This does not contain a hostile child that creates a new session. Independent interactive cancellation remains issue 016 in the Strata extension. Warm sessions and OS isolation are separate future work.
 
 ## Conditions and exact grading
 

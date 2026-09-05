@@ -14,7 +14,7 @@ The initial target user is a developer experimenting with a local coding agent. 
 
 The prototype has compile-before-execute programs, schema-derived declarations, runtime validation, per-module operation allowlists, MCP and fixture CLI connectors, fresh QuickJS execution, and lexical capability search/load. It has no native repository operations, parameter-aware permission rules, interactive grants, strict typed-only tool profile, or persistent Python/TS notebook state.
 
-The 41 current tests validate this mechanism. The historical 12-cell fixture benchmark is an exploratory pilot; byte reduction and 9/12 accepted cells do not establish task-level advantage. Condition D was a separate discovery demonstration; the committed benchmark runner only implements A/B/C.
+The original 41 prototype tests validate this mechanism; the benchmark repair adds coverage for a total of 53 tests. The historical 12-cell fixture benchmark is an exploratory pilot; byte reduction and 9/12 accepted cells do not establish task-level advantage. Condition D was a separate discovery demonstration; the current runner implements A/B/C. [Protocol v2](docs/benchmark.md) now repairs grading and adds conservative request budgets and cold repeats, without a paid v2 baseline.
 
 ## Shell avoidance has three meanings
 
@@ -140,10 +140,16 @@ Supersession means a declared compatibility/replacement relationship, not the sa
 
 ## Delivery and decision gates
 
-1. Repair Pi cancellation propagation and the benchmark evaluator; freeze old artifacts as pilot history.
+1. Repair Pi cancellation propagation; the deterministic evaluator repair is delivered in 1513917. Keep old artifacts as pilot history.
 2. Define scoped read policy and native contracts; optionally use a bounded session sample to refine priorities.
 3. Deliver the repository-orientation composition through typed reads/list/search and Git status/log. Enforce a strict tool profile and record shell/subprocess/native execution separately.
 4. Evaluate real tasks, with repeated stock-Pi comparisons, a typed single-call ablation, composed typed mode, and a separately pinned Prime/IPython comparison. Keep a development set and untouched task families for evaluation.
 5. Decide to continue, narrow the use case, pivot to improving stock Pi, or stop. Add editing, check runners, persistence or richer discovery only when the measured bottleneck justifies them.
 
 The decision criteria, failure taxonomy and evidence artifact contract are in [the evaluation plan](docs/evaluation.md). No paid experiment or implementation beyond documentation is implied by this plan.
+
+## Prior-art and handoff refinement
+
+[Cloudflare Code Mode](docs/research/code-mode.md) shares the core tools-as-code mechanism. Strata's incremental question is whether semantic checking, purpose-designed local APIs and Bun-backed adapters earn their cost. A future checked/unchecked ablation must preserve schemas, runtime policy and task access; it is not a faithful Cloudflare runtime comparison. Prime's local source is available for studying persistence, feedback and orchestration separately from language choice.
+
+The recommended next slice in [handoff](docs/handoff.md) is cancellation → scoped reads → one expressible seeded repository workflow → stock/hybrid/strict feasibility pilot. A hybrid-versus-strict pair measures shell removal; stock Pi is required to assess value over the existing approach. One run is a wiring check, not a claim about model training or general performance. Native Bun remains behind trusted operation boundaries; a different execution engine needs its own justified experiment.

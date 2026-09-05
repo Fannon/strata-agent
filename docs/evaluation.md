@@ -1,12 +1,18 @@
 # Evaluation plan: can typed composition earn its cost?
 
-Status: proposed protocol v2, 2026-09-05. This is a plan, not a benchmark result. The existing runner implements only the exploratory fixture protocol v1. See [ACD](../ACD.md) for design hypotheses and [prior-art research](research/typed-agent-prior-art.md) for Pi/Prime differences.
+Status: broader evaluation plan, 2026-09-05. Deterministic fixture protocol v2 is now implemented ([runner documentation](benchmark.md)); native tasks, strict profiles, warm sessions and Prime comparison remain proposed. No paid v2 results exist. See [ACD](../ACD.md) for design hypotheses and [prior-art research](research/typed-agent-prior-art.md) for Pi/Prime differences.
 
 ## Existing evidence
 
-At `5079c4d`, `bun run check` and 41 integration tests pass (verified locally with Bun 1.4.1-canary.1). Tests establish compilation, broker validation, fixture parity, fresh execution and discovery behavior. Direct runtime cancellation tests pass; they do not cover the current Pi extension dropping its execute signal.
+The original prototype at `5079c4d` passed 41 tests. After benchmark repair `1513917`, typecheck and 53 tests pass (Bun 1.4.1-canary.1), including real Pi against a local fake provider. Tests establish compilation, broker validation, fixture parity, fresh execution and discovery behavior. Direct runtime cancellation tests pass; they do not cover the current Pi extension dropping its execute signal.
 
 The local v1 artifact `baseline-2026-09-05T08-37-15Z` reports 9/12 accepted cells, one per task/condition, approximately $0.0062 estimated model cost. Preserve it unchanged. It demonstrates execution viability, not a performance conclusion. Its substring checkers can accept wrong answers; T4 checks tool text without proving final reporting or recovery; timeouts may receive `pass: true`; T3's `total` is ambiguous. The earlier `08-28-22Z` run had a broken relative config path and remains excluded. The separate discovery demo is not a repeated condition-D comparison.
+
+## Implemented foundation and next selection
+
+Protocol `009-v2` delivers exact schema/value oracles, structured trace assessment, cold repeats with rotating condition order, offline dry-run configuration, bounded process execution and pre-request token/cost reservations. It preserves missing usage as null and stores exact payloads/prompts, source and pricing snapshots. No retries or model fallbacks are automatic. A/B/C restrictions are still checked after execution; strict profiles are a future capability, not an implication of v2 grading.
+
+The [next-agent handoff](handoff.md) prioritizes useful native tasks before a full fixture repeat campaign. Start with a feasible stock/hybrid/strict pilot; reuse this plan for later robust held-out evaluation. [Code Mode research](research/code-mode.md) motivates a separate semantic-checking ablation once task value is established.
 
 ## Questions and conditions
 
