@@ -62,7 +62,7 @@ self.onmessage = async (event: MessageEvent) => {
   }).consume((fn) => vm.setProp(vm.global, "__log", fn));
   runtime.setModuleLoader((name) => {
     if (name === "program") return code;
-    const surface = surfaces.find((s) => "@cap/" + s.capability === name);
+    const surface = surfaces.find((s) => "@cap/" + s.capability === name || "@c/" + s.capability === name);
     if (!surface) throw new Error(`Module unavailable: ${name}`);
     const ops = JSON.stringify(surface.operations);
     const cap = JSON.stringify(surface.capability);

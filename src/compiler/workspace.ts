@@ -76,9 +76,10 @@ export class Workspace {
       if (
         ts.isImportDeclaration(node) &&
         (!ts.isStringLiteral(node.moduleSpecifier) ||
-          !node.moduleSpecifier.text.startsWith("@cap/"))
+          !node.moduleSpecifier.text.startsWith("@cap/") &&
+          !node.moduleSpecifier.text.startsWith("@c/"))
       )
-        diagnostics.push("program.ts: only @cap/ imports are available");
+        diagnostics.push("program.ts: only @c/ imports are available (@cap/ also works)");
       if (
         ts.isCallExpression(node) &&
         node.expression.kind === ts.SyntaxKind.ImportKeyword

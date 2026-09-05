@@ -43,5 +43,6 @@ export async function declarations(module: CapabilityModule): Promise<string> {
       `/** ${doc} */\n${JSON.stringify(op.name)}(input: Op${i}.${input}): Promise<${op.outputSchema ? `Op${i}.${output}` : "unknown"}>;`,
     );
   }
-  return `declare module ${JSON.stringify("@cap/" + module.id)} {\n${definitions.join("\n")}\nexport const api: {\n${methods.join("\n")}\n};\n}\n`;
+  const body = `${definitions.join("\n")}\nexport const api: {\n${methods.join("\n")}\n};\n`;
+  return `declare module ${JSON.stringify("@cap/" + module.id)} {\n${body}}\ndeclare module ${JSON.stringify("@c/" + module.id)} {\n${body}}\n`;
 }

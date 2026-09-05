@@ -73,7 +73,7 @@ test("catalog lifecycle: search, load, then typed records", async () => {
     const body = JSON.parse(
       (loadedResult.content[0] as { type: string; text: string }).text,
     );
-    expect(body.module).toBe("@cap/cli-records");
+    expect(body.module).toBe("@c/cli-records");
     expect(body.operations).toEqual(["records"]);
 
     const typed = extension.tools.get("typed_program")!;

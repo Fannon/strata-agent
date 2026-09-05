@@ -211,7 +211,7 @@ export default function strata(pi: ExtensionAPI) {
   pi.on("before_agent_start", async (event) => ({
     systemPrompt:
       event.systemPrompt +
-      "\n\nStrata typed_program accepts a complete TypeScript module. Import { api } from the capability module below and export async function main() returning a JSON-serializable result. Only capability imports and pure computation are available. console.log is bounded. All capability calls pass through local policy and schema validation. Type errors execute no code. Aggregate large results before returning. Further capabilities can be discovered with search_capabilities and added with load_capability; a loaded API appears as another @cap/ module and its import block is returned by the load call.\n" +
+      "\n\nStrata typed_program accepts a complete TypeScript module. Import { api } from '@c/<capability>' (e.g. '@c/fixture'; '@cap/' works too) and export async function main() returning a JSON-serializable result. Only capability imports and pure computation are available. console.log is bounded. All capability calls pass through local policy and schema validation. Type errors execute no code. Aggregate large results before returning. Further capabilities can be discovered with search_capabilities and added with load_capability; a loaded API appears as another @c/ module and its import block is returned by the load call.\n" +
       (session?.declarations ??
         `Unavailable: ${startupError ?? "not initialized"}`),
   }));
@@ -263,7 +263,7 @@ export default function strata(pi: ExtensionAPI) {
   tool(
     "search_capabilities",
     "Search capabilities",
-    "Lexically search the local capability catalog (id, description, operations). Returns short descriptors; loading is separate. Use when the loaded @cap/ modules lack an operation you need.",
+    "Lexically search the local capability catalog (id, description, operations). Returns short descriptors; loading is separate. Use when the loaded @c/ modules lack an operation you need.",
     "Find a capability by keyword before loading it",
     Type.Object({
       query: Type.String({ description: "Keywords, e.g. bulk records", maxLength: 500 }),
@@ -295,7 +295,7 @@ export default function strata(pi: ExtensionAPI) {
   tool(
     "load_capability",
     "Load capability",
-    "Load a catalog capability into this session by id (see search_capabilities). Returns its @cap/ import block. Loading never grants invocation: calls still pass local policy and schema validation.",
+    "Load a catalog capability into this session by id (see search_capabilities). Returns its @c/ import block (@cap/ alias also works). Loading never grants invocation: calls still pass local policy and schema validation.",
     "Load a discovered capability into the typed session",
     Type.Object({
       id: Type.String({ description: "Catalog capability id", maxLength: 128 }),
@@ -318,7 +318,7 @@ export default function strata(pi: ExtensionAPI) {
             {
               type: "text" as const,
               text: JSON.stringify({
-                module: `@cap/${id}`,
+                module: `@c/${id}`,
                 operations: entry.meta.operations.map((op) => op.name),
                 declarations: cached.slice(0, 4000),
               }),
@@ -343,7 +343,7 @@ export default function strata(pi: ExtensionAPI) {
           {
             type: "text" as const,
             text: JSON.stringify({
-              module: `@cap/${id}`,
+              module: `@c/${id}`,
               operations: entry.meta.operations.map((op) => op.name),
               declarations: text.slice(0, 4000),
             }),
