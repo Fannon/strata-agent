@@ -90,6 +90,32 @@ The model can then `import { api } from '@cap/catalog'`. Use exact original MCP 
 
 Configuration is trusted operator input. `allow` is an explicit local allowlist; missing operations are denied even if the server advertises them as read-only. The MVP connects one **stdio** MCP server per session. Authentication configuration, HTTP transports, and capability discovery are not built yet. The MCP SDK controls the subprocess environment; Strata does not expose environment variables to generated programs.
 
+### Benchmark backend: CLI twin
+
+The same fixture data is also available as a CLI (`test/fixture-cli/cli.ts`) for stock-Pi-versus-Strata comparisons on identical data. Stock Pi drives it through bash; Strata drives it as typed `api.*` calls:
+
+| Bash (stock Pi) | Typed (Strata) | Deterministic check |
+| --- | --- | --- |
+| `bun test/fixture-cli/cli.ts customers --country DE` | `api.customers({ country: "DE" })` | customers `== [{"id":"c1","country":"DE"}]` |
+| `bun test/fixture-cli/cli.ts invoices --customer-ids c1` | `api.invoices({ customerIds: ["c1"] })` | invoices `== [{"id":"i0","customerId":"c1","amount":12000}]` |
+| `bun test/fixture-cli/cli.ts records --count 10000` | `api.records({ count: 10000 })` | 10,000 records; scores `> 0.98` select IDs `[99, 199, 299, 399, 499]` |
+
+Select it with a twin config (command/args are fixed to the twin script; only `allow` is operator input):
+
+```json
+{
+  "transport": "cli-twin",
+  "allow": ["customers", "invoices", "records"]
+}
+```
+
+```sh
+STRATA_CONFIG=/absolute/path/to/twin.json bun run pi
+# then: import { api } from '@cap/cli'
+```
+
+CLI/MCP twin parity is asserted in tests, so the two backends cannot drift apart silently.
+
 ### Troubleshooting
 
 - **Bun required:** Strata runs Pi under Bun (`bun run pi`). Under plain Node the extension throws `Strata requires Bun. Start with bun run pi.` Tested with Bun 1.4.1 on Linux.

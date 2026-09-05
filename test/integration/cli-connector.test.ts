@@ -4,11 +4,11 @@ import { createSession } from "../../src/session.ts";
 import { connectCli } from "../../src/capabilities/cli/connector.ts";
 import { fileURLToPath } from "node:url";
 import { fixtureSession } from "../../examples/fixture.ts";
-import { cliOperations, cliSession } from "../fixture-cli/operations.ts";
+import { cliTwinOperations, cliTwinSession } from "../../examples/cli-twin.ts";
 
-let cli: Awaited<ReturnType<typeof cliSession>>;
+let cli: Awaited<ReturnType<typeof cliTwinSession>>;
 beforeAll(async () => {
-  cli = await cliSession();
+  cli = await cliTwinSession();
 });
 afterAll(async () => {
   await cli.session.close();
@@ -75,7 +75,7 @@ test("CLI: range violation is rejected by input validation before spawn", async 
 });
 
 test("CLI: local policy blocks before process spawn", async () => {
-  const restricted = await cliSession(new Set(["customers"]));
+  const restricted = await cliTwinSession(new Set(["customers"]));
   try {
     const before = restricted.spawned();
     const result = await restricted.session.run(
@@ -105,7 +105,7 @@ test("CLI: exit codes and spawn failures become transport errors", async () => {
       args: [fileURLToPath(new URL("../fixture-cli/cli.ts", import.meta.url))],
     },
     {
-      ...cliOperations,
+      ...cliTwinOperations,
       badUsage: {
         description: "Test hook missing a required CLI flag.",
         inputSchema: { type: "object", properties: {} },
@@ -136,7 +136,7 @@ test("CLI: exit codes and spawn failures become transport errors", async () => {
   const bad = await connectCli(
     "cli",
     { command: "/nonexistent/fixture-cli" },
-    cliOperations,
+    cliTwinOperations,
   );
   const session = await createSession(
     bad.manifest,

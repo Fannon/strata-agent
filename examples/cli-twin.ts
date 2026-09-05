@@ -1,7 +1,7 @@
 import { fileURLToPath } from "node:url";
-import { connectCli } from "../../src/capabilities/cli/connector.ts";
-import type { CliOperation } from "../../src/capabilities/cli/connector.ts";
-import { createSession } from "../../src/session.ts";
+import { connectCli } from "../src/capabilities/cli/connector.ts";
+import type { CliOperation } from "../src/capabilities/cli/connector.ts";
+import { createSession } from "../src/session.ts";
 
 const object = (
   properties: Record<string, unknown>,
@@ -17,8 +17,14 @@ const customer = object({
   country: { type: "string" },
 });
 
-/** CLI twin operations: identical data contract to the MCP fixture subset. */
-export const cliOperations: Record<string, CliOperation> = {
+/**
+ * CLI twin operations: identical data contract to the MCP fixture subset.
+ * The twin CLI lives at test/fixture-cli/cli.ts; stock Pi drives it through
+ * bash (`bun <path>/cli.ts <op> <flags>`) while Strata drives the same
+ * operations as typed `api.*` calls. Twin parity is asserted in
+ * test/integration/cli-connector.test.ts.
+ */
+export const cliTwinOperations: Record<string, CliOperation> = {
   customers: {
     description: "Search customers by country (CLI twin).",
     inputSchema: object({
@@ -69,21 +75,24 @@ export const cliOperations: Record<string, CliOperation> = {
   },
 };
 
-export const cliAllowed = new Set(["customers", "invoices", "records"]);
+export const cliTwinAllowed = new Set(["customers", "invoices", "records"]);
 
-export async function cliConnection() {
+export const cliTwinScript = fileURLToPath(
+  new URL("../test/fixture-cli/cli.ts", import.meta.url),
+);
+
+export async function cliTwinConnection() {
   return connectCli(
     "cli",
-    {
-      command: process.execPath,
-      args: [fileURLToPath(new URL("./cli.ts", import.meta.url))],
-    },
-    cliOperations,
+    { command: process.execPath, args: [cliTwinScript] },
+    cliTwinOperations,
   );
 }
 
-export async function cliSession(allowed: ReadonlySet<string> = cliAllowed) {
-  const { manifest, connector, spawned } = await cliConnection();
+export async function cliTwinSession(
+  allowed: ReadonlySet<string> = cliTwinAllowed,
+) {
+  const { manifest, connector, spawned } = await cliTwinConnection();
   try {
     return {
       session: await createSession(manifest, connector, allowed),

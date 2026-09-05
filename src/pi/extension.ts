@@ -4,16 +4,35 @@ import { readFile } from "node:fs/promises";
 import { connectMcp } from "../capabilities/mcp/connector.ts";
 import { createSession } from "../session.ts";
 import { fixtureSession } from "../../examples/fixture.ts";
+import { cliTwinConnection } from "../../examples/cli-twin.ts";
 
-/** Trusted operator configuration, read once at session startup.
- * An unset, empty or whitespace-only STRATA_CONFIG selects the deterministic fixture. */
-async function configuredSession() {
-  const raw = (process.env.STRATA_CONFIG ?? "").trim();
-  if (!raw) return fixtureSession();
-  const config: unknown = JSON.parse(await readFile(raw, "utf8"));
+/** Build a session from parsed STRATA_CONFIG. Exported for testing.
+ * An object with `transport: "cli-twin"` selects the benchmark CLI twin
+ * (command/args are fixed to the twin script; only `allow` is operator input).
+ * Any other object uses the MCP shape: `id, command, args: string[], allow: string[]`. */
+export async function sessionFromConfig(config: unknown) {
   if (!config || typeof config !== "object")
     throw new Error("STRATA_CONFIG must contain an object");
-  const { id, command, args, allow } = config as Record<string, unknown>;
+  const record = config as Record<string, unknown>;
+  if (record.transport === "cli-twin") {
+    if (
+      !Array.isArray(record.allow) ||
+      !record.allow.every((a) => typeof a === "string")
+    )
+      throw new Error('STRATA_CONFIG cli-twin requires allow: string[]');
+    const { manifest, connector } = await cliTwinConnection();
+    try {
+      return await createSession(
+        manifest,
+        connector,
+        new Set(record.allow),
+      );
+    } catch (error) {
+      await connector.close();
+      throw error;
+    }
+  }
+  const { id, command, args, allow } = record;
   if (
     typeof id !== "string" ||
     typeof command !== "string" ||
@@ -32,6 +51,14 @@ async function configuredSession() {
     await connector.close();
     throw error;
   }
+}
+
+/** Trusted operator configuration, read once at session startup.
+ * An unset, empty or whitespace-only STRATA_CONFIG selects the deterministic fixture. */
+async function configuredSession() {
+  const raw = (process.env.STRATA_CONFIG ?? "").trim();
+  if (!raw) return fixtureSession();
+  return sessionFromConfig(JSON.parse(await readFile(raw, "utf8")));
 }
 
 export default function strata(pi: ExtensionAPI) {
