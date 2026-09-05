@@ -204,12 +204,16 @@ The live smoke test additionally records Pi's model usage. Generated declaration
 - `src/compiler/workspace.ts`: persistent TypeScript checking and emission.
 - `src/capabilities/`: manifest, schema tooling and policy/validation broker.
 - `src/capabilities/mcp/`: metadata adapter and MCP SDK connector.
+- `src/capabilities/cli/`: process-based connector (argv arrays, JSON stdout, exit/stderr translation).
+- `src/capabilities/catalog.ts`: single-file TS catalog, static `meta` extraction, lexical search.
+- `catalog/`: capability entries (core + records-on-demand twin split).
 - `src/runtime/`: Bun worker lifecycle and QuickJS execution.
-- `src/session.ts`: composition root and bounded reports.
+- `src/session.ts`: composition root, hot-add (`load()`), and bounded reports.
 - `test/fixture-mcp/`: deterministic server, including deliberately broken and denied operations.
 - `test/integration/`: compiler/runtime/MCP and real Pi loader tests.
+- `examples/benchmark.ts`: paired stock-Pi vs typed runner (protocol v1, 9/12 baseline for $0.0062).
 - `examples/`: deterministic demo, declaration generation and opt-in model smoke test.
 
 The tests cover the seven core claims: compile rejection without calls, typed invocation, composition, invalid output rejection, honest untyped results, context-volume reduction, and policy interception. Additional checks cover cancellation, timeout recovery, host API exclusion, schema name collisions and lifecycle integration.
 
-No Pi core fork, discovery service, extra adapters, persistent typed REPL, object store, agent planning framework, or memory system. The next research step is a controlled stock-Pi versus Pi-plus-Strata task comparison. The local build tracker lives in gitignored `.work/PLAN.md`.
+No Pi core fork, extra adapters, dynamic authorization, persistent typed REPL, object store, agent planning framework, or memory system. Discovery is minimal by design (lexical search, static allowlist, `cli-twin` transports only). Benchmark repeats, warm sessions, wider tasks, and prompt tuning are filed follow-ups. The local build tracker lives in gitignored `.work/PLAN.md`.
