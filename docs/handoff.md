@@ -1,6 +1,6 @@
 # Next-agent handoff
 
-Updated 2026-09-05 after benchmark repair `1513917`; implementation/verification claims refer to that revision. Recheck current Git status and coordinate concurrent edits before starting. The user requested a return to planning/architecture/documentation after completing and pushing that repair. Remaining implementations are recommendations awaiting selection, not an instruction to start every issue.
+Updated 2026-09-05 after import-alias `4875c8c`; implementation/verification claims refer to that revision. Recheck current Git status and coordinate concurrent edits before starting. The user requested a return to planning/architecture/documentation after completing and pushing that repair. Remaining implementations are recommendations awaiting selection, not an instruction to start every issue.
 
 ## Read in this order
 
@@ -12,7 +12,7 @@ Updated 2026-09-05 after benchmark repair `1513917`; implementation/verification
 
 ## Delivered and verified
 
-The Pi extension provides checked fresh TypeScript programs, a multi-module policy/validation broker, MCP/CLI fixtures and lexical catalog search/load. Native filesystem/search/Git APIs, parameter-aware filesystem grants and mechanically strict tool profiles are not built.
+The Pi extension provides checked fresh TypeScript programs, a multi-module policy/validation broker, MCP/CLI fixtures and lexical catalog search/load. Capability modules import as `@c/<id>` (`@cap/<id>` remains accepted). Native filesystem/search/Git APIs, parameter-aware filesystem grants and mechanically strict tool profiles are not built.
 
 The fixture runner now uses independent exact answer oracles and complete Pi event traces. It separates correctness, tool adherence, harness health and accounting; incomplete executions cannot be completed successes. Cold repeats have unique artifacts and rotated condition order. Conservative reservations precede each model request; failed receipt writes stop dispatch. Missing usage remains null. Requests, effective prompts, task/source hashes, pricing and every cell's outputs/verdicts are retained locally. No automatic retries or fallback models.
 
