@@ -98,7 +98,9 @@ const tooling = {
   A: "Use the available file and shell tools (read, bash with cat/grep, git).",
   H: "Prefer typed_program with `import { api } from '@c/repo'` (api.readText/searchText/gitStatus); ordinary file/shell tools also work.",
   C: "Use ONLY typed_program with `import { api } from '@c/repo'` (api.readText/searchText/gitStatus). Direct file and shell tools are disabled; do not attempt them.",
+  B: "Use ONLY typed_program with `import { api } from '@c/repo'` (api.readText/searchText/gitStatus). Direct file and shell tools are disabled; do not attempt them. Programs run on the direct-Bun executor: capability calls pass the same validation and policy, but ambient host APIs are reachable, so only use the @c/repo api and pure computation.",
 };
+const engineOf = (arm: string) => (arm === "B" ? "bun" : arm === "A" ? "n/a-stock" : "quickjs");
 
 const results: Record<string, unknown>[] = [];
 let spent = 0;
@@ -190,7 +192,7 @@ for (const taskId of TASKS) {
             allow: ["readText", "searchText", "gitStatus"],
           }),
         );
-      const { STRATA_CONFIG: _drop, STRATA_STRICT: _drop2, ...baseEnv } = process.env;
+      const { STRATA_CONFIG: _drop, STRATA_STRICT: _drop2, STRATA_EXECUTOR: _drop3, ...baseEnv } = process.env;
       const cliArgs = [
         process.execPath,
         `${root}node_modules/@mariozechner/pi-coding-agent/dist/cli.js`,
@@ -209,7 +211,8 @@ for (const taskId of TASKS) {
           ...baseEnv,
           PI_CODING_AGENT_DIR: profile,
           ...(arm !== "A" ? { STRATA_CONFIG: configPath } : {}),
-          ...(arm === "C" ? { STRATA_STRICT: "1" } : {}),
+          ...(arm === "C" || arm === "B" ? { STRATA_STRICT: "1" } : {}),
+          ...(arm === "B" ? { STRATA_EXECUTOR: "bun" } : {}),
         },
         stdout: "pipe",
         stderr: "pipe",
@@ -263,7 +266,7 @@ for (const taskId of TASKS) {
         ["bash", "read", "write", "edit", "find", "grep", "ls"].includes(t.tool),
       ).length;
       results.push({
-        cell, task: taskId, arm, rep, exitCode: code,
+        cell, task: taskId, arm, engine: engineOf(arm), rep, exitCode: code,
         pass: g.pass, answerParsed: g.parsed,
         toolUses: toolUses.map((t) => t.tool),
         blockedAttempts: blocked, directEffectCalls: directEffect,
