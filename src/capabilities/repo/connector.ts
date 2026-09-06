@@ -16,7 +16,7 @@ const readTextInput: JsonSchema = {
   properties: {
     path: {
       type: "string",
-      description: "Root-relative file path, e.g. package.json.",
+      description: "Root-relative file path, e.g. package.json (slash-separated, no leading ./).",
       minLength: 1,
       maxLength: 1024,
     },
@@ -68,7 +68,7 @@ const searchTextInput: JsonSchema = {
     },
     paths: {
       type: "array",
-      description: "Root-relative directories to search; default is the root.",
+      description: "Root-relative directories to search; default is the root (slash-separated, no leading ./).",
       items: { type: "string", minLength: 1, maxLength: 1024 },
       maxItems: 32,
     },
@@ -124,7 +124,7 @@ const listFilesInput: JsonSchema = {
   properties: {
     dir: {
       type: "string",
-      description: "Root-relative directory; default is the root.",
+      description: "Root-relative directory; default is the root (slash-separated, no leading ./).",
       minLength: 1,
       maxLength: 1024,
     },
@@ -176,7 +176,7 @@ const gitLogInput: JsonSchema = {
     },
     paths: {
       type: "array",
-      description: "Optional root-relative paths to restrict history to.",
+      description: "Optional root-relative paths to restrict history to (slash-separated, no leading ./).",
       items: { type: "string", minLength: 1, maxLength: 1024 },
       maxItems: 32,
     },
@@ -232,7 +232,7 @@ const gitDiffInput: JsonSchema = {
     },
     paths: {
       type: "array",
-      description: "Optional root-relative paths to restrict the diff to.",
+      description: "Optional root-relative paths to restrict the diff to (slash-separated, no leading ./).",
       items: { type: "string", minLength: 1, maxLength: 1024 },
       maxItems: 32,
     },
@@ -268,7 +268,7 @@ const gitShowInput: JsonSchema = {
     },
     path: {
       type: "string",
-      description: "Root-relative file path at that revision.",
+      description: "Root-relative file path at that revision (slash-separated, no leading ./).",
       minLength: 1,
       maxLength: 1024,
     },
@@ -316,7 +316,7 @@ function manifest(): CapabilityModule {
   return {
     id: "repo",
     description:
-      "Scoped read-only repository inspection: text reading, file listing, literal search, Git status/history, worktree diffs and historical content.",
+      "Scoped read-only repository inspection: text reading, file listing, literal search, Git status/history, worktree diffs and historical content. Path convention: every path in inputs and outputs is root-relative, slash-separated, with no leading ./ .",
     operations: [
       {
         name: "readText",

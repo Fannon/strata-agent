@@ -53,7 +53,7 @@ const sessionFor = async (engine: ExecutorKind) => {
   return createSession(
     manifest,
     connector,
-    new Set(["readText", "searchText", "gitStatus", "listFiles", "gitLog"]),
+    new Set(["readText", "searchText", "gitStatus", "listFiles", "gitLog", "gitDiff"]),
     { executor: engine },
   );
 };
@@ -192,6 +192,30 @@ test("declarations advertise the new operations", async () => {
   try {
     expect(session.declarations).toContain("listFiles");
     expect(session.declarations).toContain("gitLog");
+  } finally {
+    await session.close();
+  }
+});
+
+test("path contract: returned paths are relative, slash-separated, no leading ./", async () => {
+  const session = await sessionFor("quickjs");
+  try {
+    const listed = await session.run(program(`return (await api.listFiles({ depth: 5 })).entries.map(e => e.path);`));
+    expect(listed.error).toBeUndefined();
+    const searched = await session.run(program(`return (await api.searchText({ pattern: "export" })).matches.map(m => m.path);`));
+    expect(searched.error).toBeUndefined();
+    const logged = await session.run(program(`return (await api.gitLog({ withFiles: true, limit: 5 })).commits.flatMap(c => (c.files ?? []).map(f => f.path));`));
+    expect(logged.error).toBeUndefined();
+    const diffed = await session.run(program(`return await api.gitDiff({});`));
+    expect(diffed.error).toBeUndefined();
+    const all = [...(listed.result as string[]), ...(searched.result as string[]), ...(logged.result as string[])];
+    expect(all.length).toBeGreaterThan(5);
+    for (const p of all) {
+      expect(p.startsWith("./")).toBe(false);
+      expect(p.includes("\\")).toBe(false);
+      expect(p.startsWith("/")).toBe(false);
+    }
+    expect(diffed.result).toMatchObject({ truncated: false });
   } finally {
     await session.close();
   }
