@@ -1,6 +1,6 @@
 # Strata: architecture and concept design
 
-Status: proposed direction, 2026-09-05. This ACD describes the next experiment; [ARCHITECTURE.md](ARCHITECTURE.md) describes the implementation at `5079c4d`. [Research](docs/research/typed-agent-prior-art.md) supplies external evidence; [evaluation](docs/evaluation.md) defines how to challenge the proposal. Implementation slices live in the local `.work/issues/` board.
+Status: proposed direction, 2026-09-05; implementation notes current through 2026-09-06. This ACD describes the next experiment; [ARCHITECTURE.md](ARCHITECTURE.md) describes the implemented system. [Research](docs/research/typed-agent-prior-art.md) supplies external evidence; [evaluation](docs/evaluation.md) defines how to challenge the proposal. Implementation slices live in the local `.work/issues/` board.
 
 ## Product question
 
@@ -14,9 +14,9 @@ The initial target user is a developer experimenting with a local coding agent. 
 
 ## What exists and what does not
 
-The prototype has compile-before-execute programs, schema-derived declarations, runtime validation, per-module operation allowlists, MCP and fixture CLI connectors, fresh QuickJS execution, and lexical capability search/load. It has no native repository operations, parameter-aware permission rules, interactive grants, strict typed-only tool profile, or persistent Python/TS notebook state.
+The prototype has compile-before-execute programs, schema-derived declarations, runtime validation, per-module operation allowlists, MCP and fixture CLI connectors, fresh QuickJS execution with an opt-in direct-Bun executor behind the same contract, and lexical capability search/load. The native repository capability covers `readText` (with line ranges), `searchText` (with glob filters), `listFiles`, `gitStatus`, `gitLog` (with per-commit files), `gitDiff` and `gitShow`, with root scoping, caps, truncation hints and a versioned trace. It has no parameter-aware mutation grants, interactive grants, strict typed-only tool profile beyond `STRATA_STRICT`, or persistent Python/TS notebook state.
 
-The original 41 prototype tests validate this mechanism; the benchmark repair adds coverage for a total of 53 tests. The historical 12-cell fixture benchmark is an exploratory pilot; byte reduction and 9/12 accepted cells do not establish task-level advantage. Condition D was a separate discovery demonstration; the current runner implements A/B/C. [Protocol v2](docs/benchmark.md) now repairs grading and adds conservative request budgets and cold repeats, without a paid v2 baseline.
+The deterministic suite (127 tests and typecheck) validates this mechanism; see [handoff](docs/handoff.md) for trial history. The historical 12-cell fixture benchmark is an exploratory pilot; byte reduction and 9/12 accepted cells do not establish task-level advantage. Condition D was a separate discovery demonstration; the current runner implements A/B/C. [Protocol v2](docs/benchmark.md) now repairs grading and adds conservative request budgets and cold repeats, without a paid v2 baseline.
 
 ## Shell avoidance has three meanings
 
@@ -132,7 +132,7 @@ For a small local read-only experiment, trusted adapters plus scoped checks and 
 | Alternative | Decision / revisit trigger |
 | --- | --- |
 | Improve stock Pi prompts and shell recipes only | Keep as a strong baseline; it may win through familiar interfaces and low overhead |
-| Execute generated TS directly in Bun | Next planned executor comparison; preserve contracts/checking and explicitly label ambient authority or externally enforced containment |
+| Execute generated TS directly in Bun | Implemented opt-in comparison (`STRATA_EXECUTOR=bun`); contracts, checking and tracing preserved, ambient authority explicitly labeled cooperative ([comparison](docs/executors.md)) |
 | Current QuickJS plus narrow native adapters | Implemented baseline and constrained execution option; not the mandatory future engine |
 | Wrap all Unix commands one-for-one | Reject as the design goal: preserves incidental flags and parsing; support actual workflows incrementally |
 | Persistent TypeScript REPL like IPython | Defer until rerun costs/state needs are measured; adds hidden state, replay and invalidation burdens |
@@ -182,9 +182,9 @@ Record engine, tool profile and containment independently. Removing Pi's bash/re
 
 ## Observability: current foundation and missing contract
 
-Source inspection on 2026-09-05 (`src/session.ts`, `src/capabilities/broker.ts`) finds source bytes, aggregate compilation/execution durations, bounded diagnostics/logs, operation attempts, whether the connector was invoked, failure stages, raw result bytes and bytes exposed to Pi. Benchmark artifacts separately retain model requests and traces. These are useful diagnostics, not yet a complete operational trace.
+Source inspection on 2026-09-05 (`src/session.ts`, `src/capabilities/broker.ts`) found source bytes, aggregate compilation/execution durations, bounded diagnostics/logs, operation attempts, whether the connector was invoked, failure stages, raw result bytes and bytes exposed to Pi. Benchmark artifacts separately retain model requests and traces. Since 026 the trace adds versioned session/program/call correlation, per-operation durations, cancellation/timeout/denial categories, backend identity and an opt-in bounded JSONL sink; report truncation still means the model report cannot serve as the sole audit record.
 
-Missing pieces include session/program/call correlation, per-operation durations, explicit cancellation/timeout/resource-denial categories, backend identity, discovery/load timing and a bounded durable developer trace separate from model-facing output. Today connector exceptions become `transport` failures, including repository policy denials; `invoked` means connector entry, not proof that a filesystem or Git effect occurred. Report truncation can remove call detail, so the model report cannot serve as the sole audit record.
+Remaining gaps include queue/approval timing (no approvals exist yet), Pi model timing correlation without inventing unavailable measurements, and any telemetry platform beyond the local sink. Connector `transport` failures still cover raw adapter errors; `denied`/`cancelled` are classified structurally since 026, and `invoked` means connector entry, not proof that a filesystem or Git effect occurred. Report truncation can remove call detail, so the model report cannot serve as the sole audit record.
 
 Add a small versioned event contract and optional local JSONL sink before considering a telemetry platform. Each attempted call needs a correlated outcome, monotonic duration, operation/backend identity, bounded size/completeness metadata and a machine-readable policy/error category. Distinguish queue, approval and adapter time when present; overlapping call durations cannot simply be summed into wall-clock time. Correlate with Pi model timing/usage where available, preserving missing values rather than reporting zero.
 
@@ -194,4 +194,4 @@ Default diagnostics should exclude raw file contents, arguments, source and secr
 
 [Cloudflare Code Mode](docs/research/code-mode.md) shares the core tools-as-code mechanism. Strata's incremental question is whether semantic checking, purpose-designed local APIs and Bun-backed adapters earn their cost. A future checked/unchecked ablation must preserve schemas, runtime policy and task access; it is not a faithful Cloudflare runtime comparison. Prime's local source is available for studying persistence, feedback and orchestration separately from language choice.
 
-The recommended next slice in [handoff](docs/handoff.md) is cancellation → scoped reads → one expressible seeded repository workflow → stock/hybrid/strict feasibility pilot. A hybrid-versus-strict pair measures shell removal; stock Pi is required to assess value over the existing approach. One run is a wiring check, not a claim about model training or general performance. The current QuickJS implementation keeps Bun behind trusted operation boundaries. The revised executor comparison evaluates direct Bun separately, preserving API contracts and labeling ambient access explicitly.
+The recommended next slice in [handoff](docs/handoff.md) is the 028 sequence: evaluator hardening, then a versioned task corpus reusing the delivered read/diff/history operations, then bounded comparisons. The earlier cancellation → scoped-reads → orientation → strict-pilot chain is delivered and preserved as baseline. The current implementation keeps Bun behind trusted operation boundaries in QuickJS and offers direct Bun explicitly labeled.

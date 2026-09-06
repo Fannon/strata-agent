@@ -1,28 +1,20 @@
 # strata-agent
 
-> **Research experiment, not a product.** Strata tests one idea about how coding agents should call tools. It is not built for daily work. It may end with "this only helps in narrow cases" or "bash was fine" — that counts as a result.
+> **Early experiment, worth trying.** Strata joins an existing idea — often called **code mode** or **tools-as-code**: let the agent compose tool calls in code instead of many single tool turns. It is not a product yet, and it may narrow to specific cases — but the early mechanism works and is ready to play with.
 
-**In one sentence:** Strata lets an agent call its tools from one small TypeScript program, instead of piecing together many shell commands.
+**In one sentence:** Strata lets an agent do in one small TypeScript program what today takes many shell calls: fetch data, filter it, combine it, and return only the answer. Cloudflare described the same core move for MCP — [convert schemas to TypeScript APIs, compose in code, keep intermediates out of context](https://blog.cloudflare.com/code-mode/) — and Prime composes actions in a persistent Python kernel. Strata's twist on it: checked TypeScript before anything runs, validated inputs/outputs on every call, and a focus on repository work. See [prior art](docs/research/typed-agent-prior-art.md) and [Code Mode notes](docs/research/code-mode.md).
 
-Today an agent often works like this: run a shell command, read the text, run the next command, parse again. That works, but each step is a new trip to the model, and large results fill up the context.
+Today an agent often works like this: run a shell command, read the text, run the next command, parse again. That works, but every step is a new trip to the model, and large outputs fill the context with noise the model must sift through.
 
-Strata tries this instead: the agent writes a short program with typed functions like `api.customers({ country: "DE" })`. The program can fetch, filter, and combine data in one go, and return only a small final answer.
+Strata offers a tighter loop. The agent writes a short program using typed functions like `api.customers({ country: "DE" })`. Types are checked before anything runs — a typo costs zero tool calls. The program runs in a fresh worker, calls as many functions as it needs, filters 10,000 rows down to 5 inside, and hands back only those 5. Less parsing, less back-and-forth, smaller surprises at runtime because inputs and outputs are validated on every call.
 
-Three hopes behind this:
+Why this could matter: purpose-built functions carry meaning that flags and text pipes lose. `country: "DE"` is checked; `--country DE` is a string you hope is right. Composition lives in code the checker sees, not in chat history the model must re-read. And one interface can cover everything: harness helpers, everyday bash/CLI work wrapped as functions, and MCP tools all look the same — just `api.*` with types. If that holds up on real tasks, agents could do multi-step work with fewer trips and less context.
 
-* Fewer mistakes, because inputs are checked before anything runs.
-* Less noise in context, because filtering happens inside the program.
-* Fewer round trips, because several calls fit in one program.
-
-Three honest doubts we keep:
-
-* Bash already composes well, and models know it.
-* Type declarations cost tokens too.
-* Our evidence so far is small — toy data and easy tasks prove the wiring works, not that Strata wins.
+We keep one honest footnote: bash composes well, models know it, and type declarations cost tokens too. So we measure rather than assert — see [Benchmarking](#benchmarking) and the [evaluation plan](docs/evaluation.md).
 
 How it looks in practice: Strata is an extension for [Pi](https://github.com/earendil-works/pi), a coding agent. It adds one main tool, `typed_program`, plus two helpers to find and load more functions (`search_capabilities`, `load_capability`). Pi's normal tools stay available. Bun runs the checker and the workers; by default programs run inside a fresh QuickJS interpreter with no `fs`, `fetch`, or `process`.
 
-What works today: a deterministic test fixture, the same data as a plain CLI for fair comparison, a tiny two-entry catalog, and read-only repository helpers (`readText` with line ranges, literal `searchText`, `gitStatus`, `listFiles`, `gitLog`). What does not exist yet: write support, real discovery at scale, hosted sandboxing, or any claim of production safety. See [Project map and scope](#project-map-and-scope) and [What we measure](#what-we-measure).
+What works today: a deterministic test fixture, the same data as a plain CLI for fair comparison, a tiny two-entry catalog, and read-only repository helpers (`readText`, literal `searchText`, `gitStatus`). What does not exist yet: write support, real discovery at scale, hosted sandboxing, or any claim of production safety. See [Project map and scope](#project-map-and-scope) and [What we measure](#what-we-measure).
 
 Details on what has been measured — and what has not — live in [Benchmarking](#benchmarking).
 
@@ -234,7 +226,7 @@ TypeScript cannot express every JSON Schema constraint: integers, bounds and oth
 
 ### Why Bun plus QuickJS?
 
-QuickJS is the current executor, not a product requirement. The lasting interface is the typed capability layer spanning repository operations, APIs and MCP. Direct Bun is a planned alternative using the same contracts, semantic checker, permission-aware functions and instrumentation. Import checks alone do not establish containment. See the [ACD](ACD.md#permission-aware-functions-and-execution-alternatives).
+QuickJS is the default executor, not a product requirement. The lasting interface is the typed capability layer spanning repository operations, APIs and MCP. Direct Bun is implemented opt-in (`STRATA_EXECUTOR=bun`) using the same contracts, semantic checker, permission-aware functions and instrumentation. Import checks alone do not establish containment. See [docs/executors.md](docs/executors.md) and the [ACD](ACD.md#permission-aware-functions-and-execution-alternatives).
 
 Bun hosts Pi, the language service, MCP connections, and worker scheduling. Programs execute **inside QuickJS compiled to WebAssembly**, not directly in Bun. They see standard ECMAScript computation and the generated capability bindings, without `Bun`, `process`, filesystem libraries, `fetch`, or host module loading. The worker can be terminated without terminating Pi; QuickJS has an interrupt handler and a memory limit.
 
@@ -271,4 +263,4 @@ The live smoke test additionally records Pi's model usage. Generated declaration
 
 The tests cover the seven core claims: compile rejection without calls, typed invocation, composition, invalid output rejection, honest untyped results, context-volume reduction, and policy interception. Additional checks cover cancellation, timeout recovery, host API exclusion, schema name collisions and lifecycle integration.
 
-There is no Pi core fork, dynamic authorization, persistent typed REPL, object store or additional agent planning/memory system. Discovery stays minimal: lexical search, static allowlists and `cli-twin` catalog entries. The next stages are matched seeded-repository trials across stock Pi and both executors within an explicit spend cap, and any list/log operations harder held-out tasks earn, before broader editing or discovery work. See the [ACD](ACD.md#delivery-and-decision-gates) and local [.work/PLAN.md](.work/PLAN.md).
+There is no Pi core fork, dynamic authorization, persistent typed REPL, object store or additional agent planning/memory system. Discovery stays minimal: lexical search, static allowlists and `cli-twin` catalog entries. The next stages are the 028 evaluator hardening and versioned task corpus, then bounded comparisons on harder held-out tasks, before broader editing or discovery work. See the [ACD](ACD.md#delivery-and-decision-gates) and local [.work/PLAN.md](.work/PLAN.md).

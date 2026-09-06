@@ -20,7 +20,7 @@ Statuses: `backlog`, `research`, `ready`, `in-progress`, `blocked`, `done`, `def
 | Next sequence | [020 — Cancellation → read policy → useful strict pilot](020-next-sequence.md) | recommended | Revised to include stock Pi and distinguish smoke from comparative evidence |
 | 2a | [012 — Scoped effects and permissions](012-scoped-permissions.md) | Phase A reads done | Root+caps policy + denials; approvals deferred to Phase B |
 | 2b | [013 — Session-derived priorities](013-session-capability-study.md) | ready, optional | Refines 011; must not block its obvious orientation slice |
-| 3 | [011 — Native repository capabilities](011-native-repository-capabilities.md) | read slice + feasibility pilot done | Repo cap, strict/hybrid profiles, 27/27 pilot ($0.013); harder tasks + 009 wiring remain |
+| 3 | [011 — Native repository capabilities](011-native-repository-capabilities.md) | usability slices done (ranges, globs+hints, diff/show/history) + 4 reference workflows | Repo cap, strict/hybrid profiles, 27/27 pilots; 028 task corpus + evaluator hardening remain |
 | 4 | [009 — Native pilot and held-out evaluation](009-baseline-hardening.md) | planned | 011 + strict profile + reliable runner; explicit spend cap |
 | 5a | [014 — Prime/IPython comparison](014-prime-comparison.md) | backlog | Initial research complete; comparable task/runner first |
 | 5b | [004 — Measured API/prompt tuning](004-harness-tuning.md) | backlog | Reliable dev-set evidence, bounded tuning |
@@ -44,6 +44,7 @@ New follow-ups: [026 — Correlated observability](026-observability.md) minimal
 | [020 — Proposed next sequence](020-next-sequence.md) | backlog, awaiting selection | 016 done → 012 → 011 slice + strict pilot, with stop conditions |
 | [025 — Load/shutdown race](025-load-shutdown-race.md) | backlog | From 016; connector leak on load racing shutdown |
 | [029 — Policy-aware search](029-policy-aware-search.md) | backlog, ready (small) | Hide/mark not-allowed hits in search; load refusal stays authoritative |
+| [030 — Optional memory](030-optional-memory.md) | backlog, idea only | Stateless by default; prefer Pi extension over new store |
 | [022 — `@c/` import alias](022-import-alias.md) | done | Dual-prefix support; `@c/` advertised, `@cap/` retained |
 | [023 — Library-backed capabilities](023-library-backed-capabilities.md) | backlog, informs 011/012 | Evaluate simple-git during the first Git slice; reuse suitable APIs and types, verify Bun compatibility and effect bounds |
 | [024 — Filesystem/search library candidates](024-filesystem-search-library-candidates.md) | backlog, informs 011/012/015 | Bun built-ins first; fast-glob/fs-extra only for demonstrated gaps or benefits; distinguish path discovery from content search |
