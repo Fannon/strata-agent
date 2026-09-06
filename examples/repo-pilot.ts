@@ -41,7 +41,7 @@ const opt = (name: string, fallback: string | undefined) => {
 const LIVE = args.has("--run");
 for (const token of process.argv.slice(2)) {
   if (!token.startsWith("--")) continue;
-  if (!["--run", "--profiles", "--tasks", "--model", "--max-cost-usd", "--repeats", "--timeout-ms", "--out"].includes(token))
+  if (!["--run", "--profiles", "--tasks", "--model", "--max-cost-usd", "--repeats", "--timeout-ms", "--out", "--max-requests", "--max-output-tokens", "--max-cell-tokens"].includes(token))
     throw new Error(`Unknown option ${token} (old A/B/C/H letters were retired; use --profiles stock-pi,typed-quickjs,typed-bun)`);
 }
 type Profile = RepoProfile;
@@ -57,9 +57,9 @@ const MAX_COST = opt("--max-cost-usd", undefined);
 const REPEATS = Number(opt("--repeats", "1") ?? "1");
 const TIMEOUT_MS = Number(opt("--timeout-ms", "150000") ?? "150000");
 const OUT = opt("--out", undefined);
-const MAX_REQUESTS = 8;
-const MAX_OUTPUT_TOKENS = 4096;
-const MAX_CELL_TOKENS = 2_000_000;
+const MAX_REQUESTS = Number(opt("--max-requests", "8") ?? "8");
+const MAX_OUTPUT_TOKENS = Number(opt("--max-output-tokens", "4096") ?? "4096");
+const MAX_CELL_TOKENS = Number(opt("--max-cell-tokens", "2000000") ?? "2000000");
 const ISOLATION = "cooperative diagnostics: no sandbox; oracle in controller, canary-monitored tool args";
 
 for (const p of profiles)
@@ -69,6 +69,9 @@ for (const t of tasks)
   if (!KNOWN_TASKS.includes(t)) throw new Error(`Unknown task ${t}; use --tasks ${KNOWN_TASKS.join(",")}`);
 if (!Number.isSafeInteger(REPEATS) || REPEATS < 1 || REPEATS > 100) throw new Error("--repeats must be an integer in 1..100");
 if (!Number.isSafeInteger(TIMEOUT_MS) || TIMEOUT_MS <= 0 || TIMEOUT_MS > 600000) throw new Error("--timeout-ms must be in 1..600000");
+if (!Number.isSafeInteger(MAX_REQUESTS) || MAX_REQUESTS < 1 || MAX_REQUESTS > 100) throw new Error("--max-requests must be an integer in 1..100");
+if (!Number.isSafeInteger(MAX_OUTPUT_TOKENS) || MAX_OUTPUT_TOKENS < 1 || MAX_OUTPUT_TOKENS > 32768) throw new Error("--max-output-tokens must be an integer in 1..32768");
+if (!Number.isSafeInteger(MAX_CELL_TOKENS) || MAX_CELL_TOKENS < 1 || MAX_CELL_TOKENS > 100_000_000) throw new Error("--max-cell-tokens must be an integer in 1..100000000");
 if (!/^[\w./:-]+$/.test(MODEL)) throw new Error("Invalid model ID");
 const maxCostUsd = MAX_COST === undefined ? null : Number(MAX_COST);
 if (LIVE && (maxCostUsd === null || !Number.isFinite(maxCostUsd) || maxCostUsd <= 0 || maxCostUsd > 1000))
