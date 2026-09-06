@@ -18,6 +18,8 @@ export interface RepoPolicy {
   maxListEntries?: number;
   /** Max commits returned by one gitLog call. Default 50. */
   maxLogCommits?: number;
+  /** Max lines returned by one readText call. Default 2000. */
+  maxReadLines?: number;
 }
 
 export interface ResolvedRepoPolicy {
@@ -28,6 +30,7 @@ export interface ResolvedRepoPolicy {
   maxScanFileBytes: number;
   maxListEntries: number;
   maxLogCommits: number;
+  maxReadLines: number;
 }
 
 export async function resolvePolicy(policy: RepoPolicy): Promise<ResolvedRepoPolicy> {
@@ -45,6 +48,7 @@ export async function resolvePolicy(policy: RepoPolicy): Promise<ResolvedRepoPol
     maxScanFileBytes: policy.maxScanFileBytes ?? 262_144,
     maxListEntries: policy.maxListEntries ?? 500,
     maxLogCommits: policy.maxLogCommits ?? 50,
+    maxReadLines: policy.maxReadLines ?? 2000,
   };
 }
 

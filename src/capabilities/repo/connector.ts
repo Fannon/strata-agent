@@ -26,6 +26,17 @@ const readTextInput: JsonSchema = {
       minimum: 1,
       maximum: 1_048_576,
     },
+    fromLine: {
+      type: "integer",
+      description: "1-based first line to return; default 1.",
+      minimum: 1,
+    },
+    maxLines: {
+      type: "integer",
+      description: "Max lines to return; larger ranges report nextLine.",
+      minimum: 1,
+      maximum: 5000,
+    },
   },
   required: ["path"],
   additionalProperties: false,
@@ -37,8 +48,11 @@ const readTextOutput: JsonSchema = {
     content: { type: "string" },
     truncated: { type: "boolean" },
     totalBytes: { type: "integer" },
+    startLine: { type: "integer" },
+    endLine: { type: "integer" },
+    nextLine: { type: "integer" },
   },
-  required: ["path", "content", "truncated", "totalBytes"],
+  required: ["path", "content", "truncated", "totalBytes", "startLine", "endLine"],
   additionalProperties: false,
 };
 const searchTextInput: JsonSchema = {
@@ -200,7 +214,7 @@ function manifest(): CapabilityModule {
       {
         name: "readText",
         description:
-          "Read a UTF-8 text file inside the repository root. Binary files, directories and paths outside the root are rejected.",
+          "Read a UTF-8 text file inside the repository root, optionally by 1-based line range (fromLine/maxLines, nextLine continues). Binary files, directories and paths outside the root are rejected.",
         inputSchema: readTextInput,
         outputSchema: readTextOutput,
         metadata: { readOnly: true, idempotent: true },
@@ -254,7 +268,12 @@ class RepoConnector implements CapabilityConnector {
     signal.throwIfAborted();
     switch (operation) {
       case "readText": {
-        const { path, maxBytes } = input as { path: string; maxBytes?: number };
+        const { path, maxBytes, fromLine, maxLines } = input as {
+          path: string;
+          maxBytes?: number;
+          fromLine?: number;
+          maxLines?: number;
+        };
         const resolved = await resolveInRoot(this.policy, path);
         const structured = await readText(
           this.policy,
@@ -262,6 +281,7 @@ class RepoConnector implements CapabilityConnector {
           resolved.rel,
           maxBytes,
           signal,
+          { fromLine, maxLines },
         );
         return { structured, untyped: structured, rawBytes: bytes(structured) };
       }

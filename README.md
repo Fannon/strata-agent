@@ -1,18 +1,32 @@
 # strata-agent
 
-**Strata is a coding agent that calls its tools from small TypeScript programs — checked before execution, authorized at every call.**
+> **Research experiment, not a product.** Strata tests one idea about how coding agents should call tools. It is not built for daily work. It may end with "this only helps in narrow cases" or "bash was fine" — that counts as a result.
 
-Coding agents often spend a tool call assembling shell commands to read files, list directories, inspect Git, and parse the resulting text. Strata explores a different interface: purposeful typed functions that return structured values, composed with ordinary TypeScript. The agent can fetch, filter and combine data in one checked program, returning only what the next reasoning step needs.
+**In one sentence:** Strata lets an agent call its tools from one small TypeScript program, instead of piecing together many shell commands.
 
-The execution engine is replaceable; typed capabilities are the architectural commitment. The intended payoff is fewer interface mistakes, less intermediate data in context, and fewer model round trips. Those are hypotheses. Bash already composes well, models know its conventions, and compilation/declarations add overhead. The experiment is worthwhile even if the result is a narrower useful tool or a better understanding of Pi and agent harnesses.
+Today an agent often works like this: run a shell command, read the text, run the next command, parse again. That works, but each step is a new trip to the model, and large results fill up the context.
 
-Strata currently extends [Pi](https://github.com/earendil-works/pi), with Bun hosting a TypeScript checker and fresh QuickJS executions. It adds `typed_program`, `search_capabilities`, and `load_capability`. Programs call schema-derived `api.*` functions; a broker validates inputs/outputs and applies local operation allowlists. MCP, a deterministic CLI twin, and a minimal multi-module catalog work today. Pi's normal tools remain available.
+Strata tries this instead: the agent writes a short program with typed functions like `api.customers({ country: "DE" })`. The program can fetch, filter, and combine data in one go, and return only a small final answer.
 
-**Next experiment:** compare direct Bun with the implemented QuickJS executor using the same typed capability layer. A minimal repository capability already supports bounded reads, literal search and Git status, with best-effort resource checks and a Pi tool-restriction profile. Direct Bun is available opt-in (`STRATA_EXECUTOR=bun`) as a disposable worker behind the shared executor contract; it preserves checking, validation, grants and fresh state but leaves ambient host authority reachable, so it measures cooperative API adherence rather than enforced containment. See [docs/executors.md](docs/executors.md).
+Three hopes behind this:
 
-The deterministic demo reduces 1,947,738 capability bytes to about 400 bytes of Pi tool content. A first fixture pilot recorded 9/12 accepted cells; it used single attempts and permissive grading. Neither establishes better overall task success or cost. The [v2 fixture runner](docs/benchmark.md) now has exact grading, repeated cold sessions, request-budget reservations and offline integration tests; no paid v2 baseline has run. The [evaluation plan](docs/evaluation.md) defines fair stock-Pi and Prime/IPython comparisons, held-out repository tasks, total-cost accounting, and criteria to continue, narrow or stop.
+* Fewer mistakes, because inputs are checked before anything runs.
+* Less noise in context, because filtering happens inside the program.
+* Fewer round trips, because several calls fit in one program.
 
-Read the [technical concept / ACD](ACD.md), [implemented architecture](ARCHITECTURE.md), [next-agent handoff](docs/handoff.md), and [prior-art research](docs/research/typed-agent-prior-art.md), including [Cloudflare Code Mode](docs/research/code-mode.md). The local implementation order and TODOs live in [.work/issues/index.md](.work/issues/index.md); that board is gitignored and may be absent in a fresh clone.
+Three honest doubts we keep:
+
+* Bash already composes well, and models know it.
+* Type declarations cost tokens too.
+* Our evidence so far is small — toy data and easy tasks prove the wiring works, not that Strata wins.
+
+How it looks in practice: Strata is an extension for [Pi](https://github.com/earendil-works/pi), a coding agent. It adds one main tool, `typed_program`, plus two helpers to find and load more functions (`search_capabilities`, `load_capability`). Pi's normal tools stay available. Bun runs the checker and the workers; by default programs run inside a fresh QuickJS interpreter with no `fs`, `fetch`, or `process`.
+
+What works today: a deterministic test fixture, the same data as a plain CLI for fair comparison, a tiny two-entry catalog, and read-only repository helpers (`readText` with line ranges, literal `searchText`, `gitStatus`, `listFiles`, `gitLog`). What does not exist yet: write support, real discovery at scale, hosted sandboxing, or any claim of production safety. See [Project map and scope](#project-map-and-scope) and [What we measure](#what-we-measure).
+
+Details on what has been measured — and what has not — live in [Benchmarking](#benchmarking).
+
+For background, read the [technical concept / ACD](ACD.md), [implemented architecture](ARCHITECTURE.md), [next-agent handoff](docs/handoff.md), and [prior-art research](docs/research/typed-agent-prior-art.md), including [Cloudflare Code Mode](docs/research/code-mode.md). Planning details live in `.work/issues/` (checked in) — start with the [issue board](.work/issues/index.md).
 
 ## Get started
 
@@ -94,9 +108,24 @@ The model can then `import { api } from '@cap/catalog'`. Use exact original MCP 
 
 Configuration is trusted operator input. `allow` is an explicit local allowlist; missing operations are denied even if the server advertises them as read-only. This configuration connects one **stdio** MCP server. Multi-module discovery exists for the local CLI-twin catalog; MCP-backed catalog entries, authentication configuration and HTTP transports are not built yet. The MCP SDK controls the subprocess environment; Strata does not expose environment variables to generated programs.
 
-### Benchmark backend: CLI twin
+## Benchmarking
 
-The same fixture data is also available as a CLI (`test/fixture-cli/cli.ts`) for stock-Pi-versus-Strata comparisons on identical data. Stock Pi drives it through bash; Strata drives it as typed `api.*` calls:
+This is where we report honestly what the numbers show and how to reproduce them. Short version: filtering inside a program works; whole-task wins are unproven.
+
+### Current state
+
+* **Demo (deterministic, no model):** about 1.9M bytes of raw fixture data shrink to about 400 bytes of tool output. This proves bulk filtering inside a program, not better task success or lower cost.
+* **Early fixture pilot (historical):** 9/12 cells passed, but with loose grading and single tries. Keep it as history, not as a claim.
+* **Fixture runner v2:** exact answer checks, repeated cold sessions, spending reservations, offline tests. No paid v2 baseline has run yet.
+* **Repository pilot:** 27/27 on 3 easy tasks across stock Pi / typed-QuickJS / typed-Bun ($0.013). This proves wiring, not advantage — the tasks were too easy and declarations dominated tokens on tiny payloads.
+* **Executor comparison (deterministic):** QuickJS and opt-in Bun (`STRATA_EXECUTOR=bun`) keep the same contracts, checks, and policy. Bun is tens of ms faster per run — noise next to model latency. Bun measures cooperative use of the nice API, not enforced containment. See [docs/executors.md](docs/executors.md).
+* **Live smoke (opt-in, paid):** compile rejection with zero calls, then a valid 3-call composition. Verified 2026-09-05 with Muse Spark (1,947,909 bytes → 557 bytes). Transcripts stay local in `.work/`.
+
+The [evaluation plan](docs/evaluation.md) defines the fair next comparison — same tasks and settings across stock Pi and both executors, full cost counting — and when to continue, narrow, or stop.
+
+### How to benchmark
+
+Same data, two ways. Stock Pi uses the CLI through bash. Strata uses the same data as typed `api.*` calls:
 
 | Bash (stock Pi) | Typed (Strata) | Deterministic check |
 | --- | --- | --- |
@@ -104,7 +133,7 @@ The same fixture data is also available as a CLI (`test/fixture-cli/cli.ts`) for
 | `bun test/fixture-cli/cli.ts invoices --customer-ids c1` | `api.invoices({ customerIds: ["c1"] })` | invoices `== [{"id":"i0","customerId":"c1","amount":12000}]` |
 | `bun test/fixture-cli/cli.ts records --count 10000` | `api.records({ count: 10000 })` | 10,000 records; scores `> 0.98` select IDs `[99, 199, 299, 399, 499]` |
 
-Select it with a twin config (command/args are fixed to the twin script; only `allow` is operator input):
+CLI/MCP twin parity is asserted in tests, so the two backends cannot drift apart silently. To try the twin by hand in Pi:
 
 ```json
 {
@@ -118,15 +147,26 @@ STRATA_CONFIG=/absolute/path/to/twin.json bun run pi
 # then: import { api } from '@cap/cli'
 ```
 
-CLI/MCP twin parity is asserted in tests, so the two backends cannot drift apart silently.
-
-### Plan a fixture benchmark without model calls
+Plan a fixture run without spending (dry run is the default):
 
 ```sh
 bun examples/benchmark.ts --dry-run --cells T1:A,T1:B,T1:C --repeats 3
 ```
 
-Dry run is also the default. It prints the matrix and limits without network access or artifacts. Paid execution requires explicit `--run` and `--max-cost-usd`; see [runner documentation](docs/benchmark.md) for conservative budget reservations, result semantics and limitations. The ordinary test suite uses a loopback fake provider for Pi integration and never calls a paid model.
+Paid runs need explicit flags. See the [runner contract](docs/benchmark.md) for budget reservations, result meanings, and limits:
+
+```sh
+bun examples/benchmark.ts --run --max-cost-usd 5 --cells T1:A,T1:B,T1:C --repeats 3
+```
+
+Other checks:
+
+* `bun run demo` — deterministic composition and byte counts, no model needed.
+* `bun run test:agent` — opt-in live smoke with `OPENROUTER_API_KEY` (creates an isolated Pi profile, keeps transcripts local).
+* `bun examples/executor-compare.ts` — deterministic QuickJS vs Bun comparison, no model needed.
+* `bun examples/repo-pilot.ts` — seeded repository trial harness (see its header for caps and limits).
+
+The ordinary test suite uses a loopback fake provider and never calls a paid model.
 
 ### Discovery: search and load further capabilities
 
@@ -219,7 +259,7 @@ The live smoke test additionally records Pi's model usage. Generated declaration
 - `src/capabilities/`: manifest, schema tooling and policy/validation broker.
 - `src/capabilities/mcp/`: metadata adapter and MCP SDK connector.
 - `src/capabilities/cli/`: process-based connector (argv arrays, JSON stdout, exit/stderr translation).
-- `src/capabilities/repo/`: native read-only repository connector (root-scoped `readText`, literal `searchText`, fixed-argv `gitStatus`) with best-effort path containment.
+- `src/capabilities/repo/`: native read-only repository connector (root-scoped `readText` with line ranges, literal `searchText`, fixed-argv `gitStatus`, `listFiles`, `gitLog`) with best-effort path containment.
 - `src/capabilities/catalog.ts`: single-file TS catalog, static `meta` extraction, lexical search.
 - `catalog/`: capability entries (core + records-on-demand twin split).
 - `src/runtime/`: Bun worker lifecycle and QuickJS execution.

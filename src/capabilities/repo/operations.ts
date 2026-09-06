@@ -8,6 +8,12 @@ export interface ReadTextResult {
   content: string;
   truncated: boolean;
   totalBytes: number;
+  /** Effective first line returned (1-based; echoes fromLine). */
+  startLine: number;
+  /** Last line returned (1-based; startLine - 1 when nothing returned). */
+  endLine: number;
+  /** First line not returned; absent when the range reached EOF. */
+  nextLine?: number;
 }
 
 export async function readText(
@@ -16,6 +22,7 @@ export async function readText(
   rel: string,
   maxBytes: number | undefined,
   signal: AbortSignal,
+  range?: { fromLine?: number; maxLines?: number },
 ): Promise<ReadTextResult> {
   signal.throwIfAborted();
   const cap = Math.min(maxBytes ?? policy.maxReadBytes, policy.maxReadBytes);
@@ -43,7 +50,47 @@ export async function readText(
     } catch {
       throw new ResourceError(`not valid UTF-8: ${rel}`);
     }
-    return { path: rel, content: text, truncated: totalBytes > cap, totalBytes };
+    // Line numbering is 1-based, matching searchText matches. A trailing
+    // newline terminates the last line rather than starting a phantom one
+    // (wc -l semantics). A byte cap landing mid-character still reports
+    // invalid UTF-8; narrow with maxBytes or line ranges instead.
+    // Unranged reads return the decoded prefix byte-identical (previous
+    // contract); line caps apply to ranged reads only.
+    const raw = text === "" ? [] : text.split("\n");
+    const lines =
+      raw.length && raw[raw.length - 1] === "" && text.endsWith("\n")
+        ? raw.slice(0, -1).map((l) => l.replace(/\r$/, ""))
+        : raw.map((l) => l.replace(/\r$/, ""));
+    const ranged = range?.fromLine !== undefined || range?.maxLines !== undefined;
+    const fromLine = Math.max(1, Math.floor(range?.fromLine ?? 1));
+    const lineCap = ranged
+      ? Math.min(range?.maxLines ?? lines.length, policy.maxReadLines)
+      : lines.length;
+    const slice = lines.slice(fromLine - 1, fromLine - 1 + lineCap);
+    const endLine = slice.length ? fromLine + slice.length - 1 : fromLine - 1;
+    // Continuation: a line cap with more decoded lines ahead resumes at the
+    // next line; a byte cap mid-line resumes at the partial line itself
+    // (re-read it), otherwise at the following line.
+    const lineCapped = slice.length === lineCap && fromLine - 1 + lineCap < lines.length;
+    const byteCapped = totalBytes > cap;
+    const nextLine = lineCapped
+      ? fromLine + lineCap
+      : byteCapped
+        ? text.endsWith("\n")
+          ? endLine + 1
+          : endLine
+        : undefined;
+    return {
+      path: rel,
+      // Ranged reads return joined lines (no added final newline); full
+      // reads preserve the exact decoded prefix.
+      content: ranged ? slice.join("\n") : text,
+      truncated: nextLine !== undefined,
+      totalBytes,
+      startLine: fromLine,
+      endLine,
+      ...(nextLine !== undefined ? { nextLine } : {}),
+    };
   } finally {
     await handle.close();
   }
