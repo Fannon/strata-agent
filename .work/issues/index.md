@@ -51,6 +51,7 @@ Current user request authorizes assessment/documentation. `ready` means actionab
 | [032 — From task-first slices to solid coverage](032-coverage-track.md) | backlog, plan only (no implementation authorized) |
 | [033 — Mine local agentsview sessions for coverage needs](033-agentsview-mining.md) | backlog, suggested (read-only inspection done 2026-09-06, no transcripts copied) |
 | [034 — Operator-configurable caps for result, logs, and tool text](034-configurable-caps.md) | deferred pending measured cap failures or operator requirement; follows 031 |
+| [036 — Prompt-wording ablation for typed instructions](036-prompt-ablation.md) | backlog, idea only; repair done, optimization needs isolated control |
 
 ## Enterprise-fit hypothesis
 
