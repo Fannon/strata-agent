@@ -45,7 +45,7 @@ New follow-ups: [026 — Correlated observability](026-observability.md) minimal
 | [025 — Load/shutdown race](025-load-shutdown-race.md) | backlog | From 016; connector leak on load racing shutdown |
 | [029 — Policy-aware search](029-policy-aware-search.md) | backlog, ready (small) | Hide/mark not-allowed hits in search; load refusal stays authoritative |
 | [030 — Optional memory](030-optional-memory.md) | backlog, idea only | Stateless by default; prefer Pi extension over new store |
-| [031 — Quiet success](031-quiet-success.md) | done | Result-only success text, details on demand; 130 pass |
+| [031 — Quiet success](031-quiet-success.md) | done | Result-only success text, details on demand; 147 pass |
 | [032 — Coverage track](032-coverage-track.md) | backlog, plan only | Task-first core + miss-log breadth; two-task rule for new ops |
 | [033 — Agentsview mining](033-agentsview-mining.md) | backlog, suggested | Local session counts as coverage sampler; counts only, no transcripts |
 | [034 — Configurable caps](034-configurable-caps.md) | backlog, ready (small) | Operator-set result/log/tool budgets; program cannot escalate |

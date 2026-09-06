@@ -189,6 +189,8 @@ Catalog files are single-file TypeScript: a standardized `meta` export (pure sta
 
 ## How it works
 
+Deep-dive: [docs/how-it-works.md](docs/how-it-works.md) covers the full mechanism — run path, broker, checker, capabilities, executors, discovery, observability, and current trial evidence.
+
 ```text
 Pi model
   │ TypeScript source
