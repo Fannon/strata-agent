@@ -14,7 +14,7 @@
 // Oracle: hand-derived from the fixture specification below, verified against
 // source by test/integration/repo-tasks.test.ts using plain filesystem reads
 // (independent of the capability adapter being compared).
-import { mkdtemp, rm, writeFile } from "node:fs/promises";
+import { mkdtemp, rm, writeFile, mkdir } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { isDeepStrictEqual } from "node:util";
@@ -25,7 +25,12 @@ import type { ExecutorKind } from "../../src/runtime/executor.ts";
 export interface RexportTask {
   id: string;
   ask: string;
+  /** Index into FIXTURES below. */
+  fixture: number;
+  subpath: string;
   expected: { exports: { name: string; path: string; symbol: string }[] };
+  /** Same-name/type traps that must stay out of the oracle. */
+  decoys: { paths: string[]; symbols: string[] };
 }
 
 const FILES: Record<string, string> = {
@@ -44,30 +49,82 @@ const FILES: Record<string, string> = {
   "decoy.ts": "export function greet(name: string) {\n  return `decoy ${name}`;\n}\n",
 };
 
+const FILES_HELDOUT: Record<string, string> = {
+  "package.json":
+    JSON.stringify({ name: "beacon", version: "1.0.0", exports: { ".": "./src/index.ts", "./util": "./src/str.ts" } }, null, 2) + "\n",
+  "src/index.ts":
+    'export { parse as parseCfg } from "./cfg.js";\n' +
+    'export { run } from "./run.js";\n' +
+    'export type { Mode } from "./mode.js";\n',
+  "src/cfg.ts":
+    "export function parse(text: string): Record<string, string> {\n  return {};\n}\nexport const DEFAULT_PORT = 8080;\n",
+  "src/run.ts": "export function run(): void {\n}\n",
+  "src/mode.ts": "export type Mode = \"a\" | \"b\";\n",
+  "src/parse.ts": "export function parse(s: string): string[] {\n  return [];\n}\n",
+  "src/str.ts": 'export { trim as tidy } from "./text.js";\n',
+  "src/text.ts": "export function trim(s: string): string {\n  return s.trim();\n}\n",
+};
+
+const FIXTURES = [FILES, FILES_HELDOUT];
+
 export const REXPORT_TASKS: RexportTask[] = [
   {
     id: "R-EXPORT-1",
     ask: 'Package atlas, public subpath ".". Follow value re-exports only (ignore `export type`). Return exactly {"exports": [{"name","path","symbol"}]} sorted by name, where path is the defining file repo-relative and symbol the defined name.',
+    fixture: 0,
+    subpath: ".",
     expected: {
       exports: [
         { name: "greet", path: "core.ts", symbol: "greet" },
         { name: "util", path: "util.ts", symbol: "helper" },
       ],
     },
+    decoys: { paths: ["decoy.ts"], symbols: ["Opts"] },
   },
   {
     id: "R-EXPORT-2",
     ask: 'Package atlas, public subpath "./lite". Follow value re-exports only. Return exactly {"exports": [{"name","path","symbol"}]} sorted by name.',
+    fixture: 0,
+    subpath: "./lite",
     expected: {
       exports: [{ name: "welcome", path: "core.ts", symbol: "greet" }],
     },
+    decoys: { paths: ["decoy.ts"], symbols: ["Opts", "VERSION"] },
+  },
+  {
+    id: "R-EXPORT-3",
+    ask: 'Package beacon, public subpath ".". Follow value re-exports only (ignore `export type`). Return exactly {"exports": [{"name","path","symbol"}]} sorted by name, where path is the defining file repo-relative and symbol the defined name.',
+    fixture: 1,
+    subpath: ".",
+    expected: {
+      exports: [
+        { name: "parseCfg", path: "src/cfg.ts", symbol: "parse" },
+        { name: "run", path: "src/run.ts", symbol: "run" },
+      ],
+    },
+    decoys: { paths: ["src/parse.ts"], symbols: ["Mode", "DEFAULT_PORT"] },
+  },
+  {
+    id: "R-EXPORT-4",
+    ask: 'Package beacon, public subpath "./util". Follow value re-exports only. Return exactly {"exports": [{"name","path","symbol"}]} sorted by name.',
+    fixture: 1,
+    subpath: "./util",
+    expected: {
+      exports: [{ name: "tidy", path: "src/text.ts", symbol: "trim" }],
+    },
+    decoys: { paths: ["src/parse.ts"], symbols: ["Mode"] },
   },
 ];
 
-/** Write the fixture into an existing directory. Returns the file map for oracle checks. */
-export async function buildRexportFixture(dir: string): Promise<Record<string, string>> {
-  for (const [name, content] of Object.entries(FILES)) await writeFile(join(dir, name), content);
-  return { ...FILES };
+/** Write one instance fixture into an existing directory. */
+export async function buildRexportFixture(dir: string, instance: number): Promise<Record<string, string>> {
+  const files = FIXTURES[instance]!;
+  for (const [name, content] of Object.entries(files)) {
+    const full = join(dir, name);
+    await mkdir(join(full, ".."), { recursive: true });
+    await writeFile(full, content);
+  }
+  return { ...files };
 }
 
 // Human-written reference composition (kept out of candidate prompts): read
@@ -78,13 +135,14 @@ export async function main() {
   const subpath = "__SUBPATH__";
   const pkg = JSON.parse((await api.readText({ path: "package.json" })).content);
   const entry = (pkg.exports as Record<string, string>)[subpath].replace(/^\\.\\//, "");
+  const entryDir = entry.includes("/") ? entry.slice(0, entry.lastIndexOf("/") + 1) : "";
   const entrySrc = (await api.readText({ path: entry })).content;
   const out: { name: string; path: string; symbol: string }[] = [];
   const re = /export\\s+(?!type\\b)\\{\\s*([A-Za-z_$][\\w$]*)(?:\\s+as\\s+([A-Za-z_$][\\w$]*))?\\s*\\}\\s*from\\s*["']([^"']+)["']/g;
   for (let m = re.exec(entrySrc); m; m = re.exec(entrySrc)) {
     const symbol = m[1]!;
     const name = m[2] ?? symbol;
-    const target = m[3]!.replace(/\\.js$/, ".ts").replace(/^\\.\\//, "");
+    const target = entryDir + m[3]!.replace(/\\.js$/, ".ts").replace(/^\\.\\//, "");
     const found = await api.searchText({ pattern: symbol, include: [target] });
     const def = found.matches.find((l) => l.text.includes(symbol));
     if (!def) throw new Error("no definition for " + symbol + " in " + target);
@@ -114,16 +172,17 @@ async function runReference(dir: string, engine: ExecutorKind, subpath: string) 
 if (import.meta.main) {
   const dir = await mkdtemp(join(tmpdir(), "strata-rexport-"));
   try {
-    await buildRexportFixture(dir);
     for (const task of REXPORT_TASKS) {
-      const subpath = task.id === "R-EXPORT-1" ? "." : "./lite";
-      const quick = await runReference(dir, "quickjs", subpath);
-      const bun = await runReference(dir, "bun", subpath);
+      await buildRexportFixture(dir, task.fixture);
+      const quick = await runReference(dir, "quickjs", task.subpath);
+      const bun = await runReference(dir, "bun", task.subpath);
       if (!isDeepStrictEqual(quick, bun))
         throw new Error(`${task.id}: engines disagree:\n${JSON.stringify({ quick, bun }, null, 2)}`);
       if (!isDeepStrictEqual(quick, task.expected))
         throw new Error(`${task.id}: unexpected answer:\n${JSON.stringify(quick, null, 2)}`);
       console.log(`ok ${task.id} (engines agree, oracle matched)`);
+      await rm(dir, { recursive: true, force: true });
+      await mkdir(dir, { recursive: true });
     }
   } finally {
     await rm(dir, { recursive: true, force: true });

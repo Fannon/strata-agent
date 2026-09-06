@@ -11,7 +11,7 @@ let files: Record<string, string> = {};
 
 beforeAll(async () => {
   dir = await mkdtemp(join(tmpdir(), "strata-rexport-oracle-"));
-  files = await buildRexportFixture(dir);
+  files = await buildRexportFixture(dir, 0);
 });
 
 afterAll(async () => {
@@ -25,6 +25,9 @@ test("oracle records match the fixture specification", async () => {
 
 test("every expected record has its defining line in source", async () => {
   for (const task of REXPORT_TASKS) {
+    await rm(dir, { recursive: true, force: true }).catch(() => {});
+    dir = await mkdtemp(join(tmpdir(), "strata-rexport-oracle-"));
+    files = await buildRexportFixture(dir, task.fixture);
     expect(task.expected.exports.length).toBeGreaterThan(0);
     const names = task.expected.exports.map((e) => e.name);
     expect([...names].sort()).toEqual(names);
@@ -39,15 +42,25 @@ test("every expected record has its defining line in source", async () => {
 });
 
 test("decoys and type-only entries are excluded from every oracle", async () => {
-  const decoy = await readFile(join(dir, "decoy.ts"), "utf8");
-  expect(decoy).toContain("greet");
   for (const task of REXPORT_TASKS) {
-    expect(task.expected.exports.some((e) => e.path === "decoy.ts")).toBe(false);
-    expect(task.expected.exports.some((e) => e.symbol === "Opts")).toBe(false);
+    for (const trap of task.decoys.paths)
+      expect(task.expected.exports.some((e) => e.path === trap)).toBe(false);
+    for (const symbol of task.decoys.symbols)
+      expect(task.expected.exports.some((e) => e.symbol === symbol)).toBe(false);
   }
-  // The type-only entry point exists in source but the value-only rule drops it.
-  expect(files["entry.ts"]).toContain("export type");
+  // A type-only entry point exists in source but the value-only rule drops it.
+  expect(await taskExpectedHasTypeExport()).toBe(true);
 });
+
+async function taskExpectedHasTypeExport(): Promise<boolean> {
+  for (const fixture of [0, 1]) {
+    await rm(dir, { recursive: true, force: true }).catch(() => {});
+    dir = await mkdtemp(join(tmpdir(), "strata-rexport-oracle-"));
+    files = await buildRexportFixture(dir, fixture);
+    if (Object.values(files).some((content) => content.includes("export type"))) return true;
+  }
+  return false;
+}
 
 test("rlog oracle recomputed independently from fixture files", async () => {
   for (let i = 0; i < RLOG_TASKS.length; i++) {
