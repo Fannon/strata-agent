@@ -1,6 +1,7 @@
 import { fileURLToPath } from "node:url";
 import { connectMcp } from "../src/capabilities/mcp/connector.ts";
 import { createSession } from "../src/session.ts";
+import type { ExecutorKind } from "../src/runtime/executor.ts";
 
 export const fixtureAllowed = new Set([
   "customers",
@@ -19,10 +20,10 @@ export async function fixtureConnection() {
     ],
   });
 }
-export async function fixtureSession() {
+export async function fixtureSession(executor?: ExecutorKind) {
   const { manifest, connector } = await fixtureConnection();
   try {
-    return await createSession(manifest, connector, fixtureAllowed);
+    return await createSession(manifest, connector, fixtureAllowed, { executor });
   } catch (error) {
     await connector.close();
     throw error;

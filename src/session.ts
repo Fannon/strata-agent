@@ -6,7 +6,7 @@ import {
   type CapabilityModule,
   type CapabilityConnector,
 } from "./capabilities/manifest.ts";
-import { execute } from "./runtime/executor.ts";
+import { executeWith, parseExecutor, type ExecutorKind } from "./runtime/executor.ts";
 import {
   TRACE_VERSION,
   createTraceSink,
@@ -18,6 +18,8 @@ export interface SessionOptions {
   sessionId?: string;
   /** JSONL developer trace file. Defaults to STRATA_TRACE_FILE when set. */
   traceFile?: string;
+  /** Execution engine. Default "quickjs"; "bun" is opt-in (see docs/executors.md). */
+  executor?: ExecutorKind;
 }
 
 export async function createSession(
@@ -35,6 +37,7 @@ export async function createSession(
   const active = new Set<Promise<unknown>>();
   const sessionId =
     options.sessionId ?? crypto.randomUUID().slice(0, 8);
+  const sessionExecutor = parseExecutor(options.executor);
   const sink: TraceSink | undefined = createTraceSink(
     options.traceFile ?? (process.env.STRATA_TRACE_FILE || undefined),
   );
@@ -109,10 +112,12 @@ export async function createSession(
     },
     run(
       source: string,
-      options: { signal?: AbortSignal; timeoutMs?: number } = {},
+      options: { signal?: AbortSignal; timeoutMs?: number; executor?: ExecutorKind } = {},
     ) {
       const task = (async () => {
         const programId = `${sessionId}:p${++programSeq}`;
+        const engine =
+          options.executor === undefined ? sessionExecutor : parseExecutor(options.executor);
         const metrics: Metrics = {
           sourceBytes: Buffer.byteLength(source),
           compileMs: 0,
@@ -129,6 +134,7 @@ export async function createSession(
           outcome: "error",
           traceDropped: 0,
         };
+        metrics.engine = engine;
         let payload: { result?: unknown; error?: string; logs: string[] } = {
           logs: [],
         };
@@ -178,7 +184,8 @@ export async function createSession(
             metrics.outcome = "compile-error";
           } else {
             const executionStart = performance.now();
-            const executed = await execute(
+            const executed = await executeWith(
+              engine,
               compiled.code!,
               broker,
               metrics,

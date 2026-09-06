@@ -10,6 +10,7 @@ import {
   type CatalogEntry,
 } from "../capabilities/catalog.ts";
 import { createSession } from "../session.ts";
+import { parseExecutor, type ExecutorKind } from "../runtime/executor.ts";
 import { connectRepo } from "../capabilities/repo/connector.ts";
 import { fixtureSession, fixtureAllowed } from "../../examples/fixture.ts";
 import { cliTwinConnection } from "../../examples/cli-twin.ts";
@@ -84,6 +85,7 @@ function refuse(id: string): never {
 export async function sessionFromConfig(
   config: unknown,
   index?: CatalogEntry[],
+  executor: ExecutorKind = "quickjs",
 ): Promise<{ session: Session; allowFor: AllowFor; initialIds: string[] }> {
   if (!config || typeof config !== "object")
     throw new Error("STRATA_CONFIG must contain an object");
@@ -127,7 +129,7 @@ export async function sessionFromConfig(
       const built = await buildEntryConnector(entry);
       try {
         if (!session) {
-          session = await createSession(built.manifest, built.connector, allowed!);
+          session = await createSession(built.manifest, built.connector, allowed!, { executor });
         } else {
           await session.load(built.manifest, built.connector, allowed!);
         }
@@ -151,6 +153,7 @@ export async function sessionFromConfig(
         manifest,
         connector,
         new Set(record.allow),
+        { executor },
       );
       return {
         session,
@@ -184,6 +187,7 @@ export async function sessionFromConfig(
         manifest,
         connector,
         new Set(allow as string[]),
+        { executor },
       );
       return {
         session,
@@ -209,7 +213,7 @@ export async function sessionFromConfig(
     );
   const { manifest, connector } = await connectMcp(id, { command, args });
   try {
-    const session = await createSession(manifest, connector, new Set(allow));
+    const session = await createSession(manifest, connector, new Set(allow), { executor });
     return {
       session,
       allowFor: () => new Set(allow as string[]),
@@ -224,14 +228,16 @@ export async function sessionFromConfig(
 /** Trusted operator configuration, read once at session startup.
  * An unset, empty or whitespace-only STRATA_CONFIG selects the deterministic fixture. */
 async function configuredSession(index: CatalogEntry[]) {
+  // Opt-in engine selection; an invalid value fails session startup loudly.
+  const executor = parseExecutor(process.env.STRATA_EXECUTOR);
   const raw = (process.env.STRATA_CONFIG ?? "").trim();
   if (!raw)
     return {
-      session: await fixtureSession(),
+      session: await fixtureSession(executor),
       allowFor: () => fixtureAllowed,
       initialIds: ["fixture"],
     };
-  return sessionFromConfig(JSON.parse(await readFile(raw, "utf8")), index);
+  return sessionFromConfig(JSON.parse(await readFile(raw, "utf8")), index, executor);
 }
 
 export default function strata(pi: ExtensionAPI) {
@@ -274,7 +280,7 @@ export default function strata(pi: ExtensionAPI) {
   pi.on("before_agent_start", async (event) => ({
     systemPrompt:
       event.systemPrompt +
-      "\n\nStrata typed_program accepts a complete TypeScript module. Import { api } from '@c/<capability>' (e.g. '@c/fixture'; '@cap/' works too) and export async function main() returning a JSON-serializable result. Only capability imports and pure computation are available. console.log is bounded. All capability calls pass through local policy and schema validation. Type errors execute no code. Aggregate large results before returning. Further capabilities can be discovered with search_capabilities and added with load_capability; a loaded API appears as another @c/ module and its import block is returned by the load call.\n" +
+      "\n\nStrata typed_program accepts a complete TypeScript module. Import { api } from '@c/<capability>' (e.g. '@c/fixture'; '@cap/' works too) and export async function main() returning a JSON-serializable result. Only capability imports and pure computation are available in the default QuickJS executor. The opt-in direct-Bun executor (STRATA_EXECUTOR=bun) additionally leaves ambient host APIs reachable, so it measures cooperative API adherence rather than enforced containment. console.log is bounded. All capability calls pass through local policy and schema validation. Type errors execute no code. Aggregate large results before returning. Further capabilities can be discovered with search_capabilities and added with load_capability; a loaded API appears as another @c/ module and its import block is returned by the load call.\n" +
       (session?.declarations ??
         `Unavailable: ${startupError ?? "not initialized"}`),
   }));
@@ -302,7 +308,7 @@ export default function strata(pi: ExtensionAPI) {
   tool(
     "typed_program",
     "Typed program",
-    "Typecheck and run a complete TypeScript module exporting main(). Compose typed capabilities and return a small JSON result. Fresh execution state; 5-second execution deadline; output limited to 24 KB including diagnostics and metrics.",
+    "Typecheck and run a complete TypeScript module exporting main(). Compose typed capabilities and return a small JSON result. Fresh disposable worker per run; 5-second execution deadline; output limited to 24 KB including diagnostics and metrics. Engine is QuickJS by default, opt-in direct Bun via STRATA_EXECUTOR.",
     "Compose typed capability calls and process structured data in TypeScript",
     Type.Object({
       source: Type.String({

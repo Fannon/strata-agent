@@ -78,6 +78,24 @@ test("STRATA_CONFIG repo wires the native connector with scoped reads", async ()
   }
 });
 
+test("STRATA_CONFIG executor selects the Bun engine without changing contracts", async () => {
+  const configured = await sessionFromConfig(
+    { transport: "cli-twin", allow: ["customers"] },
+    undefined,
+    "bun",
+  );
+  const session = configured.session;
+  try {
+    const ok = await session.run(program("return await api.customers({ country: 'DE' });"));
+    expect(ok.error).toBeUndefined();
+    expect(ok.metrics.engine).toBe("bun");
+    const denied = await session.run(program("return await api.records({ count: 5 });"));
+    expect(denied.error).toContain("cli.records: policy:");
+  } finally {
+    await session.close();
+  }
+});
+
 test("strict profile blocks direct-effect tools, keeps typed_program", () => {
   for (const name of ["bash", "read", "write", "edit", "find", "grep", "ls"])
     expect(isStrictBlocked(name)).toBe(true);
