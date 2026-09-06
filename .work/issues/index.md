@@ -31,7 +31,7 @@ Statuses: `backlog`, `research`, `ready`, `in-progress`, `blocked`, `done`, `def
 
 ## Conditional work
 
-New follow-ups: [026 — Correlated observability](026-observability.md) minimal slice delivered (trace v1, JSONL sink, summary example; overhead measured with 027); [027 — Replaceable executor and direct Bun comparison](027-permission-aware-runtime-alternatives.md) implementation + deterministic comparison delivered (see [docs/executors.md](../../docs/executors.md)); matched model trials need explicit budget. Permission-aware functions extend 012; import checks alone are not an enforcement boundary. The ACD now records the critical assessment and hybrid-product possibility.
+New follow-ups: [026 — Correlated observability](026-observability.md) minimal slice delivered (trace v1, JSONL sink, summary example; overhead measured with 027); [027 — Replaceable executor and direct Bun comparison](027-permission-aware-runtime-alternatives.md) implementation + deterministic comparison delivered (see [docs/executors.md](../../docs/executors.md)); 2026-09-06 model trial 27/27 ($0.0117) confirmed engines don't affect outcomes on easy tasks; [028 — Harder repository tasks](028-harder-repository-tasks.md) proposed, awaiting review — no implementation authorized yet. Permission-aware functions extend 012; import checks alone are not an enforcement boundary. The ACD now records the critical assessment and hybrid-product possibility.
 
 | Issue | Status | Trigger |
 | --- | --- | --- |
