@@ -1,13 +1,29 @@
 import type { CapabilityConnector, CapabilityModule } from "./manifest.ts";
+import { DeniedError } from "./manifest.ts";
 import { validator } from "./schemas.ts";
+import { TRACE_VERSION, type TraceEvent } from "../trace.ts";
 
+export type CallFailure =
+  | "policy"
+  | "input"
+  | "output"
+  | "transport"
+  | "denied"
+  | "cancelled";
 export interface CallMetric {
   capability: string;
   operation: string;
+  /** `<program>.<seq>`: correlates this attempt with trace events. */
+  callId: string;
+  /** Transport/backend identity from the connector, e.g. "mcp". */
+  backend: string;
   invoked: boolean;
   rawBytes: number;
-  failure?: "policy" | "input" | "output" | "transport";
+  /** Monotonic broker-side duration in milliseconds. */
+  durationMs: number;
+  failure?: CallFailure;
 }
+export type RunOutcome = "ok" | "compile-error" | "cancelled" | "timeout" | "error";
 export interface Metrics {
   sourceBytes: number;
   compileMs: number;
@@ -19,7 +35,20 @@ export interface Metrics {
   bytesExposedToPi: number;
   validationFailures: number;
   policyFailures: number;
+  /** Execution engine that ran this program, e.g. "quickjs". */
+  engine: string;
+  /** `<session>:p<n>`: correlates this run with trace events. */
+  programId: string;
+  outcome: RunOutcome;
+  /** Trace events dropped due to sink bounds or sink failure. */
+  traceDropped: number;
 }
+/** Per-run correlation context supplied by the session through the executor. */
+export interface CallTraceContext {
+  program: string;
+  engine: string;
+}
+export type TraceEmit = (event: TraceEvent) => void;
 export class CapabilityBroker {
   private modules = new Map<
     string,
@@ -30,12 +59,20 @@ export class CapabilityBroker {
       outputs: Map<string, ((value: unknown) => string | undefined) | undefined>;
     }
   >();
+  private tracer: TraceEmit | undefined;
+  private sessionId = "adhoc";
+  private callSeq = new Map<string, number>();
   constructor(
     manifest: CapabilityModule,
     connector: CapabilityConnector,
     allowed: ReadonlySet<string>,
   ) {
     this.addModule(manifest, connector, allowed);
+  }
+  /** Attach the session trace sink and correlation identity. */
+  setTracer(sessionId: string, tracer?: TraceEmit) {
+    this.sessionId = sessionId;
+    this.tracer = tracer;
   }
   /** Register another capability module in a live session (discovery load). */
   addModule(
@@ -66,24 +103,58 @@ export class CapabilityBroker {
     input: unknown,
     signal: AbortSignal,
     metrics: Metrics,
+    trace?: CallTraceContext,
   ) {
     signal.throwIfAborted();
     if (metrics.calls.length >= 100)
       throw new Error("Capability call limit exceeded (100)");
+    const program = trace?.program ?? `${this.sessionId}:adhoc`;
+    const seq = (this.callSeq.get(program) ?? 0) + 1;
+    this.callSeq.set(program, seq);
+    const module = this.modules.get(capability);
     const record: CallMetric = {
       capability: capability.slice(0, 128),
       operation: operation.slice(0, 128),
+      callId: `${program}.${seq}`,
+      backend: module?.connector.backend ?? "unknown",
       invoked: false,
       rawBytes: 0,
+      durationMs: 0,
     };
     metrics.calls.push(record);
+    const started = performance.now();
+    const elapsed = () => performance.now() - started;
+    const emit = (phase: "start" | "outcome", outcome?: string, detail?: string) =>
+      this.tracer?.({
+        v: TRACE_VERSION,
+        kind: "call",
+        phase,
+        session: this.sessionId,
+        program,
+        call: record.callId,
+        engine: trace?.engine,
+        capability: record.capability,
+        operation: record.operation,
+        backend: record.backend,
+        wallMs: Date.now(),
+        ...(phase === "outcome"
+          ? {
+              durationMs: elapsed(),
+              outcome,
+              bytes: record.rawBytes,
+              ...(detail ? { detail: detail.slice(0, 300) } : {}),
+            }
+          : {}),
+      });
     const fail = (stage: CallMetric["failure"], message: string): never => {
       record.failure = stage;
-      if (stage === "policy") metrics.policyFailures++;
+      record.durationMs = elapsed();
+      if (stage === "policy" || stage === "denied") metrics.policyFailures++;
       if (stage === "input" || stage === "output") metrics.validationFailures++;
+      emit("outcome", stage, message);
       throw new Error(`${capability}.${operation}: ${stage}: ${message}`);
     };
-    const module = this.modules.get(capability);
+    emit("start");
     const inputValidator = module?.inputs.get(operation);
     if (!module || !inputValidator || !module.allowed.has(operation))
       fail("policy", "operation is not locally allowed");
@@ -101,6 +172,12 @@ export class CapabilityBroker {
         signal,
       );
     } catch (error) {
+      // Classify by error identity and abort state, never by message prose:
+      // DeniedError is a pre-effect resource denial, abort means the run is
+      // gone and the result would be discarded, everything else is transport.
+      if (signal.aborted) return fail("cancelled", "cancelled during dispatch");
+      if (error instanceof DeniedError)
+        return fail("denied", error instanceof Error ? error.message : String(error));
       return fail(
         "transport",
         error instanceof Error ? error.message : String(error),
@@ -108,13 +185,22 @@ export class CapabilityBroker {
     }
     record.rawBytes = result.rawBytes;
     metrics.rawCapabilityBytes += result.rawBytes;
-    signal.throwIfAborted();
+    try {
+      signal.throwIfAborted();
+    } catch {
+      return fail("cancelled", "cancelled after dispatch; result discarded");
+    }
     if (result.isError) fail("transport", "capability returned isError");
+    const finishOk = (value: unknown) => {
+      record.durationMs = elapsed();
+      emit("outcome", "ok");
+      return value;
+    };
     if (outputValidator) {
       const outputError = outputValidator(result.structured);
       if (outputError) fail("output", outputError);
-      return result.structured;
+      return finishOk(result.structured);
     }
-    return result.untyped;
+    return finishOk(result.untyped);
   }
 }

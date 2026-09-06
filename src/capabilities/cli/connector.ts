@@ -45,6 +45,7 @@ export async function connectCli(
   const manifest = cliManifest(id, operations);
   let spawned = 0;
   const connector: CapabilityConnector = {
+    backend: "cli-twin",
     async invoke(operation, input, signal) {
       const op = operations[operation];
       if (!op) throw new Error(`unknown CLI operation ${operation}`);

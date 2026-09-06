@@ -34,6 +34,7 @@ export async function connectMcp(
     } while (cursor);
     const manifest = adaptTools(id, tools);
     const connector: CapabilityConnector = {
+      backend: "mcp",
       async invoke(operation, input, signal) {
         // Use protocol request so the broker owns validation and byte accounting,
         // rather than Client.callTool's additional output-schema validation.

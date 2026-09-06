@@ -24,6 +24,8 @@ export interface CapabilityResult {
   rawBytes: number;
 }
 export interface CapabilityConnector {
+  /** Backend identity for trace events, e.g. "mcp", "cli-twin", "bun-native". */
+  readonly backend?: string;
   invoke(
     operation: string,
     input: Record<string, unknown>,
@@ -31,5 +33,18 @@ export interface CapabilityConnector {
   ): Promise<CapabilityResult>;
   close(): Promise<void>;
 }
+/** Resource denial: raised before any filesystem/Git effect. */
+export class DeniedError extends Error {
+  constructor(message: string) {
+    super(`denied: ${message}`);
+  }
+}
+/** Missing/unreadable resource or bad shape after validation. */
+export class ResourceError extends Error {
+  constructor(message: string) {
+    super(message);
+  }
+}
+
 export const bytes = (value: unknown): number =>
   Buffer.byteLength(JSON.stringify(value) ?? "null");

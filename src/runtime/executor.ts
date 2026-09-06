@@ -1,4 +1,17 @@
-import type { CapabilityBroker, Metrics } from "../capabilities/broker.ts";
+import type {
+  CapabilityBroker,
+  CallTraceContext,
+  Metrics,
+} from "../capabilities/broker.ts";
+
+/** Terminal execution outcome, reported structurally (never parsed from prose). */
+export type ExecutionOutcome = "ok" | "cancelled" | "timeout" | "error";
+export interface ExecutionResult {
+  result?: unknown;
+  error?: string;
+  logs: string[];
+  outcome: ExecutionOutcome;
+}
 
 /** Bun worker hosts an interpreter with no ambient host APIs. */
 export function execute(
@@ -7,16 +20,13 @@ export function execute(
   metrics: Metrics,
   signal: AbortSignal,
   timeoutMs = 5000,
-): Promise<{ result?: unknown; error?: string; logs: string[] }> {
+  trace?: CallTraceContext,
+): Promise<ExecutionResult> {
   return new Promise((resolve) => {
     const controller = new AbortController();
     const worker = new Worker(new URL("./worker.ts", import.meta.url).href);
     let finished = false;
-    const finish = (result: {
-      result?: unknown;
-      error?: string;
-      logs: string[];
-    }) => {
+    const finish = (result: ExecutionResult) => {
       if (finished) return;
       finished = true;
       clearTimeout(timer);
@@ -25,15 +35,21 @@ export function execute(
       worker.terminate();
       resolve(result);
     };
-    const abort = () => finish({ error: "Execution cancelled", logs: [] });
+    const abort = () =>
+      finish({ error: "Execution cancelled", logs: [], outcome: "cancelled" });
     const timer = setTimeout(
-      () => finish({ error: `Execution timeout (${timeoutMs}ms)`, logs: [] }),
+      () =>
+        finish({
+          error: `Execution timeout (${timeoutMs}ms)`,
+          logs: [],
+          outcome: "timeout",
+        }),
       timeoutMs,
     );
     signal.addEventListener("abort", abort, { once: true });
     worker.onerror = (event) => {
       event.preventDefault();
-      finish({ error: event.message, logs: [] });
+      finish({ error: event.message, logs: [], outcome: "error" });
     };
     worker.onmessage = async (event) => {
       const message = event.data;
@@ -43,6 +59,7 @@ export function execute(
           result: message.result,
           error: message.error,
           logs: message.logs,
+          outcome: message.error ? "error" : "ok",
         });
         return;
       }
@@ -54,6 +71,7 @@ export function execute(
             message.input,
             controller.signal,
             metrics,
+            trace,
           );
           if (!finished)
             worker.postMessage({ type: "response", id: message.id, value });

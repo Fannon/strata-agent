@@ -1,5 +1,7 @@
 import { realpath } from "node:fs/promises";
 import { join, normalize, relative, sep, isAbsolute } from "node:path";
+import { DeniedError, ResourceError } from "../manifest.ts";
+export { DeniedError, ResourceError };
 
 export interface RepoPolicy {
   /** Workspace root the capability may read. Canonicalized at connect. */
@@ -20,19 +22,6 @@ export interface ResolvedRepoPolicy {
   maxMatches: number;
   maxFilesScanned: number;
   maxScanFileBytes: number;
-}
-
-/** Resource denial: raised before any filesystem/Git effect. */
-export class DeniedError extends Error {
-  constructor(message: string) {
-    super(`denied: ${message}`);
-  }
-}
-/** Missing/unreadable resource or bad shape after validation. */
-export class ResourceError extends Error {
-  constructor(message: string) {
-    super(message);
-  }
 }
 
 export async function resolvePolicy(policy: RepoPolicy): Promise<ResolvedRepoPolicy> {

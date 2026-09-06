@@ -142,6 +142,7 @@ function manifest(): CapabilityModule {
 }
 
 class RepoConnector implements CapabilityConnector {
+  readonly backend = "bun-native";
   constructor(
     private readonly policy: Awaited<ReturnType<typeof resolvePolicy>>,
   ) {}
