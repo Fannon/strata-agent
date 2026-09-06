@@ -93,3 +93,25 @@ FrontierHarness is a useful harness-evaluation reference, but its inspected publ
 ## Wave-2 round 2026-09-06 (chain/large/over-cap, 18 cells)
 
 16/18 — stock 5/6 ($0.0066), quickjs 6/6 ($0.0127), bun 5/6 ($0.0130). Both misses are R-EXPORT-5 `./c.ts` prefixes (stock r1, bun r1): the path-prefix gap a third and fourth time. Ledger $0.0323 vs key delta $0.0230. Combined all rounds (90 cells): stock 28/30, quickjs 29/30, bun 28/30. Report: [docs/repo-trials.md](../../docs/repo-trials.md).
+
+## Follow-up sequence (agreed 2026-09-06, after wave-2)
+
+Seeded unambiguous tasks are exhausted as a discriminator (90 cells tied
+within noise); harder mechanics moved neither correctness nor the cost
+split. Next, in order:
+
+1. **Close the path-prefix saga (offline, no spend).** Echo the path
+   convention in the runner prompt and add a normalized-correctness column
+   next to (never replacing) the exact verdict. Frozen oracles stand.
+2. **Genuine ambiguity.** R-CALL/R-JOIN instances (competing plausible
+   answers: alias traps, near-miss packages) plus a second model — the one
+   untried discriminator. Single-model results cannot separate task
+   difficulty from model quirk.
+3. **Decision gate** per the evaluation plan (continue/narrow/pivot/stop)
+   with all inputs: correctness across difficulty, the stable ~2× token
+   cost of declarations, trip-vs-context trade. Likeliest landing on
+   current evidence: narrow (typed API for aggregation-heavy work, shell
+   elsewhere) — a credible product answer, not a failure.
+
+Explicitly not next: engines (settled — keep both), edits/checks, memory,
+sandboxing, catalog growth. No evidence supports any of them.
