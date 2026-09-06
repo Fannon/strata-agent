@@ -1,0 +1,28 @@
+# 011 — Typed repository orientation without model-authored shell
+
+Status: ready after prerequisites
+Kind: contract design and implementation
+Source: user's package/tree/work-board/Git inspection example.
+Dependencies: 012 read policy, 016 cancellation; selected 005/007 caps included. 013 may refine priorities but is optional.
+
+## Hypothesis
+
+Purposeful read/list/search/Git functions eliminate repeated formatting/parsing work while composing naturally. Current twin fixtures do not establish this. Use the [ACD example](../../ACD.md#start-from-a-caller-workflow) as the first acceptance workflow.
+
+## Slices
+
+- [x] Freeze contracts for `fs.readText/stat/list/find`, `search.text`, `git.status/log`; implement only operations needed by orientation and search→read first. Built 2026-09-05: `repo` capability with `readText`, `searchText` (literal), `gitStatus` (`src/capabilities/repo/`, `test/integration/repo.test.ts` 11 tests). Deferred: stat/list/find/log, offset ranges (maxBytes truncation instead), continuation tokens (truncation flags instead).
+- [x] Add a native implementation of `CapabilityConnector` and trusted catalog binding; start with Bun built-ins, then Node-compatible standard-library APIs. Built on `node:fs/promises` + `Bun.spawn` for Git; declarations/validation reuse the same schemas. No catalog entry yet — direct session wiring only. Consider [024 — fast-glob/fs-extra candidates](024-filesystem-search-library-candidates.md) only for demonstrated gaps or benefits over that baseline.
+- [x] Define relative paths, ranges, UTF-8 limits, missing/binary/incomplete results, stable ordering, continuation/narrowing, ignore/dotfile and symlink rules. Relative-only, NUL/absolute rejected, `.git` excluded, realpath containment (escapes denied), binary/NUL and non-UTF-8 rejected, matches sorted by path/line/column. Dotfile reads work. Best-effort containment (TOCTOU noted), not a hardened sandbox. Explicit `.work` reads must work despite gitignore.
+- [x] Choose the Git backend using [023 — Library-backed capabilities](023-library-backed-capabilities.md): **fixed Git argv, no simple-git dependency.** Status-only needs one `git status --porcelain=v1 -z` call; a library buys nothing here while adding version surface and opaque config/env handling. Revisit if log/history parsing grows. Git subprocess recorded as backend kind. Reuse suitable library contracts; constrain config/environment/helpers and optional index updates. No arbitrary arguments in the agent-facing API.
+- [x] Compare literal native search with ripgrep JSON on semantic fixtures and larger repositories; don't assume regex/ignore parity. Scratch cross-check 2026-09-05: native and `rg -F` agree on match sets; native additionally skips all symlinks and `.git` by policy. No rg adapter built — deferred until scale demands it.
+- [x] Add strict Pi tool profile disabling direct bash/read/edit/write and a distinct hybrid profile. `STRATA_STRICT=1` blocks bash/read/write/edit/find/grep/ls at the `tool_call` hook (predicate unit-tested; hook mechanics follow Pi's permission-gate precedent — end-to-end blocking observed via pilot traces). Hybrid = extension with normal tools. Record native/process/shell backend kinds.
+- [~] Wire seeded real repository tasks into 009, with byte/concurrency limits before host materialization. Standalone feasibility pilot `examples/repo-pilot.ts` (3 tasks × 3 arms × 3 repeats, exact-JSON grading, cost-capped) instead of 009-runner integration — 27/27 pass 2026-09-05, $0.013 on muse-spark-1.3-contributor. Artifacts local under `.work/repo-pilot/`.
+
+## Acceptance
+
+Partially met 2026-09-05: exact answers for manifest fields, symbol location and staged/unstaged/untracked status; traversal/outside-root denial, symlinks, newline names, huge/binary files, pre-abort cancellation. Missing: trees/history operations, mid-call abort determinism, strict-trace shell figures beyond instruction compliance (no blocked attempts occurred — compliance, not resistance, was tested). No edits, generic exec, arbitrary npm imports or hardcoded `inspectRepository` wrapper.
+
+Feasibility pilot (muse-spark-1.3-contributor, 27 cells, $0.013): all arms solved all tasks every repeat; typed arms used only `typed_program` (T2 composed search+read across two programs), stock used read/bash. Token means: A≈2.8k, C≈4.7k, H≈5.7k — declarations overhead dominates on tiny payloads; no cost advantage at this scale. This is wiring/feasibility evidence, not a superiority claim: tasks are trivially easy and the strict arm was never tempted (zero blocked attempts).
+
+Open choices: result/error conventions, pagination versus narrowing, literal-search scope and supported Git formats. Resolve with a few caller scripts before generalization.
