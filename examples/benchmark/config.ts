@@ -1,5 +1,5 @@
 import { resolve } from "node:path";
-import { conditions, tasks, type Condition, type Task } from "./protocol.ts";
+import { conditions, record, tasks, type Condition, type Task } from "./protocol.ts";
 
 export interface Options {
   run: boolean; out: string; model: string; thinking: string;
@@ -66,6 +66,33 @@ export function matrix(config: Pick<Options, "cells" | "repeats">) {
 export interface Budget {
   maxRequests: number; maxTokens: number; maxCostUsd: number;
   requestTokens: number; requestCostUsd: number;
+}
+/** Pre-request admission check shared by the fixture and repository runners. */
+export function priceModel(catalog: unknown, modelId: string, maxOutputTokens: number) {
+  if (!record(catalog) || !Array.isArray((catalog as { data?: unknown }).data))
+    throw new Error("Invalid model catalog");
+  const data = (catalog as { data: unknown[] }).data;
+  const model = data.find((m): m is Record<string, unknown> => record(m) && m.id === modelId);
+  if (!model || !record(model.pricing)) throw new Error(`Requested model not available: ${modelId}`);
+  const pricing = model.pricing;
+  const price = (name: string, fallback?: number) => {
+    if (pricing[name] === undefined && fallback !== undefined) return fallback;
+    if (typeof pricing[name] !== "string" || !(pricing[name] as string).trim()) throw new Error(`Missing price: ${name}`);
+    const n = Number(pricing[name]);
+    if (!Number.isFinite(n) || n < 0) throw new Error(`Invalid price: ${name}`);
+    return n;
+  };
+  const rates = { input: price("prompt"), output: price("completion"),
+    cacheRead: price("input_cache_read", 0), cacheWrite: price("input_cache_write", 0), request: price("request", 0) };
+  const contextWindow = (model as Record<string, unknown>).context_length;
+  if (typeof contextWindow !== "number" || !Number.isSafeInteger(contextWindow) || contextWindow <= 0)
+    throw new Error("Invalid model context limit");
+  // Deliberately over-reserve: full context at the highest input tariff plus capped output.
+  const requestTokens = contextWindow + maxOutputTokens;
+  const requestCostUsd = contextWindow * Math.max(rates.input, rates.cacheRead, rates.cacheWrite)
+    + maxOutputTokens * rates.output + rates.request;
+  if (!Number.isFinite(requestCostUsd)) throw new Error("Unrepresentable request reservation");
+  return { model, rates, contextWindow, requestTokens, requestCostUsd };
 }
 /** Reservations never get refunded based on missing or underreported provider usage. */
 export function reserve(budget: Budget, requests: number) {

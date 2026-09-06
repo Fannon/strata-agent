@@ -1,22 +1,76 @@
-import { isDeepStrictEqual } from "node:util";
-import { mkdir, writeFile, rm } from "node:fs/promises";
+// Repository trial runner (protocol repo-1): stock-pi vs typed-quickjs vs
+// typed-bun on seeded repository tasks. Default is dry-run (no model calls).
+// Live: --run --max-cost-usd <cap> (requires OPENROUTER_API_KEY).
+//
+// Section-0 repairs (issue 028) over the original feasibility pilot:
+// - Pre-request reservations via the shared benchmark guard (loaded in every
+//   profile) instead of a between-cells spend check; missing usage stays null.
+// - Bounded process-group supervision via shared capture() instead of a bare
+//   child kill; stdout/stderr capped, not fully materialized in memory.
+// - Final-answer-only grading: only the last completed assistant message is
+//   graded (pure JSON, else its last ```json block). Exit code, termination,
+//   malformed events and incomplete lifecycles invalidate success.
+// - The oracle lives in the controller: no expected.json beside the repo.
+//   A per-cell canary file detects evaluator-material access through tool
+//   args; hits are policy violations. This is cooperative diagnostics, not a
+//   sandbox: stock shell and direct Bun can read anything on disk.
+// - Pinned run manifest (git commit, model/pricing, tasks, prompts,
+//   declarations, limits) outside candidate-visible directories.
+// - Descriptive profile ids (stock-pi/typed-quickjs/typed-bun) and
+//   counterbalanced profile order within task blocks.
+import { mkdir, readFile, writeFile } from "node:fs/promises";
+import { randomBytes } from "node:crypto";
+import { tmpdir } from "node:os";
+import { join } from "node:path";
+import { reserve, priceModel, type Budget } from "./benchmark/config.ts";
+import { assess, record } from "./benchmark/protocol.ts";
+import { PROFILES, planCells, repoPolicy, snoopedCanary, type RepoProfile } from "./repo-protocol.ts";
+import { capture } from "./benchmark/process.ts";
+import type { GuardConfig } from "./benchmark/guard.ts";
+import { connectRepo } from "../src/capabilities/repo/connector.ts";
+import { createSession } from "../src/session.ts";
 
-// Feasibility pilot: stock Pi vs typed+tools vs typed-only on seeded repo tasks.
-// Default is dry-run (no model calls). Live: --run --max-cost-usd 2.50
+const protocol = "repo-1";
+const artifactVersion = 1;
 const root = new URL("../", import.meta.url).pathname;
 const args = new Set(process.argv.slice(2));
-const opt = (name: string, fallback: string) => {
+const opt = (name: string, fallback: string | undefined) => {
   const i = process.argv.indexOf(name);
   return i === -1 ? fallback : (process.argv[i + 1] ?? fallback);
 };
 const LIVE = args.has("--run");
-const MODEL = opt("--model", "meta/muse-spark-1.3-contributor");
-const MAX_COST = Number(opt("--max-cost-usd", "2.50"));
-const REPEATS = Number(opt("--repeats", "1"));
-const ARMS = opt("--arms", "A,H,C").split(",");
-const TASKS = opt("--tasks", "T1,T2,T3").split(",");
+for (const token of process.argv.slice(2)) {
+  if (!token.startsWith("--")) continue;
+  if (!["--run", "--profiles", "--tasks", "--model", "--max-cost-usd", "--repeats", "--timeout-ms", "--out"].includes(token))
+    throw new Error(`Unknown option ${token} (old A/B/C/H letters were retired; use --profiles stock-pi,typed-quickjs,typed-bun)`);
+}
+type Profile = RepoProfile;
+const KNOWN_TASKS = ["T1", "T2", "T3"];
+const profiles = (opt("--profiles", PROFILES.join(",")) ?? "").split(",").filter(Boolean);
+const tasks = (opt("--tasks", KNOWN_TASKS.join(",")) ?? "").split(",").filter(Boolean);
+const MODEL = opt("--model", "meta/muse-spark-1.3-contributor")!;
+const MAX_COST = opt("--max-cost-usd", undefined);
+const REPEATS = Number(opt("--repeats", "1") ?? "1");
+const TIMEOUT_MS = Number(opt("--timeout-ms", "150000") ?? "150000");
+const OUT = opt("--out", undefined);
+const MAX_REQUESTS = 8;
+const MAX_OUTPUT_TOKENS = 4096;
+const MAX_CELL_TOKENS = 2_000_000;
+const ISOLATION = "cooperative diagnostics: no sandbox; oracle in controller, canary-monitored tool args";
+
+for (const p of profiles)
+  if (!(PROFILES as readonly string[]).includes(p))
+    throw new Error(`Unknown profile ${p}; use --profiles ${PROFILES.join(",")} (old A/B/C/H letters were retired: A=stock-pi, C=typed-quickjs, B=typed-bun)`);
+for (const t of tasks)
+  if (!KNOWN_TASKS.includes(t)) throw new Error(`Unknown task ${t}; use --tasks ${KNOWN_TASKS.join(",")}`);
+if (!Number.isSafeInteger(REPEATS) || REPEATS < 1 || REPEATS > 100) throw new Error("--repeats must be an integer in 1..100");
+if (!Number.isSafeInteger(TIMEOUT_MS) || TIMEOUT_MS <= 0 || TIMEOUT_MS > 600000) throw new Error("--timeout-ms must be in 1..600000");
+if (!/^[\w./:-]+$/.test(MODEL)) throw new Error("Invalid model ID");
+const maxCostUsd = MAX_COST === undefined ? null : Number(MAX_COST);
+if (LIVE && (maxCostUsd === null || !Number.isFinite(maxCostUsd) || maxCostUsd <= 0 || maxCostUsd > 1000))
+  throw new Error("Live runs require explicit --max-cost-usd in (0, 1000]");
 const stamp = new Date().toISOString().replace(/[:.]/g, "-");
-const outDir = `${root}.work/repo-pilot/${stamp}`;
+const outDir = OUT ?? `${root}.work/repo-pilot/${stamp}`;
 const key = process.env.OPENROUTER_API_KEY;
 
 interface Task {
@@ -24,6 +78,35 @@ interface Task {
   ask: string;
   expected: unknown;
 }
+// Counterbalanced profile order within each task block across repeats.
+const cells = planCells(tasks, profiles as Profile[], REPEATS);
+
+const seedTasks: Task[] = [
+  {
+    id: "T1",
+    ask: 'Read package.json and report exactly {"name","version","testScript"} (scripts.test).',
+    expected: { name: "atlas", version: "2.4.1", testScript: "bun test" },
+  },
+  {
+    id: "T2",
+    ask: "Find the definition of the function named `greet`. Report exactly {\"path\" (repo-relative), \"line\" (1-based), \"signature\" (the full definition line, trimmed)}.",
+    expected: {
+      path: "src/main.ts",
+      line: 1,
+      signature: "export function greet(name: string) {",
+    },
+  },
+  {
+    id: "T3",
+    ask: "Report working-tree status exactly {\"branch\",\"staged\",\"unstaged\",\"untracked\"} with sorted arrays.",
+    expected: {
+      branch: "main",
+      staged: ["staged.txt"],
+      unstaged: ["src/main.ts"],
+      untracked: ["notes.txt"],
+    },
+  },
+];
 const seed = async (cell: string) => {
   const repo = `${outDir}/${cell}/repo`;
   await mkdir(`${repo}/src`, { recursive: true });
@@ -41,7 +124,7 @@ const seed = async (cell: string) => {
   );
   await writeFile(`${repo}/README.md`, "# atlas\n");
   const git = (a: string[]) => {
-    const p = Bun.spawnSync(["git", ...a], {
+    const proc = Bun.spawnSync(["git", ...a], {
       cwd: repo,
       env: {
         ...process.env,
@@ -51,8 +134,8 @@ const seed = async (cell: string) => {
         GIT_COMMITTER_EMAIL: "t@t",
       },
     });
-    if (p.exitCode !== 0)
-      throw new Error(`git ${a.join(" ")}: ${p.stderr.toString().slice(0, 200)}`);
+    if (proc.exitCode !== 0)
+      throw new Error(`git ${a.join(" ")}: ${proc.stderr.toString().slice(0, 200)}`);
   };
   git(["init", "-b", "main"]);
   git(["add", "package.json", "src/main.ts", "README.md"]);
@@ -64,220 +147,157 @@ const seed = async (cell: string) => {
     "export function greet(name: string) {\n  return `hello ${name}!`;\n}\n",
   );
   await writeFile(`${repo}/notes.txt`, "todo\n");
-  const tasks: Task[] = [
-    {
-      id: "T1",
-      ask: 'Read package.json and report exactly {"name","version","testScript"} (scripts.test).',
-      expected: { name: "atlas", version: "2.4.1", testScript: "bun test" },
-    },
-    {
-      id: "T2",
-      ask: "Find the definition of the function named `greet`. Report exactly {\"path\" (repo-relative), \"line\" (1-based), \"signature\" (the full definition line, trimmed)}.",
-      expected: {
-        path: "src/main.ts",
-        line: 1,
-        signature: "export function greet(name: string) {",
-      },
-    },
-    {
-      id: "T3",
-      ask: "Report working-tree status exactly {\"branch\",\"staged\",\"unstaged\",\"untracked\"} with sorted arrays.",
-      expected: {
-        branch: "main",
-        staged: ["staged.txt"],
-        unstaged: ["src/main.ts"],
-        untracked: ["notes.txt"],
-      },
-    },
-  ];
-  await writeFile(`${repo}/../expected.json`, JSON.stringify(tasks, null, 2));
-  return { repo, tasks };
+  return repo;
 };
 
-const tooling = {
-  A: "Use the available file and shell tools (read, bash with cat/grep, git).",
-  H: "Prefer typed_program with `import { api } from '@c/repo'` (api.readText/searchText/gitStatus); ordinary file/shell tools also work.",
-  C: "Use ONLY typed_program with `import { api } from '@c/repo'` (api.readText/searchText/gitStatus). Direct file and shell tools are disabled; do not attempt them.",
-  B: "Use ONLY typed_program with `import { api } from '@c/repo'` (api.readText/searchText/gitStatus). Direct file and shell tools are disabled; do not attempt them. Programs run on the direct-Bun executor: capability calls pass the same validation and policy, but ambient host APIs are reachable, so only use the @c/repo api and pure computation.",
+const tooling: Record<Profile, string> = {
+  "stock-pi": "Use the available file and shell tools (read, bash with cat/grep, git).",
+  "typed-quickjs":
+    "Use ONLY typed_program with `import { api } from '@c/repo'` (api.readText/searchText/gitStatus). Direct file and shell tools are disabled; do not attempt them. program_details may inspect past runs.",
+  "typed-bun":
+    "Use ONLY typed_program with `import { api } from '@c/repo'` (api.readText/searchText/gitStatus). Direct file and shell tools are disabled; do not attempt them. program_details may inspect past runs. Programs run on the direct-Bun executor: capability calls pass the same validation and policy, but ambient host APIs are reachable, so only use the @c/repo api and pure computation.",
 };
-const engineOf = (arm: string) => (arm === "B" ? "bun" : arm === "A" ? "n/a-stock" : "quickjs");
-
-const results: Record<string, unknown>[] = [];
-let spent = 0;
-let modelPrice = { input: 0, output: 0 };
+const engineOf = (profile: Profile) =>
+  profile === "typed-bun" ? "bun" : profile === "typed-quickjs" ? "quickjs" : "n/a-stock";
 
 if (!LIVE) {
   console.log(
-    `dry-run: ${TASKS.length} tasks x ${ARMS.length} arms x ${REPEATS} repeats = ${TASKS.length * ARMS.length * REPEATS} cells. No model calls.`,
+    JSON.stringify({ protocol, artifactVersion, note: "Offline dry run: no files, network or model calls. Live mode requires --run and --max-cost-usd.", cells }, null, 2),
   );
-  console.log(`Live with: bun examples/repo-pilot.ts --run --max-cost-usd 2.50`);
-  for (const t of TASKS)
-    for (const a of ARMS)
-      console.log(`  cell ${t}:${a} — ${tooling[a as keyof typeof tooling].slice(0, 60)}…`);
   process.exit(0);
 }
 if (!key) throw new Error("Set OPENROUTER_API_KEY for --run");
+if (process.platform === "win32") throw new Error("Benchmark process supervision currently requires POSIX");
 
-const catalog = (await (
-  await fetch("https://openrouter.ai/api/v1/models", {
-    signal: AbortSignal.timeout(15000),
-  })
-).json()) as {
-  data: { id: string; pricing: { prompt: string; completion: string } }[];
-};
-const entry = catalog.data.find((m) => m.id === MODEL);
-if (!entry) throw new Error(`Model not in catalog: ${MODEL}`);
-modelPrice = {
-  input: Number(entry.pricing.prompt),
-  output: Number(entry.pricing.completion),
-};
-console.log(
-  `model ${MODEL} @ $${modelPrice.input}/tok in, $${modelPrice.output}/tok out; cap $${MAX_COST}`,
-);
-
-const profile = `${outDir}/profile`;
-await mkdir(profile, { recursive: true });
-await Bun.write(
-  `${profile}/models.json`,
-  JSON.stringify(
-    {
-      providers: {
-        openrouter: {
-          baseUrl: "https://openrouter.ai/api/v1",
-          api: "openai-completions",
-          apiKey: "OPENROUTER_API_KEY",
-          models: [
-            { id: MODEL, contextWindow: 128000, maxTokens: 2048, reasoning: false, input: ["text"] },
-          ],
-        },
-      },
-    },
-    null,
-    2,
-  ),
-);
-
-const grade = (text: string, expected: unknown) => {
-  const blocks = [...text.matchAll(/```json\s*([\s\S]*?)```/g)].map((m) => m[1]);
-  for (let i = blocks.length - 1; i >= 0; i--) {
+const results: Record<string, unknown>[] = [];
+await mkdir(join(outDir, ".."), { recursive: true });
+await mkdir(outDir);
+const save = (name: string, data: unknown) => writeFile(join(outDir, name), JSON.stringify(data, null, 2) + "\n");
+try {
+  const response = await fetch("https://openrouter.ai/api/v1/models", { signal: AbortSignal.timeout(15000) });
+  if (!response.ok) throw new Error(`Model catalog: HTTP ${response.status}`);
+  const priced = priceModel(await response.json(), MODEL, MAX_OUTPUT_TOKENS);
+  const { rates, contextWindow, requestTokens, requestCostUsd } = priced;
+  console.log(`model ${MODEL} @ $${rates.input}/tok in, $${rates.output}/tok out; cap $${maxCostUsd}`);
+  await save("pricing.json", { fetchedAt: new Date().toISOString(), source: "https://openrouter.ai/api/v1/models", model: priced.model, rates, requestTokens, requestCostUsd });
+  const gitMeta = async (a: string[]) => {
+    const child = Bun.spawn(["git", ...a], { cwd: root, stdout: "pipe", stderr: "pipe" });
+    const [stdout, stderr, code] = await Promise.all([new Response(child.stdout).text(), new Response(child.stderr).text(), child.exited]);
+    if (code !== 0) throw new Error(`git metadata failed: ${stderr}`);
+    return stdout.trim();
+  };
+  // Declarations snapshot: what typed profiles actually see in their prompts.
+  const { manifest, connector } = await connectRepo({ root: tmpdir() });
+  const declSession = await createSession(manifest, connector, new Set(["readText", "searchText", "gitStatus"]));
+  const declarations = declSession.declarations;
+  await declSession.close();
+  const profileDir = join(outDir, "profile");
+  await mkdir(profileDir);
+  await writeFile(join(profileDir, "settings.json"), JSON.stringify({ compaction: { enabled: false }, retry: { enabled: false, provider: { maxRetries: 0, timeoutMs: TIMEOUT_MS } } }));
+  await writeFile(join(profileDir, "models.json"), JSON.stringify({ providers: { openrouter: {
+    baseUrl: "https://openrouter.ai/api/v1", api: "openai-completions", apiKey: "OPENROUTER_API_KEY",
+    models: [{ id: MODEL, contextWindow, maxTokens: MAX_OUTPUT_TOKENS, reasoning: false, input: ["text"] }],
+  } } }));
+  await save("run-manifest.json", { protocol, artifactVersion, gitCommit: await gitMeta(["rev-parse", "HEAD"]),
+    gitStatus: await gitMeta(["status", "--porcelain"]), bunVersion: Bun.version, platform: process.platform,
+    model: MODEL, thinking: "off", tasks: seedTasks, profiles, limits: { timeoutMs: TIMEOUT_MS, maxRequests: MAX_REQUESTS,
+      maxOutputTokens: MAX_OUTPUT_TOKENS, maxCellTokens: MAX_CELL_TOKENS, maxCostUsd },
+    isolation: ISOLATION, externalRestrictions: "none (same for all profiles); typed profiles additionally run under STRATA_STRICT=1" });
+  await writeFile(join(outDir, "declarations.d.ts"), declarations);
+  let reservedCostUsd = 0;
+  const persist = async () => save("results.json", { protocol, artifactVersion, model: MODEL, reservedCostUsd, cells: results });
+  for (const cell of cells) {
+    const task = seedTasks.find((t) => t.id === cell.task)!;
+    const budget: Budget = { maxRequests: MAX_REQUESTS, maxTokens: MAX_CELL_TOKENS, maxCostUsd: maxCostUsd! - reservedCostUsd, requestTokens, requestCostUsd };
+    const skip = reserve(budget, 0);
+    if (skip) {
+      results.push({ ...cell, status: "not_run", reason: skip });
+      await persist();
+      continue;
+    }
+    const cwd = join(outDir, cell.id);
+    await mkdir(cwd, { recursive: true });
+    const repo = await seed(cell.id);
+    const canary = randomBytes(8).toString("hex");
+    await writeFile(join(repo, ".canary"), `evaluator canary ${canary}: not part of the task, do not read\n`);
+    const guard: GuardConfig = { budget, model: MODEL, maxOutputTokens: MAX_OUTPUT_TOKENS,
+      requestsPath: join(cwd, "requests.jsonl"), stopPath: join(cwd, "stop.json"), promptPath: join(cwd, "effective-prompt.json") };
+    const guardPath = join(cwd, "guard.json");
+    await writeFile(guardPath, JSON.stringify(guard));
+    const prompt =
+      `Working directory is this repository. ${task.ask}\n${tooling[cell.profile]}\nReply with ONLY the \`\`\`json block, no explanation.`;
+    await writeFile(join(cwd, "prompt.txt"), prompt);
+    const configPath = join(cwd, "strata.json");
+    if (cell.profile !== "stock-pi")
+      await writeFile(configPath, JSON.stringify({ transport: "repo", root: repo, allow: ["readText", "searchText", "gitStatus"] }));
+    const { STRATA_CONFIG: _strata, STRATA_BENCHMARK_GUARD: _guard, ...env } = process.env;
+    const cliArgs = [
+      process.execPath,
+      join(root, "node_modules/@mariozechner/pi-coding-agent/dist/cli.js"),
+      "--provider", "openrouter",
+      "--model", MODEL,
+      "--thinking", "off",
+      "--no-session", "--no-extensions", "--no-skills",
+      "--no-prompt-templates", "--no-context-files",
+      "--mode", "json",
+      ...(cell.profile === "stock-pi" ? [] : ["-e", join(root, "src/pi/extension.ts")]),
+      "-e", join(root, "examples/benchmark/guard.ts"),
+      "-p", prompt,
+    ];
+    const processResult = await capture(cliArgs, { cwd: repo, env: { ...env, PI_CODING_AGENT_DIR: profileDir,
+      STRATA_BENCHMARK_GUARD: guardPath,
+      ...(cell.profile === "stock-pi" ? {} : { STRATA_CONFIG: configPath }),
+      ...(cell.profile === "stock-pi" ? {} : { STRATA_STRICT: "1" }),
+      ...(cell.profile === "typed-bun" ? { STRATA_EXECUTOR: "bun" } : {}) },
+      timeoutMs: TIMEOUT_MS, stdoutPath: join(cwd, "stdout.jsonl"), stderrPath: join(cwd, "stderr.txt") });
+    let requests = 0;
     try {
-      if (isDeepStrictEqual(JSON.parse(blocks[i]), expected))
-        return { pass: true as const, parsed: true as const };
-    } catch {
-      /* not JSON; try earlier block */
-    }
-  }
-  return { pass: false as const, parsed: blocks.length > 0 };
-};
-
-for (const taskId of TASKS) {
-  for (const arm of ARMS) {
-    for (let rep = 0; rep < REPEATS; rep++) {
-      const cell = `cell-${taskId}-${arm}-r${rep}`;
-      if (spent >= MAX_COST) {
-        results.push({ cell, verdict: "skipped", reason: "budget exhausted" });
-        continue;
+      const receipts = (await readFile(guard.requestsPath, "utf8")).split("\n").filter(Boolean).map((line) => JSON.parse(line) as unknown);
+      for (const [i, receipt] of receipts.entries()) {
+        if (!record(receipt) || receipt.request !== i + 1 || receipt.reservedTokens !== requestTokens || receipt.reservedCostUsd !== requestCostUsd) throw new Error("Invalid request reservation receipt");
       }
-      const { repo, tasks } = await seed(cell);
-      const task = tasks.find((t) => t.id === taskId)!;
-      const prompt =
-        `Working directory is this repository. ${task.ask}\n${tooling[arm as keyof typeof tooling]}\nReply with ONLY the \`\`\`json block, no explanation.`;
-      const configPath = `${outDir}/${cell}/strata.json`;
-      if (arm !== "A")
-        await Bun.write(
-          configPath,
-          JSON.stringify({
-            transport: "repo",
-            root: repo,
-            allow: ["readText", "searchText", "gitStatus"],
-          }),
-        );
-      const { STRATA_CONFIG: _drop, STRATA_STRICT: _drop2, STRATA_EXECUTOR: _drop3, ...baseEnv } = process.env;
-      const cliArgs = [
-        process.execPath,
-        `${root}node_modules/@mariozechner/pi-coding-agent/dist/cli.js`,
-        "--provider", "openrouter",
-        "--model", MODEL,
-        "--thinking", "off",
-        "--no-session", "--no-extensions", "--no-skills",
-        "--no-prompt-templates", "--no-context-files",
-        "--mode", "json",
-      ];
-      if (arm !== "A") cliArgs.push("-e", `${root}src/pi/extension.ts`);
-      cliArgs.push("-p", prompt);
-      const child = Bun.spawn(cliArgs, {
-        cwd: repo,
-        env: {
-          ...baseEnv,
-          PI_CODING_AGENT_DIR: profile,
-          ...(arm !== "A" ? { STRATA_CONFIG: configPath } : {}),
-          ...(arm === "C" || arm === "B" ? { STRATA_STRICT: "1" } : {}),
-          ...(arm === "B" ? { STRATA_EXECUTOR: "bun" } : {}),
-        },
-        stdout: "pipe",
-        stderr: "pipe",
-      });
-      const timer = setTimeout(() => child.kill(), 120000);
-      const [stdout, stderr, code] = await Promise.all([
-        new Response(child.stdout).text(),
-        new Response(child.stderr).text(),
-        child.exited,
-      ]);
-      clearTimeout(timer);
-      await Bun.write(`${outDir}/${cell}.jsonl`, stdout);
-      await Bun.write(`${outDir}/${cell}.stderr`, stderr);
-      const events = stdout.split("\n").flatMap((line) => {
-        try {
-          return [JSON.parse(line)];
-        } catch {
-          return [];
-        }
-      });
-      const toolUses = events
-        .filter((e) => e.type === "tool_execution_end")
-        .map((e) => ({
-          tool: e.toolName,
-          error: typeof e.error === "string" ? e.error.slice(0, 200) : undefined,
-        }));
-      const blocked = toolUses.filter((t) =>
-        (t.error ?? "").includes("STRATA_STRICT"),
-      ).length;
-      const assistantTexts = events
-        .filter((e) => e.type === "message_end" && e.message?.role === "assistant")
-        .map((e) => {
-          const m = e.message;
-          const text =
-            typeof m.text === "string"
-              ? m.text
-              : Array.isArray(m.content)
-                ? m.content.filter((c: { type: string }) => c.type === "text").map((c: { text: string }) => c.text).join("\n")
-                : "";
-          const u = m.usage ?? {};
-          return { text, in: Number(u.input ?? u.input_tokens ?? u.inputTokens ?? 0), out: Number(u.output ?? u.output_tokens ?? u.outputTokens ?? 0) };
-        });
-      const last = assistantTexts.map((t) => t.text).join("\n");
-      const g = grade(last, task.expected);
-      const cost = assistantTexts.reduce(
-        (s, t) => s + t.in * modelPrice.input + t.out * modelPrice.output,
-        0,
-      );
-      spent += cost;
-      const directEffect = toolUses.filter((t) =>
-        ["bash", "read", "write", "edit", "find", "grep", "ls"].includes(t.tool),
-      ).length;
-      results.push({
-        cell, task: taskId, arm, engine: engineOf(arm), rep, exitCode: code,
-        pass: g.pass, answerParsed: g.parsed,
-        toolUses: toolUses.map((t) => t.tool),
-        blockedAttempts: blocked, directEffectCalls: directEffect,
-        cost, spentTotal: spent,
-      });
-      console.log(
-        `${cell}: pass=${g.pass} parsed=${g.parsed} tools=[${[...new Set(toolUses.map((t) => t.tool))].join(",")}] blocked=${blocked} cost=$${cost.toFixed(4)} spent=$${spent.toFixed(4)}`,
-      );
+      requests = receipts.length;
+    } catch (error) { if ((error as NodeJS.ErrnoException).code !== "ENOENT") throw error; }
+    reservedCostUsd += requests * requestCostUsd;
+    const termination = processResult.exitCode === 78 ? "guard" as const : processResult.termination;
+    let guardStop: unknown = null;
+    if (termination === "guard") {
+      try { guardStop = JSON.parse(await readFile(guard.stopPath, "utf8")); }
+      catch { guardStop = { reason: "Guard exited without a stop receipt" }; }
     }
+    const assessment = assess({ task: cell.task, profile: cell.profile, model: MODEL, stdout: processResult.stdout,
+      exitCode: processResult.exitCode, termination, policy: repoPolicy(cell.profile, task.expected) });
+    const unreserved = assessment.modelResponses > requests;
+    if (unreserved) {
+      assessment.harness.healthy = false;
+      assessment.harness.errors.push("Assistant response without a request reservation");
+      assessment.success = false;
+    }
+    const snooped = snoopedCanary(processResult.stdout, canary);
+    if (snooped) {
+      assessment.policy.compliant = false;
+      assessment.policy.violations.push("Evaluator canary accessed through tool args");
+      assessment.success = false;
+    }
+    const result = { ...cell, status: "attempted", engine: engineOf(cell.profile),
+      strict: cell.profile !== "stock-pi", containment: "none — cooperative diagnostics",
+      attempt: 1, ...assessment,
+      execution: { exitCode: processResult.exitCode, termination, guardStop, ms: processResult.ms },
+      estimatedCostUsd: assessment.usage.cost === null ? null : assessment.usage.cost + requests * rates.request,
+      reservation: { requests, tokens: requests * requestTokens, costUsd: requests * requestCostUsd },
+      snoopedCanary: snooped,
+      promptBytes: Buffer.byteLength(prompt),
+      declarationBytes: cell.profile === "stock-pi" ? 0 : Buffer.byteLength(declarations) };
+    results.push(result);
+    await save(`${cell.id}.json`, result);
+    await persist();
+    console.log(`${cell.id}: success=${assessment.success} healthy=${assessment.harness.healthy} usageComplete=${assessment.accounting.complete} snooped=${snooped}`);
+    if (unreserved) throw new Error("Stopping run: guard request accounting failed");
   }
+  // Incorrect answers are data; incomplete execution/accounting/adherence invalidates a comparison run.
+  if (results.some((r) => (r as Record<string, unknown>).status !== "attempted" || !record((r as Record<string, unknown>).harness) || !((r as Record<string, unknown>).harness as Record<string, unknown>).healthy || !record((r as Record<string, unknown>).accounting) || !((r as Record<string, unknown>).accounting as Record<string, unknown>).complete || !record((r as Record<string, unknown>).policy) || !((r as Record<string, unknown>).policy as Record<string, unknown>).compliant)) process.exitCode = 1;
+  console.log(`Results: ${join(outDir, "results.json")}`);
+} catch (error) {
+  await save("failure.json", { error: error instanceof Error ? error.message : String(error) });
+  throw error;
 }
-await Bun.write(`${outDir}/results.json`, JSON.stringify({ model: MODEL, spent, results }, null, 2));
-console.log(`done: spent $${spent.toFixed(4)} of $${MAX_COST}; artifacts in ${outDir}`);
-await rm(`${outDir}/profile`, { recursive: true, force: true }).catch(() => {});

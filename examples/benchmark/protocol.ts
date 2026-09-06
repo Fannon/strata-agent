@@ -71,6 +71,25 @@ const textContent = (value: unknown): string | null => {
   return parts.join("\n");
 };
 
+export interface GradeVerdict { correct: boolean; reason: string | null; }
+/** Task-specific policy injected into the generic trace assessor. The
+ * fixture runner passes the historical fixture policy; repository trials
+ * pass their own grading and tool rules. Defaults preserve v2 behavior. */
+export interface AssessPolicy {
+  grade: (finalText: string) => GradeVerdict;
+  toolViolation: (toolName: string) => string | null;
+  typedCallViolation?: (metrics: Record<string, unknown>) => string | null;
+  collectTypedMetrics: boolean;
+  observeRecovery: boolean;
+  recoveryRequired: boolean;
+  noToolsViolation: string | null;
+}
+export interface AssessArgs {
+  task: string; profile: string; model: string;
+  stdout: string; exitCode: number | null;
+  termination: "timeout" | "output_limit" | "budget" | "guard" | "spawn_error" | null;
+  policy: AssessPolicy;
+}
 export interface Usage {
   input: number | null;
   output: number | null;
@@ -85,8 +104,40 @@ export interface TraceInput {
   termination: "timeout" | "output_limit" | "budget" | "guard" | "spawn_error" | null;
 }
 
+/** Historical fixture policy: preserves v2 grading, tool rules and the T4 recovery check. */
+export function fixturePolicy(condition: Condition, task: Task): AssessPolicy {
+  return {
+    grade: (finalText) => gradeAnswer(task, finalText),
+    toolViolation: (name) => condition !== "A"
+      ? (name !== "typed_program" ? `Forbidden tool: ${name}` : null)
+      : (!["bash", "read", "edit", "write"].includes(name) ? `Non-stock tool: ${name}` : null),
+    typedCallViolation: condition === "B"
+      ? (m) => {
+        const calls = Array.isArray(m.calls) ? m.calls.length : 0;
+        const capabilityCalls = typeof m.capabilityCalls === "number" ? m.capabilityCalls : 0;
+        const diagnostics = Array.isArray(m.diagnostics) ? m.diagnostics : [];
+        return (capabilityCalls > 1 || calls > 1 || (diagnostics.length === 0 && calls !== 1))
+          ? "B requires one attempted capability call per executed program"
+          : null;
+      }
+      : undefined,
+    collectTypedMetrics: condition !== "A",
+    observeRecovery: true,
+    recoveryRequired: task === "T4",
+    noToolsViolation: "No fixture tool use observed",
+  };
+}
+
 /** Parse Pi's event stream, never console/tool text impersonating an assistant. */
 export function assessTrace(input: TraceInput) {
+  return assess({ task: input.task, profile: input.condition, model: input.model,
+    stdout: input.stdout, exitCode: input.exitCode, termination: input.termination,
+    policy: fixturePolicy(input.condition, input.task) });
+}
+
+/** Generic assessor: lifecycle, tool pairing, typed metrics, usage and the
+ * injected task policy. Fixture-specific assumptions live in AssessPolicy. */
+export function assess(input: AssessArgs) {
   const errors: string[] = [];
   const violations: string[] = [];
   const accounting: string[] = [];
@@ -121,8 +172,8 @@ export function assessTrace(input: TraceInput) {
       seenCalls.add(event.toolCallId);
       pending.set(event.toolCallId, { name: event.toolName, args: event.args });
       toolCounts[event.toolName] = (toolCounts[event.toolName] ?? 0) + 1;
-      if (input.condition !== "A" && event.toolName !== "typed_program") violations.push(`Forbidden tool: ${event.toolName}`);
-      if (input.condition === "A" && !["bash", "read", "edit", "write"].includes(event.toolName)) violations.push(`Non-stock tool: ${event.toolName}`);
+      const toolViolation = input.policy.toolViolation(event.toolName);
+      if (toolViolation) violations.push(toolViolation);
       lastToolIndex = index;
     } else if (event.type === "tool_execution_end") {
       const call = typeof event.toolCallId === "string" ? pending.get(event.toolCallId) : undefined;
@@ -160,9 +211,8 @@ export function assessTrace(input: TraceInput) {
         capabilityCalls += m.capabilityCalls as number;
         rawCapabilityBytes += m.rawCapabilityBytes as number;
         bytesExposedToPi += m.bytesExposedToPi as number;
-        if (input.condition === "B" && ((m.capabilityCalls as number) > 1 || m.calls.length > 1 || (m.diagnostics.length === 0 && m.calls.length !== 1))) {
-          violations.push("B requires one attempted capability call per executed program");
-        }
+        const callViolation = input.policy.typedCallViolation?.(m);
+        if (callViolation) violations.push(callViolation);
         const rejected = event.isError && m.capabilityCalls === 0 && m.calls.length === 0 &&
           m.diagnostics.some((d) => typeof d === "string" && d.includes('"XX"'));
         if (rejected) rejectionIndex = index;
@@ -209,12 +259,12 @@ export function assessTrace(input: TraceInput) {
   if (!assistantCount || lastAssistantStop !== "stop" || lastAssistantIndex < lastToolIndex) errors.push("No completed final assistant answer");
   if (input.exitCode !== 0) errors.push(`Process exit: ${input.exitCode}`);
   if (input.termination) errors.push(`Terminated: ${input.termination}`);
-  const correctness = gradeAnswer(input.task, finalText);
-  if (input.task === "T4" && !recovered) {
+  const correctness = input.policy.grade(finalText);
+  if (input.policy.recoveryRequired && !recovered) {
     correctness.correct = false;
     correctness.reason = "Missing observed rejection followed by successful recovery";
   }
-  if (!seenCalls.size) violations.push("No fixture tool use observed");
+  if (!seenCalls.size && input.policy.noToolsViolation) violations.push(input.policy.noToolsViolation);
   const healthy = errors.length === 0;
   return {
     success: correctness.correct && healthy && violations.length === 0,
@@ -223,8 +273,8 @@ export function assessTrace(input: TraceInput) {
     harness: { healthy, errors: [...new Set(errors)] },
     accounting: { complete: assistantCount > 0 && accounting.length === 0, issues: [...new Set(accounting)] },
     usage, toolCounts, finalText, modelResponses: assistantCount,
-    metrics: { piToolBytes, capabilityCalls: typedMetricsComplete && input.condition !== "A" ? capabilityCalls : null,
-      rawCapabilityBytes: typedMetricsComplete && input.condition !== "A" ? rawCapabilityBytes : null,
-      bytesExposedToPi: typedMetricsComplete && input.condition !== "A" ? bytesExposedToPi : null },
+    metrics: { piToolBytes, capabilityCalls: typedMetricsComplete && input.policy.collectTypedMetrics ? capabilityCalls : null,
+      rawCapabilityBytes: typedMetricsComplete && input.policy.collectTypedMetrics ? rawCapabilityBytes : null,
+      bytesExposedToPi: typedMetricsComplete && input.policy.collectTypedMetrics ? bytesExposedToPi : null },
   };
 }
