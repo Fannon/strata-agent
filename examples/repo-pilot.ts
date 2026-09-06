@@ -24,7 +24,7 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { reserve, priceModel, type Budget } from "./benchmark/config.ts";
 import { assess, record } from "./benchmark/protocol.ts";
-import { PROFILES, planCells, repoPolicy, snoopedCanary, trialTasks, buildTrialFixture, cellCharge, type RepoProfile } from "./repo-protocol.ts";
+import { PROFILES, planCells, repoPolicy, snoopedCanary, trialTasks, buildTrialFixture, cellCharge, normalizedCorrect, type RepoProfile } from "./repo-protocol.ts";
 import { capture } from "./benchmark/process.ts";
 import type { GuardConfig } from "./benchmark/guard.ts";
 import { connectRepo } from "../src/capabilities/repo/connector.ts";
@@ -191,7 +191,7 @@ try {
     const guardPath = join(cwd, "guard.json");
     await writeFile(guardPath, JSON.stringify(guard));
     const prompt =
-      `Working directory is this repository. ${task.ask}\n${tooling[cell.profile]}\nReply with ONLY the \`\`\`json block, no explanation.`;
+      `Working directory is this repository. ${task.ask}\n${tooling[cell.profile]}\nReport paths exactly as the API returns them: root-relative, no leading ./. Reply with ONLY the \`\`\`json block, no explanation.`;
     await writeFile(join(cwd, "prompt.txt"), prompt);
     const configPath = join(cwd, "strata.json");
     if (cell.profile !== "stock-pi")
@@ -255,6 +255,7 @@ try {
       reservation: { requests, tokens: requests * requestTokens, costUsd: requests * requestCostUsd },
       charge,
       snoopedCanary: snooped,
+      normalizedCorrect: normalizedCorrect(assessment.finalText, task.expected),
       promptBytes: Buffer.byteLength(prompt),
       declarationBytes: cell.profile === "stock-pi" ? 0 : Buffer.byteLength(declarations) };
     results.push(result);

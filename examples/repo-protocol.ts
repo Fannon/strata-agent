@@ -51,6 +51,31 @@ export function gradeFinal(expected: unknown): AssessPolicy["grade"] {
   };
 }
 
+/** Secondary diagnostic: strip a leading ./ from every string in a parsed
+ * answer, then compare. A miss here is a real error; a hit here after an
+ * exact-grading miss is classified formatting variance (path-prefix class).
+ * Never replaces the exact verdict; frozen oracles stand. */
+export function stripDotSlash(value: unknown): unknown {
+  if (typeof value === "string") return value.startsWith("./") ? value.slice(2) : value;
+  if (Array.isArray(value)) return value.map(stripDotSlash);
+  if (value !== null && typeof value === "object")
+    return Object.fromEntries(Object.entries(value as Record<string, unknown>).map(([k, v]) => [k, stripDotSlash(v)]));
+  return value;
+}
+export function normalizedCorrect(finalText: string, expected: unknown): boolean {
+  const text = finalText.trim();
+  const blocks = [...text.matchAll(/```json\s*([\s\S]*?)```/g)].map((m) => m[1]);
+  const candidates = blocks.length ? [text, blocks[blocks.length - 1]!] : [text];
+  for (const candidate of candidates) {
+    try {
+      if (isDeepStrictEqual(stripDotSlash(JSON.parse(candidate)), expected)) return true;
+    } catch {
+      /* not JSON; try the next candidate */
+    }
+  }
+  return false;
+}
+
 export function repoPolicy(profile: RepoProfile, expected: unknown): AssessPolicy {
   return {
     grade: gradeFinal(expected),

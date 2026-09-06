@@ -148,3 +148,12 @@ test("dual ledger deducts reported actuals, falls back to reservations", async (
   const idle = cellCharge(usage, 0, 0.1056768, 0);
   expect(idle.charged).toBe(usage.cost);
 });
+
+test("normalized diagnostic separates prefix variance from real misses", async () => {
+  const { normalizedCorrect } = await import("../../examples/repo-protocol.ts");
+  const expected = { exports: [{ name: "q", path: "c.ts", symbol: "q" }] };
+  expect(normalizedCorrect('{"exports": [{"name": "q", "path": "c.ts", \"symbol\": \"q\"}]}', expected)).toBe(true);
+  expect(normalizedCorrect('```json\n{"exports": [{"name": "q", "path": "./c.ts", "symbol": "q"}]}\n```', expected)).toBe(true);
+  expect(normalizedCorrect('{"exports": [{"name": "q", "path": "wrong.ts", "symbol": "q"}]}', expected)).toBe(false);
+  expect(normalizedCorrect("not json", expected)).toBe(false);
+});
