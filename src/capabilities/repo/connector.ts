@@ -7,8 +7,8 @@ import type {
 import { lstat } from "node:fs/promises";
 import { bytes } from "../manifest.ts";
 import type { RepoPolicy } from "./policy.ts";
-import { resolvePolicy, resolveInRoot, DeniedError } from "./policy.ts";
-import { readText, searchText, gitStatus, listFiles, gitLog } from "./operations.ts";
+import { resolvePolicy, resolveInRoot, checkScopePath, DeniedError } from "./policy.ts";
+import { readText, searchText, gitStatus, listFiles, gitLog, gitDiff, gitShow } from "./operations.ts";
 
 const readTextInput: JsonSchema = {
   type: "object",
@@ -180,6 +180,10 @@ const gitLogInput: JsonSchema = {
       items: { type: "string", minLength: 1, maxLength: 1024 },
       maxItems: 32,
     },
+    withFiles: {
+      type: "boolean",
+      description: "Include per-commit file records (path, status, rename oldPath).",
+    },
   },
   additionalProperties: false,
 };
@@ -190,6 +194,20 @@ const logCommit: JsonSchema = {
     author: { type: "string" },
     date: { type: "string" },
     message: { type: "string" },
+    files: {
+      type: "array",
+      items: {
+        type: "object",
+        properties: {
+          path: { type: "string" },
+          oldPath: { type: "string" },
+          status: { type: "string" },
+        },
+        required: ["path", "status"],
+        additionalProperties: false,
+      },
+    },
+    filesTruncated: { type: "boolean" },
   },
   required: ["hash", "author", "date", "message"],
   additionalProperties: false,
@@ -202,6 +220,78 @@ const gitLogOutput: JsonSchema = {
     hint: { type: "string" },
   },
   required: ["commits", "truncated"],
+  additionalProperties: false,
+};
+const gitDiffInput: JsonSchema = {
+  type: "object",
+  description: "Worktree changes as unified diff: unstaged by default, staged with the flag.",
+  properties: {
+    staged: {
+      type: "boolean",
+      description: "Diff the index instead of the worktree.",
+    },
+    paths: {
+      type: "array",
+      description: "Optional root-relative paths to restrict the diff to.",
+      items: { type: "string", minLength: 1, maxLength: 1024 },
+      maxItems: 32,
+    },
+    maxBytes: {
+      type: "integer",
+      description: "Max diff bytes; longer diffs are cut at a line boundary and report truncated.",
+      minimum: 1,
+      maximum: 1_048_576,
+    },
+  },
+  additionalProperties: false,
+};
+const gitDiffOutput: JsonSchema = {
+  type: "object",
+  properties: {
+    diff: { type: "string" },
+    truncated: { type: "boolean" },
+    totalBytes: { type: "integer" },
+    staged: { type: "boolean" },
+  },
+  required: ["diff", "truncated", "totalBytes", "staged"],
+  additionalProperties: false,
+};
+const gitShowInput: JsonSchema = {
+  type: "object",
+  description: "File content at a Git revision.",
+  properties: {
+    revision: {
+      type: "string",
+      description: "HEAD, HEAD~N / HEAD^N ancestry, or a full 40-hex commit SHA.",
+      pattern: "^(HEAD([~^][0-9]+)?|[0-9a-f]{40})$",
+      maxLength: 100,
+    },
+    path: {
+      type: "string",
+      description: "Root-relative file path at that revision.",
+      minLength: 1,
+      maxLength: 1024,
+    },
+    maxBytes: {
+      type: "integer",
+      description: "Max bytes to return; larger blobs report truncated.",
+      minimum: 1,
+      maximum: 1_048_576,
+    },
+  },
+  required: ["revision", "path"],
+  additionalProperties: false,
+};
+const gitShowOutput: JsonSchema = {
+  type: "object",
+  properties: {
+    path: { type: "string" },
+    revision: { type: "string" },
+    content: { type: "string" },
+    truncated: { type: "boolean" },
+    totalBytes: { type: "integer" },
+  },
+  required: ["path", "revision", "content", "truncated", "totalBytes"],
   additionalProperties: false,
 };
 const gitStatusInput: JsonSchema = {
@@ -226,7 +316,7 @@ function manifest(): CapabilityModule {
   return {
     id: "repo",
     description:
-      "Scoped read-only repository inspection: text reading, file listing, literal search, Git status and history.",
+      "Scoped read-only repository inspection: text reading, file listing, literal search, Git status/history, worktree diffs and historical content.",
     operations: [
       {
         name: "readText",
@@ -263,9 +353,25 @@ function manifest(): CapabilityModule {
       {
         name: "gitLog",
         description:
-          "Newest-first commit history (hash, author, date, subject) from fixed-argv git log, optionally restricted to paths. No shell, no caller-controlled flags.",
+          "Newest-first commit history (hash, author, date, subject) from fixed-argv git log, optionally restricted to paths. withFiles adds per-commit file records with rename-aware old paths.",
         inputSchema: gitLogInput,
         outputSchema: gitLogOutput,
+        metadata: { readOnly: true, idempotent: true },
+      },
+      {
+        name: "gitDiff",
+        description:
+          "Worktree changes as bounded unified diff text (unstaged unless staged is true), optionally restricted to paths. Binary changes appear as Git's own notice.",
+        inputSchema: gitDiffInput,
+        outputSchema: gitDiffOutput,
+        metadata: { readOnly: true, idempotent: true },
+      },
+      {
+        name: "gitShow",
+        description:
+          "File content at HEAD ancestry or a full commit SHA, with the same UTF-8/binary rules as readText.",
+        inputSchema: gitShowInput,
+        outputSchema: gitShowOutput,
         metadata: { readOnly: true, idempotent: true },
       },
     ],
@@ -328,7 +434,11 @@ class RepoConnector implements CapabilityConnector {
         return { structured, untyped: structured, rawBytes: bytes(structured) };
       }
       case "gitLog": {
-        const { limit, paths } = input as { limit?: number; paths?: string[] };
+        const { limit, paths, withFiles } = input as {
+          limit?: number;
+          paths?: string[];
+          withFiles?: boolean;
+        };
         const relPaths: string[] = [];
         for (const sub of paths ?? []) {
           // Option-injection guard precedes resolution: no path may become
@@ -338,7 +448,7 @@ class RepoConnector implements CapabilityConnector {
           const resolved = await resolveInRoot(this.policy, sub);
           relPaths.push(resolved.rel || ".");
         }
-        const structured = await gitLog(this.policy.root, relPaths, limit, this.policy, signal);
+        const structured = await gitLog(this.policy.root, relPaths, limit, this.policy, signal, withFiles);
         return { structured, untyped: structured, rawBytes: bytes(structured) };
       }
       case "listFiles": {
@@ -357,6 +467,42 @@ class RepoConnector implements CapabilityConnector {
           resolved.rel,
           depth,
           limit,
+          signal,
+        );
+        return { structured, untyped: structured, rawBytes: bytes(structured) };
+      }
+      case "gitDiff": {
+        const { staged, paths, maxBytes } = input as {
+          staged?: boolean;
+          paths?: string[];
+          maxBytes?: number;
+        };
+        // Containment-only check: diff filters need no current existence
+        // and Git resolves its own tree; symlinks are meaningless here.
+        const relPaths = (paths ?? []).map((sub) => checkScopePath(this.policy, sub));
+        const structured = await gitDiff(
+          this.policy.root,
+          staged ?? false,
+          relPaths,
+          maxBytes,
+          this.policy,
+          signal,
+        );
+        return { structured, untyped: structured, rawBytes: bytes(structured) };
+      }
+      case "gitShow": {
+        const { revision, path, maxBytes } = input as {
+          revision: string;
+          path: string;
+          maxBytes?: number;
+        };
+        const rel = checkScopePath(this.policy, path);
+        const structured = await gitShow(
+          this.policy.root,
+          revision,
+          rel,
+          maxBytes,
+          this.policy,
           signal,
         );
         return { structured, untyped: structured, rawBytes: bytes(structured) };

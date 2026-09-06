@@ -383,32 +383,29 @@ export interface GitStatusResult {
 }
 
 /**
- * Fixed-argv Git backend (no shell, no user-controlled flags).
- * Porcelain v1 with -z handles unusual filenames; renames report the new path.
+ * Controlled Git invocation shared by all Git-backed operations: fixed argv
+ * assembled by the caller (no caller-controlled flags), LC_ALL=C,
+ * pager forced to cat, no optional locks, 30s deadline, abort kills the
+ * child. Non-zero exit becomes a bounded ResourceError.
  */
-export async function gitStatus(
+async function spawnGit(
   root: string,
+  label: string,
+  args: string[],
   signal: AbortSignal,
-): Promise<GitStatusResult> {
+): Promise<Buffer> {
   if (signal.aborted) throw new Error("cancelled");
-  const proc = Bun.spawn(
-    [
-      "git",
-      "-c",
-      "core.quotePath=false",
-      "status",
-      "--porcelain=v1",
-      "-z",
-      "--untracked-files=all",
-      "--branch",
-    ],
-    {
-      cwd: root,
-      env: { ...process.env, LC_ALL: "C", GIT_OPTIONAL_LOCKS: "0" },
-      stdout: "pipe",
-      stderr: "pipe",
+  const proc = Bun.spawn(["git", ...args], {
+    cwd: root,
+    env: {
+      ...process.env,
+      LC_ALL: "C",
+      GIT_OPTIONAL_LOCKS: "0",
+      GIT_PAGER: "cat",
     },
-  );
+    stdout: "pipe",
+    stderr: "pipe",
+  });
   const kill = () => {
     try {
       proc.kill();
@@ -427,13 +424,30 @@ export async function gitStatus(
     if (signal.aborted) throw new Error("cancelled");
     if (code !== 0)
       throw new ResourceError(
-        `git status failed: ${Buffer.from(err).toString("utf-8", 0, 300).trim() || `exit ${code}`}`,
+        `${label} failed: ${Buffer.from(err).toString("utf-8", 0, 300).trim() || `exit ${code}`}`,
       );
-    return parsePorcelain(Buffer.from(out).toString("utf-8"));
+    return Buffer.from(out);
   } finally {
     clearTimeout(timeout);
     signal.removeEventListener("abort", kill);
   }
+}
+
+/**
+ * Fixed-argv Git backend (no shell, no user-controlled flags).
+ * Porcelain v1 with -z handles unusual filenames; renames report the new path.
+ */
+export async function gitStatus(
+  root: string,
+  signal: AbortSignal,
+): Promise<GitStatusResult> {
+  const out = await spawnGit(
+    root,
+    "git status",
+    ["-c", "core.quotePath=false", "status", "--porcelain=v1", "-z", "--untracked-files=all", "--branch"],
+    signal,
+  );
+  return parsePorcelain(out.toString("utf-8"));
 }
 
 export interface LogCommit {
@@ -441,12 +455,23 @@ export interface LogCommit {
   author: string;
   date: string;
   message: string;
+  /** Per-commit file records; present only when withFiles was requested. */
+  files?: FileChange[];
+  /** Present when the commit touched more files than maxCommitFiles. */
+  filesTruncated?: boolean;
 }
 export interface GitLogResult {
   commits: LogCommit[];
   truncated: boolean;
   /** Present when truncated: how to narrow (paths/limit). */
   hint?: string;
+}
+
+export interface FileChange {
+  path: string;
+  oldPath?: string;
+  /** Name-status letter: A/M/D/R/C/T. */
+  status: string;
 }
 
 /**
@@ -461,16 +486,17 @@ export async function gitLog(
   limit: number | undefined,
   policy: ResolvedRepoPolicy,
   signal: AbortSignal,
+  withFiles?: boolean,
 ): Promise<GitLogResult> {
-  if (signal.aborted) throw new Error("cancelled");
   const count = Math.min(limit ?? 20, policy.maxLogCommits);
   for (const p of relPaths) {
     if (p.startsWith("-") || p.startsWith("/"))
       throw new DeniedError(`not a loggable path: ${p}`);
   }
-  const proc = Bun.spawn(
+  const out = await spawnGit(
+    root,
+    "git log",
     [
-      "git",
       "-c",
       "core.quotePath=false",
       "log",
@@ -481,46 +507,170 @@ export async function gitLog(
       "--",
       ...relPaths,
     ],
-    {
-      cwd: root,
-      env: { ...process.env, LC_ALL: "C", GIT_OPTIONAL_LOCKS: "0" },
-      stdout: "pipe",
-      stderr: "pipe",
-    },
+    signal,
   );
-  const kill = () => {
-    try {
-      proc.kill();
-    } catch {
-      /* already exited */
+  const all = parseLog(out.toString("utf-8"));
+  const commits = all.slice(0, count);
+  const truncated = all.length > count;
+  if (withFiles) {
+    for (const commit of commits) {
+      const files = await commitFiles(root, commit.hash, policy, signal);
+      commit.files = files.changes;
+      if (files.truncated) commit.filesTruncated = true;
     }
-  };
-  signal.addEventListener("abort", kill, { once: true });
-  const timeout = setTimeout(kill, 30_000);
-  try {
-    const [out, err, code] = await Promise.all([
-      new Response(proc.stdout).arrayBuffer(),
-      new Response(proc.stderr).arrayBuffer(),
-      proc.exited,
-    ]);
-    if (signal.aborted) throw new Error("cancelled");
-    if (code !== 0)
-      throw new ResourceError(
-        `git log failed: ${Buffer.from(err).toString("utf-8", 0, 300).trim() || `exit ${code}`}`,
-      );
-    const all = parseLog(Buffer.from(out).toString("utf-8"));
-    const truncated = all.length > count;
-    return {
-      commits: all.slice(0, count),
-      truncated,
-      ...(truncated
-        ? { hint: `history truncated after ${count} commits; restrict with paths or raise limit` }
-        : {}),
-    };
-  } finally {
-    clearTimeout(timeout);
-    signal.removeEventListener("abort", kill);
   }
+  return {
+    commits,
+    truncated,
+    ...(truncated
+      ? { hint: `history truncated after ${count} commits; restrict with paths or raise limit` }
+      : {}),
+  };
+}
+
+/**
+ * Per-commit file records via fixed-argv diff-tree. Rename detection is
+ * pinned (`--find-renames=50%`); `--root` covers the root commit. Merge
+ * commits report no file records with this argv, so tasks use linear
+ * histories. Records sort by path for git-version-stable output.
+ */
+async function commitFiles(
+  root: string,
+  hash: string,
+  policy: ResolvedRepoPolicy,
+  signal: AbortSignal,
+): Promise<{ changes: FileChange[]; truncated: boolean }> {
+  const out = await spawnGit(
+    root,
+    "git diff-tree",
+    [
+      "-c",
+      "core.quotePath=false",
+      "diff-tree",
+      "--no-commit-id",
+      "--name-status",
+      "-z",
+      "-r",
+      "--find-renames=50%",
+      "--root",
+      "--no-color",
+      hash,
+      "--",
+    ],
+    signal,
+  );
+  const changes = parseNameStatus(out.toString("utf-8"));
+  changes.sort((a, b) => (a.path < b.path ? -1 : a.path > b.path ? 1 : 0));
+  const truncated = changes.length > policy.maxCommitFiles;
+  return { changes: changes.slice(0, policy.maxCommitFiles), truncated };
+}
+
+function parseNameStatus(text: string): FileChange[] {
+  const fields = text.split("\0").filter((f) => f.length > 0);
+  const changes: FileChange[] = [];
+  for (let i = 0; i < fields.length; i++) {
+    const status = fields[i];
+    if (!/^[ACDMRTU][0-9]*$/.test(status)) continue;
+    const kind = status[0];
+    if (kind === "R" || kind === "C") {
+      const oldPath = fields[i + 1];
+      const path = fields[i + 2];
+      if (oldPath === undefined || path === undefined) break;
+      changes.push({ path: path.slice(0, 1024), oldPath: oldPath.slice(0, 1024), status: kind });
+      i += 2;
+    } else {
+      const path = fields[i + 1];
+      if (path === undefined) break;
+      changes.push({ path: path.slice(0, 1024), status: kind });
+      i += 1;
+    }
+  }
+  return changes;
+}
+
+export interface GitDiffResult {
+  diff: string;
+  truncated: boolean;
+  totalBytes: number;
+  staged: boolean;
+}
+
+/**
+ * Worktree diff (unstaged by default, staged with the flag) via fixed argv.
+ * Raw unified text, cut at the last newline within the byte cap so lines
+ * stay whole; binary changes appear as Git's own "differ" notice.
+ */
+export async function gitDiff(
+  root: string,
+  staged: boolean,
+  relPaths: string[],
+  maxBytes: number | undefined,
+  policy: ResolvedRepoPolicy,
+  signal: AbortSignal,
+): Promise<GitDiffResult> {
+  const cap = Math.min(maxBytes ?? policy.maxDiffBytes, policy.maxDiffBytes);
+  const out = await spawnGit(
+    root,
+    "git diff",
+    [
+      "-c",
+      "core.quotePath=false",
+      "diff",
+      "--no-color",
+      "--no-ext-diff",
+      "--unified=3",
+      ...(staged ? ["--cached"] : []),
+      "--",
+      ...relPaths,
+    ],
+    signal,
+  );
+  const totalBytes = out.length;
+  const cut = totalBytes > cap ? out.subarray(0, cap) : out;
+  // Cut at a line boundary so callers never see a partial line; the kept
+  // newline is included.
+  const nl = totalBytes > cap ? cut.lastIndexOf(0x0a) : -1;
+  const diff = (nl === -1 ? cut : cut.subarray(0, nl + 1)).toString("utf-8");
+  return { diff, truncated: totalBytes > cap, totalBytes, staged };
+}
+
+export interface GitShowResult {
+  path: string;
+  revision: string;
+  content: string;
+  truncated: boolean;
+  totalBytes: number;
+}
+
+/**
+ * Historical file content via `git show rev:path`. Same UTF-8/binary rules
+ * as readText; the revision allowlist lives in the input schema.
+ */
+export async function gitShow(
+  root: string,
+  revision: string,
+  rel: string,
+  maxBytes: number | undefined,
+  policy: ResolvedRepoPolicy,
+  signal: AbortSignal,
+): Promise<GitShowResult> {
+  const cap = Math.min(maxBytes ?? policy.maxReadBytes, policy.maxReadBytes);
+  // Defense in depth: the input schema restricts revisions to HEAD ancestry
+  // and full SHAs; reject anything else before it reaches argv.
+  if (!/^(HEAD([~^][0-9]+)?|[0-9a-f]{40})$/.test(revision))
+    throw new DeniedError(`not an allowed revision: ${revision.slice(0, 100)}`);
+  const out = await spawnGit(root, "git show", ["show", "--no-color", "--no-textconv", `${revision}:${rel}`], signal);
+  const totalBytes = out.length;
+  const take = Math.min(totalBytes, cap);
+  if (out.subarray(0, take).includes(0))
+    throw new ResourceError(`binary file at ${revision}: ${rel}`);
+  let content: string;
+  try {
+    content = new TextDecoder("utf-8", { fatal: true }).decode(out.subarray(0, take));
+  } catch {
+    throw new ResourceError(`not valid UTF-8 at ${revision}: ${rel}`);
+  }
+  return { path: rel, revision, content, truncated: totalBytes > cap, totalBytes };
 }
 
 function parseLog(text: string): LogCommit[] {

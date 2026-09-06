@@ -50,7 +50,7 @@ A symptom-to-fault-location task may replace one initial family after review. Ke
 
 - [ ] Prove each task can be completed through supported APIs with small human-written reference compositions; do not expose those solutions to candidate agents. Keep old operations available. APIs may support generic useful composition, not hardcoded benchmark-answer functions.
 - [ ] If list/find is needed, define deterministic ordering, depth, hidden/ignored files, symlinks, scope and completeness; evaluate Bun.Glob first. Bounded traversal plus sorting a truncated sample is not necessarily a deterministic global prefix.
-- [ ] If history is selected, define fields, byte/commit/path caps, fixed argv, empty/root commit handling, cancellation and Git config/helper controls. Author identity is unnecessary unless the task requires it.
+- [x] If history is selected, define fields, byte/commit/path caps, fixed argv, empty/root commit handling, cancellation and Git config/helper controls. Author identity is unnecessary unless the task requires it. Delivered 2026-09-06 beyond the initial slice: `gitLog(withFiles)` per-commit records (status + rename oldPath, pinned `-M50%`, root via `--root`, merges report none), `gitDiff` (staged/unstaged, bounded, line-cut), `gitShow` (HEAD/SHA allowlist, readText content rules). Reference workflows W2 (status→diff) and W3 (log→show) pass byte-identical on both engines. R-HISTORY task work itself remains follow-up.
 - [ ] Test relevant semantics against actual filesystem/Git fixtures. Policy resolution can itself inspect filesystem metadata: require denial before protected content access or mutation, not the impossible blanket “before any effect.” Validate supported outcomes and category-preserving errors.
 
 ## 3. Pilot and decision

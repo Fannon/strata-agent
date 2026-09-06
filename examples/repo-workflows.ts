@@ -62,6 +62,11 @@ await git(["add", "src/extra.ts"]);
 await git(["commit", "-m", "second"]);
 await writeFile(join(dir, "notes.txt"), "todo: refactor greet\n");
 await writeFile(join(dir, "src", "main.ts"), mainTs.replace("hello", "hi"));
+await writeFile(
+  join(dir, "src", "util.ts"),
+  "export function helper(n: string) {\n  return n.trimStart();\n}\n",
+);
+await git(["add", "src/util.ts"]);
 
 const OPS = ["readText", "searchText", "gitStatus", "listFiles", "gitLog", "gitDiff", "gitShow", "gitCommitFiles"];
 const results: Record<string, Record<ExecutorKind, unknown>> = {};
@@ -146,6 +151,80 @@ await runWorkflow(
       filesScanned: 1,
       filesSkipped: 0,
     },
+  },
+);
+
+// W2: status tells what changed; diffs show how. The program strips `index`
+// lines (blob hashes vary by Git version) with plain string ops — no broker
+// call for pure transformations.
+await runWorkflow(
+  "W2 status→diffs",
+  `import { api } from '@c/repo';
+   export async function main() {
+     const status = await api.gitStatus({});
+     const unstaged = await api.gitDiff({});
+     const staged = await api.gitDiff({ staged: true });
+     const strip = (d: string) => d.split("\\n").filter((l) => !l.startsWith("index ")).join("\\n");
+     return { status, unstaged: strip(unstaged.diff), staged: strip(staged.diff) };
+   }`,
+  {
+    status: {
+      branch: "main",
+      staged: ["src/util.ts"],
+      unstaged: ["src/main.ts"],
+      untracked: ["notes.txt"],
+    },
+    unstaged:
+      "diff --git a/src/main.ts b/src/main.ts\n" +
+      "--- a/src/main.ts\n" +
+      "+++ b/src/main.ts\n" +
+      "@@ -1,7 +1,7 @@\n" +
+      " import { helper } from \"./util\";\n" +
+      " \n" +
+      " export function greet(name: string) {\n" +
+      "-  return `hello ${helper(name)}`;\n" +
+      "+  return `hi ${helper(name)}`;\n" +
+      " }\n" +
+      " \n" +
+      " export function farewell(name: string) {\n",
+    staged:
+      "diff --git a/src/util.ts b/src/util.ts\n" +
+      "--- a/src/util.ts\n" +
+      "+++ b/src/util.ts\n" +
+      "@@ -1,3 +1,3 @@\n" +
+      " export function helper(n: string) {\n" +
+      "-  return n.trim();\n" +
+      "+  return n.trimStart();\n" +
+      " }\n",
+  },
+);
+
+// W3: history tells what changed per commit; show recovers old content.
+await runWorkflow(
+  "W3 log→show",
+  `import { api } from '@c/repo';
+   export async function main() {
+     const log = await api.gitLog({ withFiles: true, limit: 5 });
+     const first = log.commits[log.commits.length - 1];
+     const oldMain = await api.gitShow({ revision: first.hash, path: "src/main.ts" });
+     return {
+       messages: log.commits.map((c) => c.message),
+       files: log.commits.map((c) => c.files),
+       oldContent: oldMain.content,
+     };
+   }`,
+  {
+    messages: ["second", "first"],
+    files: [
+      [{ path: "src/extra.ts", status: "A" }],
+      [
+        { path: "docs/guide.md", status: "A" },
+        { path: "package.json", status: "A" },
+        { path: "src/main.ts", status: "A" },
+        { path: "src/util.ts", status: "A" },
+      ],
+    ],
+    oldContent: mainTs,
   },
 );
 

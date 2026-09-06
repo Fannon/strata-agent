@@ -18,6 +18,10 @@ export interface RepoPolicy {
   maxListEntries?: number;
   /** Max commits returned by one gitLog call. Default 50. */
   maxLogCommits?: number;
+  /** Max diff bytes returned by one gitDiff call. Default 65536. */
+  maxDiffBytes?: number;
+  /** Max file records per commit for gitLog withFiles. Default 200. */
+  maxCommitFiles?: number;
   /** Max lines returned by one readText call. Default 2000. */
   maxReadLines?: number;
 }
@@ -30,6 +34,8 @@ export interface ResolvedRepoPolicy {
   maxScanFileBytes: number;
   maxListEntries: number;
   maxLogCommits: number;
+  maxDiffBytes: number;
+  maxCommitFiles: number;
   maxReadLines: number;
 }
 
@@ -48,6 +54,8 @@ export async function resolvePolicy(policy: RepoPolicy): Promise<ResolvedRepoPol
     maxScanFileBytes: policy.maxScanFileBytes ?? 262_144,
     maxListEntries: policy.maxListEntries ?? 500,
     maxLogCommits: policy.maxLogCommits ?? 50,
+    maxDiffBytes: policy.maxDiffBytes ?? 65_536,
+    maxCommitFiles: policy.maxCommitFiles ?? 200,
     maxReadLines: policy.maxReadLines ?? 2000,
   };
 }
@@ -62,6 +70,24 @@ function rejectGitDir(root: string, candidate: string): void {
     throw new DeniedError("the .git directory is not readable through this capability");
 }
 
+/**
+ * Containment-only path check for Git-scoped arguments (diff filters,
+ * historical paths). Unlike resolveInRoot it requires no current existence
+ * and follows no symlinks: Git resolves its own tree, so only the
+ * normalized prefix and .git exclusion apply. Never sufficient before
+ * filesystem I/O.
+ */
+export function checkScopePath(policy: ResolvedRepoPolicy, userPath: string): string {
+  if (!userPath || userPath.includes("\0"))
+    throw new DeniedError("path must be a non-empty string without NUL");
+  if (isAbsolute(userPath) || userPath.startsWith("~"))
+    throw new DeniedError("only root-relative paths are accepted");
+  const joined = normalize(join(policy.root, userPath));
+  if (!insideRoot(policy.root, joined))
+    throw new DeniedError(`path escapes the repository root: ${userPath}`);
+  rejectGitDir(policy.root, joined);
+  return relative(policy.root, joined).split(sep).join("/") || ".";
+}
 /**
  * Resolve a caller-supplied relative path to an absolute path inside the root.
  * Best-effort containment, enforced in trusted host code before I/O:
