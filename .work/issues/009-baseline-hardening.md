@@ -16,6 +16,8 @@ Dependencies: [001](001-benchmark.md) baseline (done); T3 rewording pairs with [
 
 The historical v1 runner used substring/regex answer checks; T2 can accept extra wrong IDs and T4 grades error text without checking the final answer or successful recovery. A timeout could produce `pass: true`; Slice A repairs that. B/C tool restrictions remain prompt instructions plus post-hoc detection; they are not enforced tool profiles. Condition D exists only as a separate demo, not in the runner. Repeats alone do not repair these problems.
 
+Historical artifact audit 2026-09-06 (`benchmark/audit.ts` over retained v1 baselines: 50 files, 129 tool calls): 3 files flagged, all one cell (`cell-T2:C`) where the model ran `ls -la ..`, `cat ../twin.json`, `cat ../../../../twin.json` and absolute-path reads of the benchmark dir — harness snooping, not oracle theft (`twin.json` holds transport config, not answers). The v1 grader already failed the cell (forbidden tools `bash`/`read` in a typed-only arm), so the verdict stands; the new auditor would additionally have flagged evaluator-area access as its own violation class. Retained as a worked example of why tool-adherence and evaluator-access are separate verdicts.
+
 The old suggestion of a denied `purge` CLI returning nonzero is not equivalent authorization enforcement. Both arms need the same underlying effect policy and independent counters, or the result must be labeled an enforcement-mode comparison. Warm repeats of the same task also mix caching with answer reuse.
 
 ## Execution plan
