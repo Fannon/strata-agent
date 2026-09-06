@@ -4,7 +4,7 @@ Prototype reviewed at `5079c4d`; benchmark repair delivered in `1513917` on 2026
 
 ## Decision
 
-This document describes the implemented QuickJS executor. The revised [ACD](ACD.md#product-question) makes the typed capability layer enduring and execution replaceable. Direct Bun is a planned comparison, not implemented behavior; preserve contracts, semantic checking, broker validation and observability across engines.
+This document describes the implemented executors. The revised [ACD](ACD.md#product-question) makes the typed capability layer enduring and execution replaceable. QuickJS is the default baseline; direct Bun is implemented opt-in behind the shared executor contract ([comparison](docs/executors.md)). Both preserve contracts, semantic checking, broker validation and observability; only the contained QuickJS worker restricts ambient authority.
 
 Strata is a Pi extension, with Bun as its host runtime and QuickJS/WASM inside a fresh Bun worker for every checked program. A persistent TypeScript 5.9.3 language service checks complete modules. MCP tool metadata is normalized before generating declarations or invoking operations. One broker owns local authorization, validation and per-call instrumentation across all loaded capability modules, keyed by capability and operation.
 
@@ -53,10 +53,10 @@ TypeScript 7.0.2 was current in npm during investigation, but its package expose
 
 | Candidate                            | Assessment                                                                                                                                                                                                                                         |
 | ------------------------------------ | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Direct Bun worker running emitted JS | Lowest friction, but it exposes ambient host process/filesystem/network capabilities. Type declarations alone cannot remove runtime access.                                                                                                        |
+| Direct Bun worker (implemented, opt-in) | Disposable worker per run with fresh JS state; shared checking, validation, policy and tracing. Tens of ms faster at pilot scales with identical contracts. Ambient host authority stays reachable: cooperative adherence only, not containment. See [comparison](docs/executors.md).                                                                                                        |
 | Node worker / child process          | Good lifecycle isolation; still needs an execution environment that removes ambient host authority. Adds a second runtime if used from Bun.                                                                                                        |
 | Node `vm` context                    | Familiar API, but a context is not a security sandbox. Host-object exposure and timeout behavior require care.                                                                                                                                     |
-| QuickJS in Bun worker (chosen)       | Separate interpreter object world, explicit JSON bindings, module allowlist, heap/stack limits and interrupt handler. Worker termination adds responsive cancellation during infinite loops. Costs interpreter startup and serialization overhead. |
+| QuickJS in Bun worker (default baseline) | Separate interpreter object world, explicit JSON bindings, module allowlist, heap/stack limits and interrupt handler. Worker termination adds responsive cancellation during infinite loops. Costs interpreter startup and serialization overhead (tens of ms at pilot scales; see [comparison](docs/executors.md)). |
 
 QuickJS is WebAssembly-hosted, with documented memory management and pending-job APIs; see [quickjs-emscripten](https://github.com/justjake/quickjs-emscripten). Runtime functions return interpreter promises. The worker drains jobs and receives broker responses through messages. Each run owns and disposes its interpreter handles. No host object or function is passed directly into the interpreter: bindings exchange strings/JSON and interpreter handles.
 
