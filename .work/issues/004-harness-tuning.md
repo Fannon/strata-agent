@@ -26,7 +26,15 @@ Compact presentation: `declarations(module, "compact")` — alias module by re-e
 - [x] Account for declaration generation and prompt injection in one place; distinguish source schemas, compiler declarations and model-facing docs. Propose one compact model-facing presentation retaining every operation, input/output type, enum and critical semantic constraint.
 - [x] Produce an offline size report and declaration/type-contract parity checks. Preserve grants, runtime schemas, task access and error behavior. Do not select operations using hidden answers. Per-task subsets or on-demand loading change a different factor and require a separate labeled experiment.
 
-## Slice B — bounded paired development trial
+## Slice B — bounded paired development trial (proposed, awaiting spend selection)
+
+Runner support landed offline (`typed-quickjs-compact` profile: quickjs engine + `STRATA_DECLARATIONS=compact`; both declaration snapshots pinned per run; dry-run validated). No model calls made.
+
+- Matrix: 6 dev R- tasks × stock-pi / typed-quickjs / typed-quickjs-compact × 2 repeats = 36 cells, counterbalanced, fixed model/settings/caps/policy/guard/ledger. Bun arm excluded (executor fixed for this ablation).
+- Command: `bun examples/repo-pilot.ts --run --max-cost-usd 5 --repeats 2 --profiles stock-pi,typed-quickjs,typed-quickjs-compact --tasks R-EXPORT-1,R-EXPORT-2,R-LOG-1,R-LOG-2,R-LOC-1,R-LOC-2`.
+- Budget: $5 cap (expected actual ~$0.06 at recent per-cell rates).
+- Predeclared bar: retain compact iff its cost-per-success is ≥15% below full-quickjs with success within 1 cell; otherwise revert. Report correctness, cost/success, responses, context categories, latency, regressions and uncertainty either way.
+- If promising: confirm on new uninspected families, then a second model. At most one more coherent revision after this (limit: two).
 
 - [ ] Use one fixed executor/model and baseline versus compact presentation on existing development tasks. Match backend, checker, caps, policy and fresh-run state. Include stock as the reference, without restricting its scripting.
 - [ ] Predeclare matrix, budget, ordering and practical improvement threshold using docs/evaluation.md. Use existing explicit authorization only within remaining scope; otherwise obtain a concrete spend selection. Preserve all attempts, policy flags, missing usage and cost discrepancies.

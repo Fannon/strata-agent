@@ -10,7 +10,7 @@ import type { Usage } from "./benchmark/protocol.ts";
 import { record, type AssessPolicy } from "./benchmark/protocol.ts";
 import { auditToolArgs } from "./benchmark/audit.ts";
 
-export const PROFILES = ["stock-pi", "typed-quickjs", "typed-bun"] as const;
+export const PROFILES = ["stock-pi", "typed-quickjs", "typed-bun", "typed-quickjs-compact"] as const;
 export type RepoProfile = (typeof PROFILES)[number];
 export const STOCK_TOOLS = ["bash", "read", "write", "edit", "find", "grep", "ls"];
 export const TYPED_TOOLS = ["typed_program", "program_details"];

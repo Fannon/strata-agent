@@ -87,9 +87,13 @@ const tooling: Record<Profile, string> = {
     "Use ONLY typed_program with `import { api } from '@c/repo'`. Direct file and shell tools are disabled; do not attempt them. program_details may inspect past runs.",
   "typed-bun":
     "Use ONLY typed_program with `import { api } from '@c/repo'`. Direct file and shell tools are disabled; do not attempt them. program_details may inspect past runs. Programs run on the direct-Bun executor: capability calls pass the same validation and policy, but ambient host APIs are reachable, so only use the @c/repo api and pure computation.",
+  "typed-quickjs-compact":
+    "Use ONLY typed_program with `import { api } from '@c/repo'`. Direct file and shell tools are disabled; do not attempt them. program_details may inspect past runs.",
 };
 const engineOf = (profile: Profile) =>
-  profile === "typed-bun" ? "bun" : profile === "typed-quickjs" ? "quickjs" : "n/a-stock";
+  profile === "typed-bun" ? "bun" : profile === "stock-pi" ? "n/a-stock" : "quickjs";
+const declarationsOf = (profile: Profile) =>
+  profile === "typed-quickjs-compact" ? "compact" : "full";
 
 // Counterbalanced profile order within each task block across repeats.
 const cells = planCells(tasks, profiles as Profile[], REPEATS);
@@ -147,6 +151,9 @@ try {
   const declSession = await createSession(manifest, connector, new Set(FULL_READ_ALLOW));
   const declarations = declSession.declarations;
   await declSession.close();
+  const declCompactSession = await createSession(manifest, connector, new Set(FULL_READ_ALLOW), { declarations: "compact" });
+  const declarationsCompact = declCompactSession.declarations;
+  await declCompactSession.close();
   const profileDir = join(outDir, "profile");
   await mkdir(profileDir);
   await writeFile(join(profileDir, "settings.json"), JSON.stringify({ compaction: { enabled: false }, retry: { enabled: false, provider: { maxRetries: 0, timeoutMs: TIMEOUT_MS } } }));
@@ -162,6 +169,7 @@ try {
       maxOutputTokens: MAX_OUTPUT_TOKENS, maxCellTokens: MAX_CELL_TOKENS, maxCostUsd },
     isolation: ISOLATION, externalRestrictions: "none (same for all profiles); typed profiles additionally run under STRATA_STRICT=1" });
   await writeFile(join(outDir, "declarations.d.ts"), declarations);
+  await writeFile(join(outDir, "declarations-compact.d.ts"), declarationsCompact);
   // Dual ledger: admission stays worst-case (guard reservations), while the
   // cap deducts reported actuals per completed cell and falls back to the
   // reservation only when usage is missing. Key-level reconciliation below
@@ -214,7 +222,8 @@ try {
       STRATA_BENCHMARK_GUARD: guardPath,
       ...(cell.profile === "stock-pi" ? {} : { STRATA_CONFIG: configPath }),
       ...(cell.profile === "stock-pi" ? {} : { STRATA_STRICT: "1" }),
-      ...(cell.profile === "typed-bun" ? { STRATA_EXECUTOR: "bun" } : {}) },
+      ...(cell.profile === "typed-bun" ? { STRATA_EXECUTOR: "bun" } : {}),
+      ...(cell.profile === "typed-quickjs-compact" ? { STRATA_DECLARATIONS: "compact" } : {}) },
       timeoutMs: TIMEOUT_MS, stdoutPath: join(cwd, "stdout.jsonl"), stderrPath: join(cwd, "stderr.txt") });
     let requests = 0;
     try {
@@ -248,6 +257,7 @@ try {
     spentLedger += charge.charged;
     reservedTotal += charge.reserved;
     const result = { ...cell, status: "attempted", engine: engineOf(cell.profile),
+      declarations: declarationsOf(cell.profile),
       strict: cell.profile !== "stock-pi", containment: "none — cooperative diagnostics",
       attempt: 1, ...assessment,
       execution: { exitCode: processResult.exitCode, termination, guardStop, ms: processResult.ms },
