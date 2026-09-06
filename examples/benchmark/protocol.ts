@@ -135,14 +135,25 @@ export function assessTrace(input: TraceInput) {
       if (text === null) { errors.push("Invalid tool content"); continue; }
       piToolBytes += Buffer.byteLength(text);
       if (call.name === "typed_program") {
-        let report: unknown;
-        try { report = JSON.parse(text); } catch { /* Pi startup errors are plain text. */ }
-        if (!record(report) || !record(report.metrics)) {
+        let parsed: unknown;
+        try { parsed = JSON.parse(text); } catch { /* Pi startup errors are plain text. */ }
+        // Quiet success (031): tool text is { result, program }; full metrics
+        // ride in result.details. Old full-envelope text ({ result, metrics })
+        // is still accepted for historical traces.
+        const details = record(event.result) && record((event.result as Record<string, unknown>).details)
+          ? (event.result as Record<string, unknown>).details as Record<string, unknown>
+          : null;
+        const metricsFromDetails: unknown = details && record(details.metrics) ? details.metrics : null;
+        const metricsFromText: unknown = record(parsed) ? (parsed as Record<string, unknown>).metrics : null;
+        const metricsValue: unknown = record(metricsFromDetails) ? metricsFromDetails : metricsFromText;
+        if (!record(parsed) || !record(metricsValue)) {
           typedMetricsComplete = false;
           errors.push("Missing structured typed_program report (possibly unavailable runtime)");
           continue;
         }
-        const m = report.metrics;
+        // Normalize: report.result works for both quiet and old shapes.
+        const report: Record<string, unknown> = { ...(parsed as Record<string, unknown>), metrics: metricsValue };
+        const m: Record<string, unknown> = report.metrics as Record<string, unknown>;
         if (![m.capabilityCalls, m.rawCapabilityBytes, m.bytesExposedToPi].every(count) || !Array.isArray(m.calls) || !Array.isArray(m.diagnostics)) {
           typedMetricsComplete = false; errors.push("Malformed typed metrics"); continue;
         }

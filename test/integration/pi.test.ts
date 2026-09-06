@@ -19,6 +19,7 @@ test("Pi jiti loader registers one tool; lifecycle initializes and cleans runtim
   expect(extension).toBeDefined();
   expect([...extension.tools.keys()]).toEqual([
     "typed_program",
+    "program_details",
     "search_capabilities",
     "load_capability",
   ]);

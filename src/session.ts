@@ -2,7 +2,6 @@ import { Workspace } from "./compiler/workspace.ts";
 import { CapabilityBroker, type Metrics } from "./capabilities/broker.ts";
 import { declarations, declarationsPreamble } from "./capabilities/schemas.ts";
 import {
-  bytes,
   type CapabilityModule,
   type CapabilityConnector,
 } from "./capabilities/manifest.ts";
@@ -44,6 +43,12 @@ export async function createSession(
   broker.setTracer(sessionId, (event) => sink?.event(event));
   let programSeq = 0;
   let loadSeq = 0;
+  // On-demand detail history for program_details (031). Bounded to the last
+  // 20 programs; stores logs + metrics snapshot only, never raw results.
+  const history = new Map<
+    string,
+    { outcome: Metrics["outcome"]; error?: string; logs: string[]; metrics: Metrics }
+  >();
   return {
     get sessionId() {
       return sessionId;
@@ -53,6 +58,18 @@ export async function createSession(
     },
     traceStats() {
       return { events: sink?.events ?? 0, dropped: sink?.dropped ?? 0 };
+    },
+    /** Bounded on-demand details for program_details (031). Throws on unknown id. */
+    details(programId: string) {
+      const entry = history.get(programId);
+      if (!entry) throw new Error(`Unknown program "${programId}".`);
+      return {
+        program: programId,
+        outcome: entry.outcome,
+        ...(entry.error ? { error: entry.error } : {}),
+        logs: [...entry.logs],
+        metrics: structuredClone(entry.metrics),
+      };
     },
     /** Register another capability module in this live session (discovery load).
      * Returns the new module's declarations so the caller can hand the model
@@ -216,34 +233,93 @@ export async function createSession(
           metrics.outcome = signal.aborted ? "cancelled" : "error";
         }
         if (payload.error) payload.error = payload.error.slice(0, 1500);
-        // Only this bounded text becomes tool content. Metrics never contain raw payloads.
+        // Quiet success, loud error (031): only this bounded `text` becomes
+        // Pi tool content. Success carries just { result, program } so logs
+        // and metrics stay out of model context. Errors stay loud: the full
+        // envelope (error, logs, metrics with diagnostics/calls) plus the
+        // program id, so the model can repair and the benchmark trace keeps
+        // its measurement. Full logs + metrics also stay in host history +
+        // trace, served on demand via details(). Metrics never contain raw payloads.
         const report = { ...payload, metrics: structuredClone(metrics) };
         const finalMetrics = report.metrics;
-        let text = JSON.stringify(report);
-        if (Buffer.byteLength(text) > 23_900) {
-          delete report.result;
-          report.logs = [];
-          report.error =
-            "Response exceeded 24000-byte budget; return a smaller result";
-          finalMetrics.diagnostics = finalMetrics.diagnostics.slice(0, 3);
-          finalMetrics.calls = finalMetrics.calls.slice(0, 10);
+        const ok = finalMetrics.outcome === "ok";
+        type Visible = Record<string, unknown>;
+        let visible: Visible;
+        if (ok) {
+          visible = { result: report.result, program: programId };
+        } else {
+          visible = {
+            error: report.error,
+            logs: report.logs,
+            program: programId,
+            metrics: finalMetrics,
+          };
         }
-        if (bytes(report) > 23_900) {
-          finalMetrics.calls = [];
-          finalMetrics.diagnostics = [
-            "Diagnostics omitted to fit tool output budget",
-          ];
+        let text = JSON.stringify(visible);
+        if (Buffer.byteLength(text) > 23_900) {
+          if (ok) {
+            // Unreachable in practice: worker caps results at 8192 chars.
+            // Still honor the programmatic contract (report.error) below.
+            report.result = undefined;
+            report.logs = [];
+            report.error =
+              "Response exceeded 24000-byte budget; return a smaller result";
+            visible = {
+              error: report.error,
+              program: programId,
+              outcome: finalMetrics.outcome,
+            };
+          } else {
+            delete report.result;
+            report.logs = [];
+            report.error =
+              "Response exceeded 24000-byte budget; return a smaller result";
+            finalMetrics.diagnostics = finalMetrics.diagnostics.slice(0, 3);
+            finalMetrics.calls = finalMetrics.calls.slice(0, 10);
+            visible = {
+              error: report.error,
+              logs: report.logs,
+              program: programId,
+              metrics: finalMetrics,
+            };
+          }
+          text = JSON.stringify(visible);
+        }
+        // Converge the self-counted byte metric with its serialized size.
+        if (!ok) {
+          (visible.metrics as Record<string, unknown>).diagnostics = finalMetrics.diagnostics;
+          (visible.metrics as Record<string, unknown>).calls = finalMetrics.calls;
         }
         do {
-          finalMetrics.bytesExposedToPi = bytes(report);
-          text = JSON.stringify(report);
+          finalMetrics.bytesExposedToPi = Buffer.byteLength(text);
+          if (!ok) {
+            (visible.metrics as Record<string, unknown>).bytesExposedToPi =
+              finalMetrics.bytesExposedToPi;
+            text = JSON.stringify(visible);
+          }
         } while (finalMetrics.bytesExposedToPi !== Buffer.byteLength(text));
         // The durable trace keeps every call event even when the model-facing
-        // report truncates call detail above; never treat the report as audit.
+        // text omits them above; never treat the tool text as audit.
         metrics.bytesExposedToPi = finalMetrics.bytesExposedToPi;
         finishProgram(finalMetrics.outcome);
         finalMetrics.traceDropped = sink?.dropped ?? 0;
-        return { ...report, text };
+        // Bounded on-demand history for program_details (no raw result).
+        try {
+          history.set(programId, {
+            outcome: finalMetrics.outcome,
+            ...(report.error ? { error: report.error } : {}),
+            logs: [...(report.logs ?? [])],
+            metrics: structuredClone(finalMetrics),
+          });
+          while (history.size > 20) {
+            const oldest = history.keys().next();
+            if (oldest.done) break;
+            history.delete(oldest.value);
+          }
+        } catch {
+          // History is best-effort; never fail the run for it.
+        }
+        return { ...report, program: programId, text };
       })();
       active.add(task);
       void task.finally(() => active.delete(task));

@@ -280,7 +280,7 @@ export default function strata(pi: ExtensionAPI) {
   pi.on("before_agent_start", async (event) => ({
     systemPrompt:
       event.systemPrompt +
-      "\n\nStrata typed_program accepts a complete TypeScript module. Import { api } from '@c/<capability>' (e.g. '@c/fixture'; '@cap/' works too) and export async function main() returning a JSON-serializable result. Only capability imports and pure computation are available in the default QuickJS executor. The opt-in direct-Bun executor (STRATA_EXECUTOR=bun) additionally leaves ambient host APIs reachable, so it measures cooperative API adherence rather than enforced containment. console.log is bounded. All capability calls pass through local policy and schema validation. Type errors execute no code. Aggregate large results before returning. Further capabilities can be discovered with search_capabilities and added with load_capability; a loaded API appears as another @c/ module and its import block is returned by the load call.\n" +
+      "\n\nStrata typed_program accepts a complete TypeScript module. Import { api } from '@c/<capability>' (e.g. '@c/fixture'; '@cap/' works too) and export async function main() returning a JSON-serializable result. Only capability imports and pure computation are available in the default QuickJS executor. The opt-in direct-Bun executor (STRATA_EXECUTOR=bun) additionally leaves ambient host APIs reachable, so it measures cooperative API adherence rather than enforced containment. console.log is bounded. All capability calls pass through local policy and schema validation. Type errors execute no code. Aggregate large results before returning. Success returns only { result, program }; failures return repair fields (error, diagnostics, failed calls, logs). Fetch full logs/metrics with program_details(program) only when debugging. Further capabilities can be discovered with search_capabilities and added with load_capability; a loaded API appears as another @c/ module and its import block is returned by the load call.\n" +
       (session?.declarations ??
         `Unavailable: ${startupError ?? "not initialized"}`),
   }));
@@ -308,7 +308,7 @@ export default function strata(pi: ExtensionAPI) {
   tool(
     "typed_program",
     "Typed program",
-    "Typecheck and run a complete TypeScript module exporting main(). Compose typed capabilities and return a small JSON result. Fresh disposable worker per run; 5-second execution deadline; output limited to 24 KB including diagnostics and metrics. Engine is QuickJS by default, opt-in direct Bun via STRATA_EXECUTOR.",
+    "Typecheck and run a complete TypeScript module exporting main(). Success returns only { result, program }; failures return repair fields (error, diagnostics, failed calls, logs). Fetch full logs/metrics on demand with program_details. Fresh disposable worker per run; 5-second execution deadline. Engine is QuickJS by default, opt-in direct Bun via STRATA_EXECUTOR.",
     "Compose typed capability calls and process structured data in TypeScript",
     Type.Object({
       source: Type.String({
@@ -326,9 +326,37 @@ export default function strata(pi: ExtensionAPI) {
         params.source as string,
         signal ? { signal } : {},
       );
+      // Quiet success, loud error (031): content is result-only on ok so
+      // logs/metrics stay out of model context; full metrics ride in details
+      // for the benchmark trace without entering the prompt.
+      const details = {
+        program: report.program,
+        outcome: report.metrics.outcome,
+        metrics: report.metrics,
+      };
       if (report.error) throw new Error(report.text);
       return {
         content: [{ type: "text" as const, text: report.text }],
+        details,
+      };
+    },
+  );
+  tool(
+    "program_details",
+    "Program details",
+    "Fetch logs and metrics for a finished typed_program by its program id (returned as `program` in every typed_program result). Use only when you need to debug a failure or inspect call counts; success results already contain the answer.",
+    "Inspect logs and metrics for a finished program",
+    Type.Object({
+      program: Type.String({ description: "Program id, e.g. the 8-char session prefix plus :p1", maxLength: 64 }),
+    }),
+    async (params) => {
+      if (!session)
+        throw new Error(
+          `Typed runtime unavailable: ${startupError ?? "session not started"}`,
+        );
+      const entry = session.details(params.program as string);
+      return {
+        content: [{ type: "text" as const, text: JSON.stringify(entry).slice(0, 23900) }],
         details: {},
       };
     },

@@ -240,7 +240,9 @@ Default limits: 32 KiB source, 5 seconds execution including worker startup, 64 
 
 ### What we measure
 
-Every program report includes source bytes, compile duration, diagnostics, execution duration, attempted operation names, actual connector invocation count, validation/policy failures, capability result bytes, and exact UTF-8 tool-content bytes exposed to Pi. Raw capability bytes mean the serialized MCP result envelope, excluding JSON-RPC and transport framing. Intermediate payloads never appear in metrics.
+Every program run records source bytes, compile duration, diagnostics, execution duration, attempted operation names, actual connector invocation count, validation/policy failures, capability result bytes, and exact UTF-8 tool-content bytes exposed to Pi. Raw capability bytes mean the serialized MCP result envelope, excluding JSON-RPC and transport framing. Intermediate payloads never appear in metrics.
+
+Quiet success, loud error: on success the model sees only `{ result, program }` — no logs or metrics in context. Failures return repair fields (error, diagnostics, failed calls, logs). Full logs and metrics stay in host history (last 20 programs) and the opt-in JSONL trace, fetched on demand with the `program_details` tool.
 
 The live smoke test additionally records Pi's model usage. Generated declarations and the program source also consume context; the byte-reduction metric does not count those or prove total token/cost savings.
 

@@ -216,3 +216,45 @@ test("Unicode output respects byte budget, not only character limit", async () =
   expect(Buffer.byteLength(report.text)).toBeLessThanOrEqual(24000);
   expect(report.metrics.bytesExposedToPi).toBe(Buffer.byteLength(report.text));
 });
+
+test("031: success text is quiet (result + program only)", async () => {
+  const report = await session.run(
+    program("return (await api.customers({country:'DE'})).customers.length;"),
+  );
+  expect(report.error).toBeUndefined();
+  const text = JSON.parse(report.text) as Record<string, unknown>;
+  expect(text.result).toBe(1);
+  expect(typeof text.program).toBe("string");
+  expect("metrics" in text).toBe(false);
+  expect("logs" in text).toBe(false);
+  expect(report.metrics.bytesExposedToPi).toBe(Buffer.byteLength(report.text));
+  // Full detail stays available on demand, not in context.
+  const details = session.details(report.program as string);
+  expect(details.outcome).toBe("ok");
+  expect(details.metrics.capabilityCalls).toBe(1);
+});
+
+test("031: error text is loud (repair fields + program, no raw result)", async () => {
+  const report = await session.run(
+    program("return await api.customers({ county: 'DE' });"),
+  );
+  expect(report.error).toBeDefined();
+  const text = JSON.parse(report.text) as Record<string, unknown>;
+  expect(typeof text.error).toBe("string");
+  expect(typeof text.program).toBe("string");
+  expect("result" in text).toBe(false);
+  const metrics = (text.metrics ?? {}) as { diagnostics?: unknown };
+  expect(Array.isArray(metrics.diagnostics)).toBe(true);
+  expect((metrics.diagnostics as string[]).join("\n")).toContain("country");
+});
+
+test("031: program_details history is bounded and rejects unknown ids", async () => {
+  const first = await session.run("export function main() { return 1; }");
+  const firstId = first.program as string;
+  expect(session.details(firstId).metrics.outcome).toBe("ok");
+  for (let i = 0; i < 22; i++) {
+    await session.run(`export function main() { return ${i}; }`);
+  }
+  expect(() => session.details(firstId)).toThrow();
+  expect(() => session.details("nope")).toThrow();
+});
