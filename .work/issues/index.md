@@ -46,6 +46,8 @@ New follow-ups: [026 — Correlated observability](026-observability.md) minimal
 | [029 — Policy-aware search](029-policy-aware-search.md) | backlog, ready (small) | Hide/mark not-allowed hits in search; load refusal stays authoritative |
 | [030 — Optional memory](030-optional-memory.md) | backlog, idea only | Stateless by default; prefer Pi extension over new store |
 | [031 — Quiet success](031-quiet-success.md) | done | Result-only success text, details on demand; 130 pass |
+| [032 — Coverage track](032-coverage-track.md) | backlog, plan only | Task-first core + miss-log breadth; two-task rule for new ops |
+| [033 — Agentsview mining](033-agentsview-mining.md) | backlog, suggested | Local session counts as coverage sampler; counts only, no transcripts |
 | [022 — `@c/` import alias](022-import-alias.md) | done | Dual-prefix support; `@c/` advertised, `@cap/` retained |
 | [023 — Library-backed capabilities](023-library-backed-capabilities.md) | backlog, informs 011/012 | Evaluate simple-git during the first Git slice; reuse suitable APIs and types, verify Bun compatibility and effect bounds |
 | [024 — Filesystem/search library candidates](024-filesystem-search-library-candidates.md) | backlog, informs 011/012/015 | Bun built-ins first; fast-glob/fs-extra only for demonstrated gaps or benefits; distinguish path discovery from content search |
