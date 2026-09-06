@@ -65,7 +65,7 @@ async function taskExpectedHasTypeExport(): Promise<boolean> {
 test("rlog oracle recomputed independently from fixture files", async () => {
   for (let i = 0; i < RLOG_TASKS.length; i++) {
     const task = RLOG_TASKS[i]!;
-    const files = await buildRlogFixture(dir, i as 0 | 1);
+    const files = await buildRlogFixture(dir, RLOG_TASKS[i]!.fixture);
     const perFile: Record<string, Record<string, number>> = {};
     for (const [name, content] of Object.entries(files)) {
       const base = name.split("/").pop()!;

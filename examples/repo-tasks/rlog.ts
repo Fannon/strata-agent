@@ -31,6 +31,8 @@ import type { ExecutorKind } from "../../src/runtime/executor.ts";
 export interface RlogTask {
   id: string;
   refDate: string;
+  /** Index into FIXTURES below. */
+  fixture: number;
   ask: string;
   expected: { periods: Record<string, { ERROR: number; WARNING: number; INFO: number }> };
 }
@@ -62,6 +64,7 @@ export const RLOG_TASKS: RlogTask[] = [
   {
     id: "R-LOG-1",
     refDate: "2026-02-10",
+    fixture: 0,
     ask: 'Logs live under logs/ as YYYY-MM-DD_*.log with exact [ERROR]/[WARNING]/[INFO] markers; file names give the date. Using reference date 2026-02-10, return exactly {"periods": {"today": {"ERROR","WARNING","INFO"}, "last_7_days": {...}, "last_30_days": {...}, "month_to_date": {...}, "total": {...}}}. Periods are inclusive; total covers all dated files.',
     expected: {
       periods: {
@@ -76,6 +79,7 @@ export const RLOG_TASKS: RlogTask[] = [
   {
     id: "R-LOG-2",
     refDate: "2026-02-10",
+    fixture: 1,
     ask: 'Logs live under logs/ as YYYY-MM-DD_*.log with exact uppercase [ERROR]/[WARNING]/[INFO] markers (other casings do not count; non-.log files do not count). Using reference date 2026-02-10, return exactly {"periods": {"today": {"ERROR","WARNING","INFO"}, "last_7_days": {...}, "last_30_days": {...}, "month_to_date": {...}, "total": {...}}}. Periods are inclusive; total covers all dated files even outside every period.',
     expected: {
       periods: {
@@ -87,12 +91,71 @@ export const RLOG_TASKS: RlogTask[] = [
       },
     },
   },
+  {
+    id: "R-LOG-3",
+    refDate: "2026-05-01",
+    fixture: 2,
+    ask: 'Logs live under logs/ as YYYY-MM-DD_*.log with exact uppercase [ERROR]/[WARNING]/[INFO] markers (non-.log files do not count). Using reference date 2026-05-01, return exactly {"periods": {"today": {"ERROR","WARNING","INFO"}, "last_7_days": {...}, "last_30_days": {...}, "month_to_date": {...}, "total": {...}}}. Periods are inclusive; total covers all dated files even outside every period.',
+    expected: {
+      periods: {
+        today: { ERROR: 1, WARNING: 1, INFO: 2 },
+        last_7_days: { ERROR: 3, WARNING: 1, INFO: 3 },
+        last_30_days: { ERROR: 3, WARNING: 1, INFO: 3 },
+        month_to_date: { ERROR: 1, WARNING: 1, INFO: 2 },
+        total: { ERROR: 3, WARNING: 4, INFO: 3 },
+      },
+    },
+  },
+  {
+    id: "R-LOG-4",
+    refDate: "2026-01-05",
+    fixture: 3,
+    ask: 'Logs live under logs/ as YYYY-MM-DD_*.log with exact uppercase [ERROR]/[WARNING]/[INFO] markers. Using reference date 2026-01-05, return exactly {"periods": {"today": {"ERROR","WARNING","INFO"}, "last_7_days": {...}, "last_30_days": {...}, "month_to_date": {...}, "total": {...}}}. Periods are inclusive across the year boundary; total covers all dated files even outside every period.',
+    expected: {
+      periods: {
+        today: { ERROR: 1, WARNING: 0, INFO: 1 },
+        last_7_days: { ERROR: 4, WARNING: 1, INFO: 1 },
+        last_30_days: { ERROR: 4, WARNING: 3, INFO: 5 },
+        month_to_date: { ERROR: 4, WARNING: 1, INFO: 1 },
+        total: { ERROR: 4, WARNING: 3, INFO: 14 },
+      },
+    },
+  },
 ];
 
-const FIXTURES = [INSTANCE_1, INSTANCE_2];
+// Instance 3 (held-out): April/May boundary. The Apr 30 file is in last_30
+// but not month_to_date; the March file is total-only; README.txt is ignored.
+const INSTANCE_3: Record<string, string> = {
+  "logs/2026-05-01_app.log":
+    "2026-05-01T08:00:00 [ERROR] boot failed\n" +
+    "2026-05-01T08:01:00 [WARNING] cache miss\n" +
+    "2026-05-01T08:02:00 [INFO] listening\n".repeat(2),
+  "logs/2026-04-30_prev.log":
+    "2026-04-30T09:00:00 [ERROR] disk full\n".repeat(2) +
+    "2026-04-30T09:01:00 [INFO] cleaned\n",
+  "logs/2026-03-15_old.log": "2026-03-15T10:00:00 [WARNING] deprecated\n".repeat(3),
+  "logs/README.txt": "[ERROR] not a log file\n".repeat(5),
+};
+
+// Instance 4 (held-out): year boundary. The Dec 20 file is in last_30 but
+// not month_to_date; the February file is future (total only).
+const INSTANCE_4: Record<string, string> = {
+  "logs/2026-01-05_app.log":
+    "2026-01-05T08:00:00 [ERROR] boot failed\n" +
+    "2026-01-05T08:01:00 [INFO] listening\n",
+  "logs/2025-12-20_holiday.log":
+    "2025-12-20T09:00:00 [WARNING] on call\n".repeat(2) +
+    "2025-12-20T09:01:00 [INFO] quiet\n".repeat(4),
+  "logs/2026-01-03_db.log":
+    "2026-01-03T09:00:00 [ERROR] refused\n".repeat(3) +
+    "2026-01-03T09:01:00 [WARNING] slow\n",
+  "logs/2026-02-01_future.log": "2026-02-01T08:00:00 [INFO] ahead\n".repeat(9),
+};
+
+const FIXTURES = [INSTANCE_1, INSTANCE_2, INSTANCE_3, INSTANCE_4];
 
 /** Write one instance fixture into an existing directory. */
-export async function buildRlogFixture(dir: string, instance: 0 | 1): Promise<Record<string, string>> {
+export async function buildRlogFixture(dir: string, instance: number): Promise<Record<string, string>> {
   const files = FIXTURES[instance]!;
   for (const [name, content] of Object.entries(files)) {
     const full = join(dir, name);
@@ -168,7 +231,7 @@ if (import.meta.main) {
   try {
     for (let i = 0; i < RLOG_TASKS.length; i++) {
       const task = RLOG_TASKS[i]!;
-      await buildRlogFixture(dir, i as 0 | 1);
+      await buildRlogFixture(dir, task.fixture);
       const quick = await runReference(dir, "quickjs", task.refDate);
       const bun = await runReference(dir, "bun", task.refDate);
       if (!isDeepStrictEqual(quick, bun))
