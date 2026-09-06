@@ -130,3 +130,12 @@ the exact verdict (never editing frozen oracles); (2) seeded unambiguous
 tasks appear exhausted as a discriminator — the next discrimination, if any,
 will come from genuine ambiguity (competing plausible answers), larger
 scale, or a second model, not from harder mechanics alone.
+
+## Path-prefix close-out re-run (2026-09-06T08-49-02, R-EXPORT-1–5 × 3 profiles × 2, 30 cells)
+
+Both mechanisms from the addendum were implemented (prompt echo +
+`normalizedCorrect` column) and the round re-ran: 29/30 with zero prefix
+misses (4 in the prior 90). Exact and normalized verdicts agreed on all 30
+cells. The single failure is another curious canary read (stock, correct
+answer, flagged per rule). Ledger $0.0466, key delta $0.0282. The saga is
+closed as a mechanism; residual misses of this class now classify themselves.
