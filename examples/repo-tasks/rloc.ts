@@ -133,6 +133,17 @@ export const RLOC_TASKS: RlocTask[] = [
       definition: "export function cartTotal(items: CartItem[], taxRate: number): number {",
     },
   },
+  {
+    id: "R-LOC-5",
+    ask: "Turns an event record into its JSON text form. Report exactly {\"path\" (defining file repo-relative), \"name\" (function name), \"line\" (1-based definition line), \"definition\" (the full definition line, trimmed)}.",
+    fixture: 4,
+    expected: {
+      path: "src/emit/json.ts",
+      name: "emit",
+      line: 4,
+      definition: "export function emit(event: Event): string {",
+    },
+  },
 ];
 
 // Instance 3: email check. Target isEmail; traps are isEmailLike (name
@@ -184,7 +195,42 @@ const LOC_4: Record<string, string> = {
     "function cartTotal(items: unknown): number {\n  return 0;\n}\n",
 };
 
-const FIXTURES = [LOC_1, LOC_2, LOC_3, LOC_4];
+// Instance 5 (wave 2): over-cap narrowing. Twelve sibling `emit`
+// definitions plus usage, test-local and doc traps push literal matches
+// past the default cap, so the broad search truncates and only a glob
+// narrowed re-search completes.
+const LOC_5: Record<string, string> = {
+  "src/emit/json.ts":
+    'import type { Event } from "./event.js";\n' +
+    "\n" +
+    "// Serialize an event for the wire.\n" +
+    "export function emit(event: Event): string {\n" +
+    "  return JSON.stringify(event);\n" +
+    "}\n",
+  "src/emit/event.ts": "export interface Event {\n  kind: string;\n}\n",
+};
+for (const mod of ["yaml", "csv", "text", "xml", "pretty"]) {
+  let body = "";
+  for (let n = 1; n <= 12; n++) body += `// emit variant ${mod}-${n}\n`;
+  body += "export function emit(value: unknown): string {\n  return String(value);\n}\n";
+  (LOC_5 as Record<string, string>)[`src/emit/${mod}.ts`] = body;
+}
+for (const mod of ["one", "two", "three"]) {
+  let body = "";
+  for (let n = 1; n <= 12; n++) body += `// emit log ${mod}-${n}\n`;
+  body += "export function emit(msg: string): void {\n  console.log(msg);\n}\n";
+  (LOC_5 as Record<string, string>)[`src/log/emit${mod}.ts`] = body;
+}
+(LOC_5 as Record<string, string>)["test/emit.test.ts"] =
+  "// The emit helper serializes values for snapshots.\n" +
+  'import { emit } from "../src/emit/json.js";\n' +
+  "\n" +
+  "function emit(x: unknown): string {\n  return \"\";\n}\n";
+(LOC_5 as Record<string, string>)["docs/emit.md"] =
+  "# emit\n\nThe emit helper serializes values.\n\n" +
+  ["a", "b", "c", "d", "e", "f"].map((w) => `emit note ${w}\n`).join("");
+
+const FIXTURES = [LOC_1, LOC_2, LOC_3, LOC_4, LOC_5];
 
 /** Write one instance fixture into an existing directory. */
 export async function buildRlocFixture(dir: string, instance: number): Promise<Record<string, string>> {
@@ -252,6 +298,20 @@ const REFERENCES = [
      if (defs.length !== 1) throw new Error("ambiguous: " + defs.length);
      const pick = defs[0]!;
      return { path: pick.path, name: "cartTotal", line: pick.line, definition: pick.text };
+   }`,
+  `import { api } from '@c/repo';
+   export async function main() {
+     const broad = await api.searchText({ pattern: "emit", maxMatches: 100 });
+     if (!broad.truncated) throw new Error("expected truncation, got complete scan");
+     const narrowed = await api.searchText({ pattern: "emit", include: ["src/emit/json.ts"] });
+     const defs = [];
+     for (const m of narrowed.matches) {
+       if (!m.text.startsWith("export function emit(")) continue;
+       defs.push({ path: m.path, line: m.line, text: m.text });
+     }
+     if (defs.length !== 1) throw new Error("ambiguous: " + defs.length);
+     const pick = defs[0]!;
+     return { path: pick.path, name: "emit", line: pick.line, definition: pick.text };
    }`,
 ];
 

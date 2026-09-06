@@ -121,7 +121,23 @@ export const RLOG_TASKS: RlogTask[] = [
       },
     },
   },
+  {
+    id: "R-LOG-5",
+    refDate: "2026-04-10",
+    fixture: 4,
+    ask: 'Logs live under logs/ as YYYY-MM-DD_*.log with exact uppercase [ERROR]/[WARNING]/[INFO] markers (non-.log files do not count). The logs hold about fifteen hundred lines: aggregate inside the program and return only counts. Using reference date 2026-04-10, return exactly {"periods": {"today": {"ERROR","WARNING","INFO"}, "last_7_days": {...}, "last_30_days": {...}, "month_to_date": {...}, "total": {...}}}. Periods are inclusive; total covers all dated files even outside every period.',
+    expected: {
+      periods: {
+        today: { ERROR: 20, WARNING: 30, INFO: 750 },
+        last_7_days: { ERROR: 25, WARNING: 50, INFO: 1150 },
+        last_30_days: { ERROR: 25, WARNING: 65, INFO: 1200 },
+        month_to_date: { ERROR: 25, WARNING: 50, INFO: 1150 },
+        total: { ERROR: 25, WARNING: 65, INFO: 1400 },
+      },
+    },
+  },
 ];
+
 
 // Instance 3 (held-out): April/May boundary. The Apr 30 file is in last_30
 // but not month_to_date; the March file is total-only; README.txt is ignored.
@@ -152,7 +168,32 @@ const INSTANCE_4: Record<string, string> = {
   "logs/2026-02-01_future.log": "2026-02-01T08:00:00 [INFO] ahead\n".repeat(9),
 };
 
-const FIXTURES = [INSTANCE_1, INSTANCE_2, INSTANCE_3, INSTANCE_4];
+
+// Instance 5 (wave 2): large intermediate (~1,500 lines, ~60KB across files).
+// Aggregation in-program shrinks this below the tool budget; hauling it raw
+// would not fit. Counts below are exact by construction (.repeat counts).
+const INSTANCE_5: Record<string, string> = {
+  "logs/2026-04-10_a.log":
+    "2026-04-10T08:00:00 [INFO] tick-a\n".repeat(400) +
+    "2026-04-10T08:01:00 [ERROR] fail-a\n".repeat(12) +
+    "2026-04-10T08:02:00 [WARNING] slow-a\n".repeat(30),
+  "logs/2026-04-10_b.log":
+    "2026-04-10T09:00:00 [INFO] tick-b\n".repeat(350) +
+    "2026-04-10T09:01:00 [ERROR] fail-b\n".repeat(8),
+  "logs/2026-04-09_c.log":
+    "2026-04-09T10:00:00 [INFO] tick-c\n".repeat(300) +
+    "2026-04-09T10:01:00 [WARNING] slow-c\n".repeat(20),
+  "logs/2026-04-05_d.log":
+    "2026-04-05T11:00:00 [ERROR] fail-d\n".repeat(5) +
+    "2026-04-05T11:01:00 [INFO] tick-d\n".repeat(100),
+  "logs/2026-03-20_e.log":
+    "2026-03-20T12:00:00 [WARNING] old-e\n".repeat(15) +
+    "2026-03-20T12:01:00 [INFO] tick-e\n".repeat(50),
+  "logs/2026-04-10_notes.txt": "[ERROR] not a log file\n".repeat(50),
+  "logs/2026-04-12_future.log": "2026-04-12T08:00:00 [INFO] ahead\n".repeat(200),
+};
+
+const FIXTURES = [INSTANCE_1, INSTANCE_2, INSTANCE_3, INSTANCE_4, INSTANCE_5];
 
 /** Write one instance fixture into an existing directory. */
 export async function buildRlogFixture(dir: string, instance: number): Promise<Record<string, string>> {
@@ -178,12 +219,13 @@ export async function main() {
   const per: Record<string, { ERROR: number; WARNING: number; INFO: number }> = {};
   for (const path of dated) {
     const content = (await api.readText({ path })).content;
-    const counts = { ERROR: 0, WARNING: 0, INFO: 0 };
+    const day = path.split("/").pop()!.slice(0, 10);
+    const counts = per[day] ?? { ERROR: 0, WARNING: 0, INFO: 0 };
+    per[day] = counts;
     for (const line of content.split("\\n")) {
       for (const sev of ["ERROR", "WARNING", "INFO"] as const)
         if (line.includes("[" + sev + "]")) counts[sev]++;
     }
-    per[path.split("/").pop()!.slice(0, 10)] = counts;
   }
   const at = (d: string) => new Date(d + "T00:00:00Z").getTime();
   const inRange = (d: string, from: string, to: string) => at(d) >= at(from) && at(d) <= at(to);
@@ -240,7 +282,7 @@ if (import.meta.main) {
         throw new Error(`${task.id}: unexpected answer:\n${JSON.stringify(quick, null, 2)}`);
       console.log(`ok ${task.id} (engines agree, oracle matched)`);
       const { rm: rmDir } = await import("node:fs/promises");
-      for (const name of Object.keys(FIXTURES[i]!)) await rmDir(join(dir, name), { force: true });
+      for (const name of Object.keys(FIXTURES[task.fixture]!)) await rmDir(join(dir, name), { force: true });
     }
   } finally {
     await rm(dir, { recursive: true, force: true });

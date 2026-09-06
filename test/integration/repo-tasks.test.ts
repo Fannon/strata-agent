@@ -71,11 +71,11 @@ test("rlog oracle recomputed independently from fixture files", async () => {
       const base = name.split("/").pop()!;
       const m = /^(\d{4}-\d{2}-\d{2})_.+\.log$/.exec(base);
       if (!base.endsWith(".log") || !m) continue;
-      const counts: Record<string, number> = { ERROR: 0, WARNING: 0, INFO: 0 };
+      const counts = perFile[m[1]!] ?? { ERROR: 0, WARNING: 0, INFO: 0 };
+      perFile[m[1]!] = counts;
       for (const line of content.split("\n"))
         for (const sev of ["ERROR", "WARNING", "INFO"])
           if (line.includes(`[${sev}]`)) counts[sev]!++;
-      perFile[m[1]!] = counts;
     }
     const at = (d: string) => new Date(`${d}T00:00:00Z`).getTime();
     const inRange = (d: string, from: string, to: string) => at(d) >= at(from) && at(d) <= at(to);
