@@ -1,6 +1,6 @@
 # 022 — `@c/` import alias for capability modules
 
-Status: in-progress (explicitly requested 2026-09-05; implemented 2026-09-05)
+Status: done; both @c/ and @cap/ supported
 Authorizes: user request "`@cap` is already taken in my mind" → support `@c/` as alias.
 
 ## Decision

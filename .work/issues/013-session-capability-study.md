@@ -1,6 +1,6 @@
 # 013 — Learn composable operations from local agent sessions
 
-Status: ready, optional bounded study (not started)
+Status: optional bounded study ready; preliminary counts recorded in 033, reproducible workflow study not delivered
 Kind: observational research and task-corpus design
 Source: user's agentsview idea.
 Dependencies: none; feeds 011 and 009.

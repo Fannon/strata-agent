@@ -102,4 +102,10 @@ The benchmark stays under `examples/`, separate from the application runtime. `b
 
 Results separate correctness, tool adherence, harness health and usage completeness. Exact final JSON and complete traces replace substring matching. Missing usage stays null. Reservations limit scheduled model work conservatively, assuming the provider honors catalog limits/prices; they are not user-action authorization or billing reconciliation. The guard is included in all A/B/C arms. These arms still use prompt restrictions and post-hoc checks; mechanical strict profiles remain future work. See [runner contract](docs/benchmark.md).
 
-Validation: 53 tests and typecheck pass; Pi integration uses a local fake SSE provider, including actual typed rejection/recovery and pre-request refusal. No paid v2 evaluation has run. The next agent should follow [handoff](docs/handoff.md) and local proposal 020 rather than infer product advantage from integration success.
+Historical benchmark-repair validation: 53 tests and typecheck passed; Pi integration uses a local fake SSE provider, including actual typed rejection/recovery and pre-request refusal. No paid fixture-v2 campaign is claimed here. Repository repo-2 trials subsequently ran; see [reviewed results](docs/repo-trials.md) and [handoff](docs/handoff.md) for the current 004 priority.
+
+## Current review (2026-09-06)
+
+At `807562a`, typecheck and 148 tests pass with local subprocess/loopback access. Repository operations, both executors, correlated tracing and quiet success/on-demand details are delivered. Four repo-2 stages provide cooperative diagnostic evidence; they are distinct from the fixture-v2 runner. The [trial report](docs/repo-trials.md) separates exact correctness, policy audit and accounting and corrects earlier narrative aggregates.
+
+Next architectural work is the 004 presentation experiment: preserve schemas, checker and broker policy while measuring and reducing model-facing context. No runtime replacement or generic tool framework is needed. Catalog load/shutdown races (025) and policy-aware search (029) remain documented follow-ups, not completed guarantees.

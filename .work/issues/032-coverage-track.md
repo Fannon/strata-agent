@@ -19,8 +19,7 @@ surprises into a system instead of one-off ops:
 1. **Primitives over specifics.** Prefer a few expressive building blocks
    (bounded read with ranges, list/find with glob + deterministic order,
    literal-then-pattern search, fixed-task check runner) over one op per
-   need. Composition in TypeScript covers the rest. A new op must show two
-   distinct tasks needing it, or stay a task-local adapter.
+   need. Composition in TypeScript covers the rest. Two distinct caller workflows are a useful promotion heuristic, not an absolute gate; a critical correctness need or explicitly selected experiment can justify one. Avoid hiding arbitrary effects in task-local adapters.
 2. **Borrow semantics, don't clone flags.** For mature tools (ripgrep, Git),
    wrap via fixed-argv adapters that preserve their filtering/status
    semantics behind bounded typed contracts — no flag-parity chase, no shell
@@ -32,7 +31,7 @@ surprises into a system instead of one-off ops:
    stay task-local.
 4. **Hybrid fallback as a meter, not a hole.** `typed-first, measured bash
    fallback` profiles stay available for coverage sampling. Every fallback is
-   logged with reason and rate. Falling fallback rate = coverage growing.
+   logged with reason and rate. Compare fallback rates on a fixed representative cohort; task mix and instructions can change them without changing coverage.
    Rising or hidden fallback = stop and reconsider, not quiet surrender.
 5. **Sample reality on purpose (feeds from `013`).** Periodically sample
    real session work (bounded local study, no raw transcript publication)
@@ -50,7 +49,7 @@ surprises into a system instead of one-off ops:
 
 ## Relation to other issues
 
-- `028` stays the current driver (frozen tasks → minimal ops → bounded pilot).
+- `004` is the next efficiency experiment; 028 supplies completed baseline tasks. Coverage sampling can proceed independently when selected.
 - `013` (session study) becomes the sampler, kept bounded and local.
 - `015` (edits/checks/fallback) is where write-layer coverage lands, only
   when reads earn it. `017` (relationships) stays deferred until overlapping

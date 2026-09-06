@@ -1,6 +1,6 @@
 # 026 — Correlated capability diagnostics and performance traces
 
-Status: minimal slice delivered (see Delivery below); overhead measurement rides with 027
+Status: minimal slice delivered and measured with 027; context attribution remains under 004
 Dependencies: existing broker/session; informs 009 evaluation and 012 permissions.
 Source: user requested visibility into tool use, debugging and performance.
 

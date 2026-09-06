@@ -4,14 +4,11 @@ Deep-dive companion to the [README](../README.md). The README pitches the
 idea; this document describes the mechanism end to end as implemented.
 Sources: the walkthrough of Topics 1–10 (2026-09-06), current code, and the
 trial report in [repo-trials.md](repo-trials.md). Status numbers below were
-rechecked 2026-09-06: `bun run check` clean, 147 tests passing.
+rechecked 2026-09-06: `bun run check` clean, 148 tests passing (permitted subprocess/loopback test run).
 
 ## 1. The idea
 
-Most coding agents work one tool call per model turn: run a shell command,
-read the text, run the next command, parse again. Each step costs a round
-trip, and large intermediate results fill the context window with text the
-model must sift through.
+An agent can spend successive turns running commands and interpreting results. It can also compose shell pipelines or scripts within one tool call. Strata tests whether typed contracts and composition make that work more effective; the baseline is not restricted to one operation per turn.
 
 Strata belongs to the family usually called **code mode** or
 **tools-as-code**: the agent writes one small program that composes several
@@ -200,8 +197,7 @@ for repair.
   non-guarantees).
 
 Missing by plan, not by accident: writes/edits/checks (gated on reads
-proving value), `listFiles`/`find` (built only for tasks that require
-them), MCP-backed catalog entries, HTTP transports, auth configuration.
+proving value), `find`/additional listing filters (listFiles is already implemented), MCP-backed catalog entries, HTTP transports, auth configuration.
 
 ## 8. Executors and the containment distinction
 
@@ -211,11 +207,7 @@ are identical; only ambient authority differs, proven by a canary test
 (Bun programs can write outside the root; QuickJS programs cannot).
 Labels stay honest: Bun measures *cooperative API adherence*, never
 enforced containment, and Pi-tool restriction alone never equals
-containment either. A fourth diagnostic arm, `bun-unleashed` (ambient
-stdlib explicitly allowed), is planned to isolate the guardrail stack's
-cost from composition alone, with a bypass metric classifying each escape
-as missing-primitive or convenience. It runs only after evaluator
-isolation lands.
+containment either. An unrestricted-Bun diagnostic is deferred: it changes API usage and authority together, so it cannot isolate validation cost. Wrapper traces cannot count all ambient bypasses. Any future use needs a separate hypothesis and explicit evaluator-access limits; a clean argument-audit canary is insufficient.
 
 ## 9. Discovery without execution
 
@@ -262,25 +254,8 @@ the auditor is regression-tested including a genuine historical catch —
 a v1 fixture cell that wandered into `../twin.json` (harness snooping,
 already failed on tool adherence at the time).
 
-Latest results ([repo-trials.md](repo-trials.md), 2026-09-06,
-`meta/muse-spark-1.3-contributor`, 72 cells across dev and held-out
-R-EXPORT/R-LOG/R-LOC instances): correctness tied at 23/24 per profile;
-typed arms make ~2.5× fewer tool trips at ~2.3× the tokens and ~1.8× the
-cost — declarations dominate every program. The tested trade is fewer
-round-trips for more context per trip. Two independent path-prefix
-misses (`./core.ts` vs `core.ts`) exposed an unspecified contract in the
-repo API — found by trials, fixed forward. One canary touch showed
-ordinary dotfile curiosity, correctly flagged, correctly distinguished
-from benefit. Limits are stated in the report: easy-by-design tasks, one
-model, two repeats — wiring and efficiency evidence, not a verdict on
-hard composition.
+Latest evidence is reconciled in [repo-trials.md](repo-trials.md) with a sanitized 120-cell export. Dev+held-out overall successes were 23/24 per profile, but exact correctness was 24/24 stock and 23/24 for each typed profile. Typed profiles made fewer Pi tool calls at roughly 2–2.2× estimated cost and 2.35–2.72× total tokens. These are observed task/profile differences, not a causal estimate of declaration cost. Four path-prefix mismatches and two policy-audit flags explain the six overall unsuccessful cells across all stages. The close-out reused previously inspected tasks; it is regression feedback, not untouched confirmation.
 
-## 12. Open directions (board-owned, selection-gated)
+## 12. Current trajectory
 
-Policy-aware search (`029`), optional memory via existing Pi mechanisms
-(`030`), operator-configurable caps (`034`), the coverage track with its
-miss log fed by local session mining (`032`, `033` — whose first record
-resolves `jq` slicing into plain TypeScript, no new op), harder instances
-targeting the hypothesis, and the continue/narrow/pivot/stop gate. Small
-slices are marked ready; implementations and paid runs await explicit
-selection. Negative results are retained as results.
+Next is 004 context attribution and compact declarations with the same semantic surface, followed by independent work and optionally a second model. 031 quiet success and both engines are already delivered. Do not add more difficulty merely to force failures or declare engines/seeded tasks settled. Policy-aware discovery (029), load lifecycle robustness (025), coverage sampling (013/032/033), caps (034), memory (030) and edits/checks (015) remain separately scoped. The [board](../.work/issues/index.md) and [handoff](handoff.md) own current ordering.

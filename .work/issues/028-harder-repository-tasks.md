@@ -1,9 +1,15 @@
 # 028 — Discriminating repository workflows with trustworthy evaluation
 
-Status: initial families selected by user 2026-09-06 (R-LOC, R-EXPORT, R-LOG); license inspection + runner fixes next, no paid runs
+Status: corpus, runner hardening, dev/held-out/wave-2/path-closeout trials delivered; next inference follows 004 (reviewed 2026-09-06)
 Kind: evaluator preflight → task contracts → required API gaps → bounded pilot
 Source: user requested critical review and reusable benchmarks, including FrontierHarness.
 Dependencies: existing 011 read slice, 012 policy, 027 engines; reuse 009 runner components and 026 metrics. This review authorizes documentation/research, not a new paid run. Existing explicit implementation/spend authorization still takes precedence within its scope.
+
+## Review of delivered state
+
+Four stages: 120 recorded cells, 116 exact answers and 114 overall successes; this is an inventory across evolving/reused tasks, not independent confirmation. [Reviewed report](../../docs/repo-trials.md) and [sanitized per-cell evidence](../../docs/evaluations/repo-2-2026-09-06.json) supersede earlier numerical/causal interpretations below. The tasks actually run are original seeded fixtures, not official RepoQA or Terminal-Bench instances. No package/data copying is needed to reproduce them.
+
+The -3/-4 instances were initially held out but are now inspected and partly rerun. Reserve new families/repos for subsequent confirmation. Path-prefix close-out is complete as a development slice, not proof all future formatting failures are solved. Canary flags are tool-argument audit observations; neither their absence nor a correct answer establishes containment.
 
 ## Decision and correction
 
@@ -25,7 +31,7 @@ Required work (delivered 2026-09-06 in `examples/repo-pilot.ts` + `examples/repo
 
 - [x] Adapt 009's request guard, bounded process wrapper and complete-trace grading to repository task definitions. Guard loads in every profile with per-cell budgets; `capture()` owns timeouts/output caps/process groups; final-only grading runs through the shared `assess()` core with a repo policy (no fixture task/arm assumptions transplanted — `assessTrace` keeps v2 behavior via defaults, verified by unchanged grader tests). No parallel budget implementation: `reserve()`/`priceModel()` imported from `benchmark/config.ts`.
 - [x] Grade only the final completed assistant answer against an independent schema/oracle. Full-text JSON, else its last ```json block; earlier messages never count. Correctness, adherence, harness health and accounting stay separate. Timeout/nonzero/incomplete traces cannot be ordinary successful runs. Missing usage stays null.
-- [x] Keep expected answers, grader code, private test material and credentials out of the candidate-visible filesystem. The oracle is never written beside the repo (controller memory + run manifest outside cell dirs). A per-cell canary file plus tool-args scanning flags evaluator-material access as a policy violation; labeled cooperative diagnostics, not a sandbox (stock shell and direct Bun can read anything on disk).
+- [~] Reduce answer exposure, without claiming filesystem isolation. The oracle is never written beside the repo (controller memory + run manifest outside cell dirs). A per-cell canary file plus tool-args scanning flags evaluator-material access as a policy violation; labeled cooperative diagnostics, not a sandbox (stock shell and direct Bun can read anything on disk).
 - [x] Pin task/source hashes, actual repo snapshots, Git/tool/runtime versions, limits, prompts, model/provider/settings, declarations and external restrictions. `run-manifest.json` + `pricing.json` + per-cell prompts/effective prompts/declarations; descriptive profile ids (`stock-pi`/`typed-quickjs`/`typed-bun`, old letters rejected loudly); counterbalanced profile order within task blocks.
 - [x] Regression-test earlier-right/final-wrong answers, extra/missing results, malformed traces, timeout after an answer, missing accounting and answer-file access. Old artifacts stay historical; do not silently upgrade their evidential status.
 
@@ -35,12 +41,12 @@ Use explicit task IDs/names independent of the old fixture suite. Initial famili
 
 | Family | Precise task and oracle | Capability requirements |
 | --- | --- | --- |
-| R-LOC: description → function (initial; adapted RepoQA) | Select a supported-language upstream description and pinned repository snapshot. Ask for the matching function’s relative path and qualified name, with the definition line only if fixed by the snapshot. Keep multiple plausible functions so navigation and comprehension matter. Independently map the upstream target to the source; reject ambiguous descriptions. Tool-driven context retrieval and location output differ from upstream SNF. | Existing read/search; inspect source size/coverage before selection. |
-| R-LOG: dated log aggregation (initial; adapted Terminal-Bench) | Adapt `log-summary-date-ranges`: explicit reference date, inclusive period rules and severity counts. Preserve realistic files and decoys. Return a frozen JSON schema instead of CSV for this read-only slice; this changes upstream protocol. Derive expected counts independently and verify date-boundary cases. | Likely list/find plus bounded reads; inspect fixture layout before adding it. |
+| R-LOC: description → function (delivered original fixtures; licensed adaptation future) | Select a supported-language upstream description and pinned repository snapshot. Ask for the matching function’s relative path and qualified name, with the definition line only if fixed by the snapshot. Keep multiple plausible functions so navigation and comprehension matter. Independently map the upstream target to the source; reject ambiguous descriptions. Tool-driven context retrieval and location output differ from upstream SNF. | Existing read/search; inspect source size/coverage before selection. |
+| R-LOG: dated log aggregation (delivered original fixtures inspired by Terminal-Bench) | Adapt `log-summary-date-ranges`: explicit reference date, inclusive period rules and severity counts. Preserve realistic files and decoys. Return a frozen JSON schema instead of CSV for this read-only slice; this changes upstream protocol. Derive expected counts independently and verify date-boundary cases. | Likely list/find plus bounded reads; inspect fixture layout before adding it. |
 | R-CALL: disambiguate call sites (follow-up) | Given a definition path and export name, report sorted `{path,line}` direct calls to that binding in a declared TS source scope. Seed named-import aliases, unrelated same-name functions, comments/strings, multiline calls and test-file decoys. Exclude dynamic property calls, higher-order flow and unresolved imports explicitly. Independent TS symbol/AST analysis plus reviewed expected locations; line means start of call expression. This is bounded static call-site identification, not “all runtime callers.” | Existing search/read first; check complete search and readable file sizes. |
 | R-EXPORT: trace public exports (initial; original) | Given package and explicit target condition (e.g. import/default), follow a finite acyclic chain of supported package exports and TS re-exports. Return sorted public-name → defining-path/symbol mapping, distinguishing type-only exports under a stated rule. Seed aliases and unrelated entry files. Restrict supported syntax in fixture contract; no implicit full Node resolution claim. Oracle built independently from fixture specification and checked against source. | Existing read/search; list is not inherently required. |
 | R-JOIN: join configuration and source (follow-up) | Find all declared workspace packages satisfying an explicit dependency/script condition, then locate specified implementation/config evidence within them. Return exact sorted package/path/value records and totals. Include near-matches, absent optional fields and multiple layouts. Seed scope and bounds so the answer is knowable; use manifest fixtures as independent truth. | Existing read/search if workspace manifests enumerate packages; list/find only if discovery is deliberately part of the task. |
-| R-HISTORY: reconstruct commit changes (second slice) | For a frozen HEAD and N non-merge commits, return per-commit change records with status and old/new paths. State ordering and rename policy. Start with linear histories and unambiguous exact-content renames; pin Git detection settings. Do not combine net tree changes with per-commit changes. Oracle is authored commit operations and independent fixture verification. | Add bounded history-with-changes; current gitStatus is insufficient. No directory listing required. |
+| R-HISTORY: reconstruct commit changes (second slice) | For a frozen HEAD and N non-merge commits, return per-commit change records with status and old/new paths. State ordering and rename policy. Start with linear histories and unambiguous exact-content renames; pin Git detection settings. Do not combine net tree changes with per-commit changes. Oracle is authored commit operations and independent fixture verification. | gitLog(withFiles) is delivered; freeze task-specific history semantics before reuse. No directory listing required. |
 
 Difficulty knobs: distractor similarity, candidate count, dependency depth, cross-file joins and realistic result volume. Avoid arbitrary puzzles and simply exceeding fixed caps. Keep first instances within existing byte/search limits; if a completeness/pagination gap blocks the task, record an API-coverage issue and resolve it before comparing model reasoning. Large-result narrowing/recovery can be a separately defined task.
 
@@ -49,7 +55,7 @@ A symptom-to-fault-location task may replace one initial family after review. Ke
 ## 2. Implement only the operations required by frozen tasks
 
 - [x] Prove each task can be completed through supported APIs with small human-written reference compositions; do not expose those solutions to candidate agents. R-EXPORT proven 2026-09-06: original fixture + two dev instances (`examples/repo-tasks/rexport.ts`, runnable offline check, both engines agree and match the hand-derived oracle); oracle verified against source independently of the adapter (`test/integration/repo-tasks.test.ts`). R-LOG proven 2026-09-06: two seeded instances with decoys (future file, lowercase markers, non-log file, month boundary) + reference list/read/aggregate composition, both engines agree (`examples/repo-tasks/rlog.ts`); oracle recomputed independently with plain reads. R-LOC proven 2026-09-06: two original instances with name/scope/comment traps + per-instance reference search/read compositions (`examples/repo-tasks/rloc.ts`); defining lines and trap placement verified independently. Wave-2 dev set 2026-09-06 (hypothesis-targeted, same discipline): R-EXPORT-5 two-hop chain (depth-capped follower reference), R-LOG-5 large intermediate (~1,500 lines, in-program aggregation), R-LOC-5 over-cap narrowing (120+ same-name matches force the hint loop; reference asserts truncation then narrows). Independent recomputation caught two human oracle errors and one shared per-date-bucketing bug before freezing. R-CALL/R-JOIN instances still open. Keep old operations available. APIs may support generic useful composition, not hardcoded benchmark-answer functions.
-- [ ] If list/find is needed, define deterministic ordering, depth, hidden/ignored files, symlinks, scope and completeness; evaluate Bun.Glob first. Bounded traversal plus sorting a truncated sample is not necessarily a deterministic global prefix.
+- [x] Bounded listFiles and filtered search are delivered with explicit ordering, hidden-file/symlink and completeness behavior; further find/list-glob work remains conditional. Bounded traversal plus sorting a truncated sample is not necessarily a deterministic global prefix.
 - [x] If history is selected, define fields, byte/commit/path caps, fixed argv, empty/root commit handling, cancellation and Git config/helper controls. Author identity is unnecessary unless the task requires it. Delivered 2026-09-06 beyond the initial slice: `gitLog(withFiles)` per-commit records (status + rename oldPath, pinned `-M50%`, root via `--root`, merges report none), `gitDiff` (staged/unstaged, bounded, line-cut), `gitShow` (HEAD/SHA allowlist, readText content rules). Reference workflows W2 (status→diff) and W3 (log→show) pass byte-identical on both engines. R-HISTORY task work itself remains follow-up.
 - [ ] Test relevant semantics against actual filesystem/Git fixtures. Policy resolution can itself inspect filesystem metadata: require denial before protected content access or mutation, not the impossible blanket “before any effect.” Validate supported outcomes and category-preserving errors.
 
@@ -57,7 +63,7 @@ A symptom-to-fault-location task may replace one initial family after review. Ke
 
 Use descriptive profile fields: `stock-pi`, `typed-quickjs`, `typed-bun`; record engine, enabled Pi tools and containment separately. Same typed API/checker/broker/backend in both typed arms. Stock Pi retains normal scripts/pipelines and installed tools. Bun API-only behavior is cooperative unless independently enforced; its wrapper logs cannot prove absence of ambient access. Do not call an engine comparison a typechecking ablation.
 
-Diagnostic fourth arm (added 2026-09-06, runs only after step-0 isolation lands): `bun-unleashed`. Same checker and prompt shape, but the program may use any Bun/Node stdlib with ambient authority explicitly allowed (`STRATA_EXECUTOR=bun` plus an instruction saying so, not the cooperative typed-Bun prompt). `api.*` stays available and validated; nothing forces its use. Purpose: isolate the guardrail stack (restriction + allowlist + validation) from composition alone, and approximate prior-art shape (Cloudflare-style code mode / Prime kernel) without claiming equivalence. Log a bypass metric per cell: share of tasks where the program ignores `api.*` for raw `Bun.file`/`fetch`/etc., each classified as missing-primitive (→ 032 miss log) or convenience (→ prompt problem). Never read an unleashed win as a product direction; it reads as coverage-or-friction signal. Prerequisite: evaluator-access canary green, or the arm stays parked. Cost: 4 arms shrink the task count or raise the cap — explicit authorization either way.
+Unrestricted Bun is deferred. It changes multiple variables and does not isolate guardrail cost. A future task must define its authority and evaluator-access limits independently; a clean heuristic canary is not a sufficient prerequisite.
 
 - [ ] Run offline grader/fixture preflight first. One run per arm is a wiring smoke. Two repeats are acceptable for exploratory diagnostics, not stable rankings or general success-rate claims. Prefer task diversity before many copies of identical easy tasks.
 - [x] Proposed initial matrix: 6 development instances × 3 profiles × 2 repeats = 36 cells. Delivered as runnable default (`bun examples/repo-pilot.ts --repeats 2`, protocol repo-2): 12-instance corpus frozen (4 per family: 2 dev + 2 held-out; held-out selected only via explicit `--tasks`), counterbalanced order, fresh sessions, fixed settings, no retries. Held-out revisions frozen at commit — no post-hoc edits. Select more repeats/second model only when uncertainty warrants them. Budget design 2026-09-06: dual ledger — guard admission stays worst-case per request, the cap deducts reported actuals per completed cell and falls back to the reservation only when usage is missing (OpenRouter returns token usage, not billed cost; Pi computes usage.cost locally from catalog rates; per-request ground truth would need generation IDs Pi does not surface). Key-credit snapshots start/end are report-only. First live attempt with a flat reservation ledger starved every cell after one request (1M-context model × 2M cell cap); artifacts preserved as an invalid run, actual spend ~$0.00.
@@ -69,7 +75,7 @@ Acceptance: versioned representative tasks with independent oracles and a trustw
 
 ## Held-out trial 2026-09-06 and full report
 
-Held-out round (frozen -3/-4 instances, same matrix): 35/36 — stock 12/12 ($0.0101), quickjs 12/12 ($0.0227), bun 11/12 ($0.0250); the single miss repeats the dev-round path-prefix gap (`./src/text.ts`). Combined 72 cells: 23/24 per profile. Ledger $0.0578 vs key delta $0.0455. Full write-up with findings, limits and improvement suggestions: [docs/repo-trials.md](../../docs/repo-trials.md). Standing recommendation: fix the path contract forward, then harder hypothesis-targeted instances; nothing yet justifies edits/checks/memory/sandboxing.
+Held-out round (frozen -3/-4 instances, same matrix): 35/36 — stock 12/12 ($0.0101), quickjs 12/12 ($0.0227), bun 11/12 ($0.0250); the single miss repeats the dev-round path-prefix gap (`./src/text.ts`). Combined 72 cells: 23/24 per profile. Ledger $0.0578 vs key delta $0.0455. Full write-up with findings, limits and improvement suggestions: [docs/repo-trials.md](../../docs/repo-trials.md). Historical recommendation was path clarification and wave-2; both are delivered. Current recommendation is 004.
 
 ## Dev trial 2026-09-06 (6 instances × 3 profiles × 2 repeats = 36 cells, muse-spark, dual-ledger $5 cap)
 
@@ -81,7 +87,7 @@ Artifacts local-only: `.work/repo-pilot/2026-09-06T07-19-51-608Z/`. Ledger $0.05
 | typed-quickjs | 11/12 | $0.0191 | 358,048 | 33 programs | 10s / 32s |
 | typed-bun | 12/12 | $0.0212 | 431,947 | 40 programs | 15s / 36s |
 
-Both failures analyzed, neither is task impossibility: stock R-EXPORT-2 r1 answered correctly but read the `.canary` dotfile out of curiosity (adherence fail per the stated rule; the canary held no oracle, so no contamination); typed-quickjs R-EXPORT-2 r1 returned `./core.ts` instead of `core.ts` (path-normalization miss, worth a contract note). Reading: typed arms make ~2.5× fewer tool trips at ~2.3× the tokens (declarations dominate) and ~1.8× the cost; correctness tied within noise. No snooping beyond the single curious canary read; no blocked-attempt or timeout cells. Held-out round (frozen -3/-4 instances) still requires explicit spend authorization.
+Both failures analyzed, neither is task impossibility: stock R-EXPORT-2 r1 answered correctly but read the `.canary` dotfile out of curiosity (adherence fail per the stated rule; the canary held no oracle, so no contamination); typed-quickjs R-EXPORT-2 r1 returned `./core.ts` instead of `core.ts` (path-normalization miss, worth a contract note). Use the reviewed report for recomputed ratios and separate exact correctness from policy flags. Declaration causality and absence of unobserved access are not established. The held-out round subsequently ran; see its historical record and the reviewed report.
 
 ## Existing benchmark reuse
 
@@ -92,30 +98,17 @@ FrontierHarness is a useful harness-evaluation reference, but its inspected publ
 
 ## Wave-2 round 2026-09-06 (chain/large/over-cap, 18 cells)
 
-16/18 — stock 5/6 ($0.0066), quickjs 6/6 ($0.0127), bun 5/6 ($0.0130). Both misses are R-EXPORT-5 `./c.ts` prefixes (stock r1, bun r1): the path-prefix gap a third and fourth time. Ledger $0.0323 vs key delta $0.0230. Combined all rounds (90 cells): stock 28/30, quickjs 29/30, bun 28/30. Report: [docs/repo-trials.md](../../docs/repo-trials.md).
+16/18 — stock 5/6 ($0.0066), quickjs 6/6 ($0.0127), bun 5/6 ($0.0130). Both misses are R-EXPORT-5 `./c.ts` prefixes (stock r1, bun r0): the path-prefix gap a third and fourth time. Ledger $0.0323 vs key delta $0.0230. Combined all rounds (90 cells): stock 28/30, quickjs 29/30, bun 28/30. Report: [docs/repo-trials.md](../../docs/repo-trials.md).
 
 ## Path-prefix close-out re-run 2026-09-06 (R-EXPORT-1–5 × 3 profiles × 2, 30 cells)
 
-29/30 with zero prefix misses after echoing the convention in the runner prompt (4 misses in the prior 90). The single failure is another curious canary read (stock, correct `core.ts` answer, flagged per rule). The new `normalizedCorrect` diagnostic confirmed the split: exact and normalized verdicts agreed on all 30 cells. Ledger $0.0466, key delta $0.0282. The saga is closed as a mechanism; residual misses of this class will now classify themselves.
+29/30 with zero prefix misses after echoing the convention in the runner prompt (4 misses in the prior 90). The single failure is another curious canary read (stock, correct `core.ts` answer, flagged per rule). The new `normalizedCorrect` diagnostic confirmed the split: exact and normalized verdicts agreed on all 30 cells. Ledger $0.0466, key delta $0.0282. The development close-out is complete; this does not prove future formatting errors are eliminated.
 
-## Follow-up sequence (agreed 2026-09-06, after wave-2)
+## Revised follow-up sequence (2026-09-06 review)
 
-Seeded unambiguous tasks are exhausted as a discriminator (90 cells tied
-within noise); harder mechanics moved neither correctness nor the cost
-split. Next, in order:
+1. Path convention/normalized diagnostic and close-out are delivered; preserve exact historic verdicts.
+2. Select [004](004-harness-tuning.md): offline context attribution, then one same-surface compact-declaration ablation. More tools and engine work do not address the observed cost disadvantage.
+3. Confirm any useful change on new independent workflows/repos, optionally informed by 013/033; a second model tests portability. R-CALL/R-JOIN remain candidate contracts, not mandatory new work. Use plausible distractors with an unambiguous oracle, not “genuine ambiguity” of valid answers.
+4. Apply the decision gate. Seeded tasks are not exhausted in general; these instances simply have not shown a typed advantage. Hybrid/aggregation is a hypothesis, not the demonstrated landing point.
 
-1. **Close the path-prefix saga (offline, no spend).** Echo the path
-   convention in the runner prompt and add a normalized-correctness column
-   next to (never replacing) the exact verdict. Frozen oracles stand.
-2. **Genuine ambiguity.** R-CALL/R-JOIN instances (competing plausible
-   answers: alias traps, near-miss packages) plus a second model — the one
-   untried discriminator. Single-model results cannot separate task
-   difficulty from model quirk.
-3. **Decision gate** per the evaluation plan (continue/narrow/pivot/stop)
-   with all inputs: correctness across difficulty, the stable ~2× token
-   cost of declarations, trip-vs-context trade. Likeliest landing on
-   current evidence: narrow (typed API for aggregation-heavy work, shell
-   elsewhere) — a credible product answer, not a failure.
-
-Explicitly not next: engines (settled — keep both), edits/checks, memory,
-sandboxing, catalog growth. No evidence supports any of them.
+Unrestricted Bun remains deferred: it changes authority and API use simultaneously and cannot isolate validation/guardrail cost. Wrapper logs also cannot measure all bypasses. A future comparison needs separate hypotheses and appropriate evaluator isolation, not a clean heuristic canary alone. Edits/checks, memory, caps, sandboxing and catalog expansion remain separate product experiments.

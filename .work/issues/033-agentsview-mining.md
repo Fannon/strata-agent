@@ -2,7 +2,7 @@
 
 Status: backlog, suggested (read-only inspection done 2026-09-06, no transcripts copied)
 Kind: evidence sampler for 032, concrete input to 013
-Source: user suggestion — personal agentsview log as coverage ground truth.
+Source: user suggestion — personal agentsview logs as observational coverage input, not counterfactual ground truth.
 
 ## What was inspected (counts only, nothing copied out)
 
@@ -23,9 +23,7 @@ Shell command classification (first-verb + pattern counts over 25,987 cmds):
 - 5,559 pipes, 1,712 `&&` chains, 637 loops — composition the typed layer
   must absorb, not one-op-per-flag.
 
-Read-side (read + search + git-inspect) is ~16k/26k ≈ 60%+ of shell use.
-That supports the layer order in 032: orient/navigate first, verify next,
-change last.
+The reported read-side clusters total roughly 16k mentions, but classifications may overlap and first-verb heuristics miss composition. Without a reproducible classifier and manual validation, these counts do not establish a 60% workflow-coverage rate. They are useful leads for 013/032, not proof of a typed advantage.
 
 ## Proposal
 
@@ -56,17 +54,21 @@ over a parsed value the program already holds:
 ```ts
 // bash: jq '.bookmarks[:5][] | .originalId' chrome.json
 const { content } = await api.readText({ path: "popup/mockData/chrome.json" });
-const data = JSON.parse(content) as { bookmarks?: { originalId?: string }[] };
-return (data.bookmarks ?? []).slice(0, 5).map((b) => b.originalId);
+const data: unknown = JSON.parse(content);
+if (typeof data !== "object" || data === null || !("bookmarks" in data) ||
+    !Array.isArray(data.bookmarks)) throw new Error("Expected bookmarks array");
+return data.bookmarks.slice(0, 5).map((b: unknown) => {
+  if (typeof b !== "object" || b === null || !("originalId" in b) ||
+      typeof b.originalId !== "string") throw new Error("Expected originalId");
+  return b.originalId;
+});
 ```
 
 What makes this safe (and what to watch):
 
-- `readText` already bounds bytes; `jq` on a 100MB file would stream, our
-  path materializes — large-file JSON stays a known gap, recorded not solved.
-- `JSON.parse` returns `any`: fine inside the program (Topic 3 rules — the
-  broker still validates capability inputs/outputs), but the program should
-  narrow before returning so the *result* keeps a shape.
+- `readText` bounds bytes; ordinary JSON parsing materializes values. Do not assume ordinary `jq` queries are streaming; a streaming algorithm requires an explicit design. Large-file JSON stays an unverified coverage gap.
+- `JSON.parse` returns `any`: it bypasses useful static guarantees (Topic 3 rules — the
+  broker still validates capability inputs/outputs), but a type assertion does not validate parsed data. Bind to `unknown` and narrow/check the required fields before relying on them.
 - `curl | jq` chains split in two: network fetch is a future wrapped
   capability (allowlisted hosts, byte caps), JSON slicing stays plain code.
 

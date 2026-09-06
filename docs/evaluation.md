@@ -1,18 +1,12 @@
 # Evaluation plan: can typed composition earn its cost?
 
-Status: broader evaluation plan, 2026-09-05. Deterministic fixture protocol v2 is now implemented ([runner documentation](benchmark.md)); native tasks, strict profiles, warm sessions and Prime comparison remain proposed. No paid v2 results exist. See [ACD](../ACD.md) for design hypotheses and [prior-art research](research/typed-agent-prior-art.md) for Pi/Prime differences.
+Reviewed 2026-09-06. Fixture protocol 009-v2 and repository protocol repo-2 are implemented; four repo-2 stages have run. [Reviewed evidence](repo-trials.md) and [sanitized cell data](evaluations/repo-2-2026-09-06.json) own current results. Historical fixture v1 remains exploratory and unchanged. Current implementation passes typecheck and 148 deterministic tests with permitted local subprocess/loopback access.
 
-## Existing evidence
+## Current evidence and next selection
 
-The original prototype at `5079c4d` passed 41 tests. After benchmark repair `1513917`, typecheck and 53 tests pass (Bun 1.4.1-canary.1), including real Pi against a local fake provider. Tests establish compilation, broker validation, fixture parity, fresh execution and discovery behavior. Direct runtime cancellation tests pass; they do not cover the current Pi extension dropping its execute signal.
+Typed profiles made fewer Pi tool calls at greater estimated cost/context on the current single-model repository corpus. Declaration causality, engine equivalence and a winning aggregation niche are not established. Next is 004: offline context attribution and one bounded full-surface compact-declaration comparison, then independent-work confirmation. Quiet success and both executors are delivered.
 
-The local v1 artifact `baseline-2026-09-05T08-37-15Z` reports 9/12 accepted cells, one per task/condition, approximately $0.0062 estimated model cost. Preserve it unchanged. It demonstrates execution viability, not a performance conclusion. Its substring checkers can accept wrong answers; T4 checks tool text without proving final reporting or recovery; timeouts may receive `pass: true`; T3's `total` is ambiguous. The earlier `08-28-22Z` run had a broken relative config path and remains excluded. The separate discovery demo is not a repeated condition-D comparison.
-
-## Implemented foundation and next selection
-
-Protocol `009-v2` delivers exact schema/value oracles, structured trace assessment, cold repeats with rotating condition order, offline dry-run configuration, bounded process execution and pre-request token/cost reservations. It preserves missing usage as null and stores exact payloads/prompts, source and pricing snapshots. No retries or model fallbacks are automatic. A/B/C restrictions are still checked after execution; strict profiles are a future capability, not an implication of v2 grading.
-
-The [next-agent handoff](handoff.md) prioritizes useful native tasks before a full fixture repeat campaign. Start with a feasible stock/hybrid/strict pilot; reuse this plan for later robust held-out evaluation. [Code Mode research](research/code-mode.md) motivates a separate semantic-checking ablation once task value is established.
+The first -3/-4 held-out instances were subsequently inspected and partly rerun for path diagnostics, so they are now regression data. Freeze new repository/workflow families before confirmatory evaluation. Plausible distractors are useful; ambiguity over multiple valid answers is a grading flaw, not desirable difficulty. Two repeats support exploratory diagnostics, not rankings.
 
 ## Execution engine as an independent dimension
 
@@ -33,7 +27,7 @@ Primary question: with equivalent access and a fixed model, does Strata preserve
 | D: discovery ablation | C with selected APIs discovered vs preloaded; run only once catalog size/tasks make discovery meaningful |
 | P: Prime/IPython | Pin upstream commit, prompt, model/provider, skills and runtime. Persistent Python kernel and bash helper are allowed as upstream supports |
 
-A/B/C are the initial causal comparison. H and P follow the usable native slice; D is conditional, not a prerequisite. Prime differs in prompt, state, skills and harness, so P measures whole-system performance, not the isolated effect of Python vs TypeScript. If isolating state/language matters later, add a narrowly matched Pi/IPython or stateless-Python condition as its own issue. Do not strip Prime's central capabilities and still label it stock Prime.
+A/B/C describe proposed mechanism ablations; the delivered repository profiles are descriptively named stock-pi, typed-quickjs and typed-bun. Do not conflate fixture B (single operation) with historical pilot B (Bun). For 004, freeze one engine and vary presentation only. H/P/D remain separately selected comparisons. Prime differs in prompt, state, skills and harness, so P measures whole-system performance, not the isolated effect of Python vs TypeScript. If isolating state/language matters later, add a narrowly matched Pi/IPython or stateless-Python condition as its own issue. Do not strip Prime's central capabilities and still label it stock Prime.
 
 Disable tool surfaces for C/B through Pi configuration/extension behavior; a prompt prohibition alone is an adherence test, not access control. Available operations/data must be equivalent across conditions. An unrestricted A and restricted C security task is not a fair security comparison: give both the same OS policy or report policy modes as separate experiments. B/C may share the same fixture backend for mechanism tests; compare native adapters on seeded real repositories for product tests. Log implementation and backend versions separately.
 
@@ -41,7 +35,7 @@ Disable tool surfaces for C/B through Pi configuration/extension behavior; a pro
 
 The next repository-task selection is documented in [benchmark reuse research](research/repository-benchmarks.md) and local issue 028. Prefer a small mixed suite: adapted RepoQA function location, an original export-chain task, and an adapted Terminal-Bench date-range log aggregation task. Review task-specific licenses and pin artifacts before copying; modified tasks do not yield official benchmark scores. Freeze development/held-out instances before comparative runs. Perfect success can still reveal cost/latency differences; do not require failure or keep modifying held-out tasks until one occurs.
 
-The separate repository pilot needs the existing v2 runner safeguards before stronger claims: grade only a final completed answer, reject malformed/incomplete runs, reserve spend before requests, bound process/output handling and isolate expected answers from stock shell and ambient Bun access. A sibling answer file is not isolation. Historical pilot results retain their original evidential limits.
+The repository pilot now reuses v2 runner safeguards: grade only a final completed answer, reject malformed/incomplete runs, reserve spend before requests, bound process/output handling and isolate expected answers from stock shell and ambient Bun access. Controller-held oracles and heuristic argument auditing reduce accidental exposure but do not isolate evaluator code/artifacts from ambient stock/Bun access. Historical pilot results retain their original evidential limits.
 
 
 Keep fixture tasks as inexpensive diagnostics. Use seeded repository snapshots, generated variations and independently computed answers for real workflows:

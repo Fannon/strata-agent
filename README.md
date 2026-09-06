@@ -1,24 +1,18 @@
 # strata-agent
 
-> **Early experiment, worth trying.** Strata joins an existing idea — often called **code mode** or **tools-as-code**: let the agent compose tool calls in code instead of many single tool turns. It is not a product yet, and it may narrow to specific cases — but the early mechanism works and is ready to play with.
+**Strata lets a Pi coding agent compose typed capabilities in small TypeScript programs.** Repository operations, configured MCP tools and CLI adapters return values that the program can filter, join and summarize before returning a result to the model.
 
-**In one sentence:** Strata lets an agent do in one small TypeScript program what today takes many shell calls: fetch data, filter it, combine it, and return only the answer. Cloudflare described the same core move for MCP — [convert schemas to TypeScript APIs, compose in code, keep intermediates out of context](https://blog.cloudflare.com/code-mode/) — and Prime composes actions in a persistent Python kernel. Strata's twist on it: checked TypeScript before anything runs, validated inputs/outputs on every call, and a focus on repository work. See [prior art](docs/research/typed-agent-prior-art.md) and [Code Mode notes](docs/research/code-mode.md).
+The experiment asks whether useful contracts, static checking and code composition improve task success, cost or latency. Shell pipelines and ordinary scripts already compose well, so stock Pi retains those abilities in comparisons. Fewer tool calls or smaller returned payloads alone do not establish an advantage.
 
-Today an agent often works like this: run a shell command, read the text, run the next command, parse again. That works, but every step is a new trip to the model, and large outputs fill the context with noise the model must sift through.
+The typed capability layer is the enduring architecture; execution is replaceable. Bun hosts the checker and adapters. Generated programs use default QuickJS or opt-in direct Bun, with the same checker and broker validation. Direct Bun has ambient host authority and measures cooperative API adherence, not containment.
 
-Strata offers a tighter loop. The agent writes a short program using typed functions like `api.customers({ country: "DE" })`. Types are checked before anything runs — a typo costs zero tool calls. The program runs in a fresh worker, calls as many functions as it needs, filters 10,000 rows down to 5 inside, and hands back only those 5. Less parsing, less back-and-forth, smaller surprises at runtime because inputs and outputs are validated on every call.
+Implemented today: `typed_program`, `search_capabilities`, `load_capability`, `program_details`; bounded line-range reads, filtered literal search, listings, Git status/history/diffs/historical files; configured stdio MCP, a deterministic CLI twin, a small catalog, correlated traces and quiet success reports. Edits/checks, interactive grants, persistent program state and hardened hosted isolation remain future work.
 
-Why this could matter: purpose-built functions carry meaning that flags and text pipes lose. `country: "DE"` is checked; `--country DE` is a string you hope is right. Composition lives in code the checker sees, not in chat history the model must re-read. And one interface can cover everything: harness helpers, everyday bash/CLI work wrapped as functions, and MCP tools all look the same — just `api.*` with types. If that holds up on real tasks, agents could do multi-step work with fewer trips and less context.
+**Current evidence:** four repository trial stages recorded 120 cells on one model. Typed profiles used fewer Pi tool calls but more tokens and estimated cost; no task-level advantage is established. Dev+held-out costs were about 2–2.2× stock. The next proposed experiment measures context components and tests concise declarations without removing operations or validation. See the [reviewed results](docs/repo-trials.md) and [sanitized evidence](docs/evaluations/repo-2-2026-09-06.json).
 
-We keep one honest footnote: bash composes well, models know it, and type declarations cost tokens too. So we measure rather than assert — see [Benchmarking](#benchmarking) and the [evaluation plan](docs/evaluation.md).
+Strata shares the tools-as-code idea with prior work; see [research](docs/research/typed-agent-prior-art.md) and [Code Mode notes](docs/research/code-mode.md). A narrower useful tool or a well-explained negative result is a worthwhile outcome.
 
-How it looks in practice: Strata is an extension for [Pi](https://github.com/earendil-works/pi), a coding agent. It adds one main tool, `typed_program`, plus helpers to find, load, and inspect more functions (`search_capabilities`, `load_capability`, `program_details`). Pi's normal tools stay available. Bun runs the checker and the workers; by default programs run inside a fresh QuickJS interpreter with no `fs`, `fetch`, or `process`.
-
-What works today: a deterministic test fixture, the same data as a plain CLI for fair comparison, a tiny two-entry catalog, and read-only repository helpers (`readText`, literal `searchText`, `gitStatus`). What does not exist yet: write support, real discovery at scale, hosted sandboxing, or any claim of production safety. See [Project map and scope](#project-map-and-scope) and [What we measure](#what-we-measure).
-
-Details on what has been measured — and what has not — live in [Benchmarking](#benchmarking).
-
-For background, read the [technical concept / ACD](ACD.md), [implemented architecture](ARCHITECTURE.md), [next-agent handoff](docs/handoff.md), and [prior-art research](docs/research/typed-agent-prior-art.md), including [Cloudflare Code Mode](docs/research/code-mode.md). Planning details live in `.work/issues/` (checked in) — start with the [issue board](.work/issues/index.md).
+Read the [ACD](ACD.md), [implemented architecture](ARCHITECTURE.md), [how it works](docs/how-it-works.md), [handoff](docs/handoff.md) and tracked [issue board](.work/issues/index.md). Other `.work/` artifacts stay local.
 
 ## Get started
 
@@ -109,11 +103,11 @@ This is where we report honestly what the numbers show and how to reproduce them
 * **Demo (deterministic, no model):** about 1.9M bytes of raw fixture data shrink to about 400 bytes of tool output. This proves bulk filtering inside a program, not better task success or lower cost.
 * **Early fixture pilot (historical):** 9/12 cells passed, but with loose grading and single tries. Keep it as history, not as a claim.
 * **Fixture runner v2:** exact answer checks, repeated cold sessions, spending reservations, offline tests. No paid v2 baseline has run yet.
-* **Repository pilot:** 27/27 on 3 easy tasks across stock Pi / typed-QuickJS / typed-Bun ($0.013). This proves wiring, not advantage — the tasks were too easy and declarations dominated tokens on tiny payloads.
+* **Repository trials (repo-2):** four stages, 120 recorded cells; 116 exact answers and 114 overall successes. Typed profiles used fewer Pi calls but greater estimated cost/context. See [reviewed report](docs/repo-trials.md); pooled stages are not independent confirmation. Earlier $0.013 hybrid and $0.0117 engine pilots are historical feasibility runs.
 * **Executor comparison (deterministic):** QuickJS and opt-in Bun (`STRATA_EXECUTOR=bun`) keep the same contracts, checks, and policy. Bun is tens of ms faster per run — noise next to model latency. Bun measures cooperative use of the nice API, not enforced containment. See [docs/executors.md](docs/executors.md).
 * **Live smoke (opt-in, paid):** compile rejection with zero calls, then a valid 3-call composition. Verified 2026-09-05 with Muse Spark (1,947,909 bytes → 557 bytes). Transcripts stay local in `.work/`.
 
-The [evaluation plan](docs/evaluation.md) defines the fair next comparison — same tasks and settings across stock Pi and both executors, full cost counting — and when to continue, narrow, or stop.
+The [evaluation plan](docs/evaluation.md) now prioritizes context attribution and one same-surface presentation ablation on a fixed executor, followed by independent confirmation and a continue/narrow/stop decision.
 
 ### How to benchmark
 

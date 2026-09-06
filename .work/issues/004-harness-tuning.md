@@ -1,42 +1,30 @@
-# 004 — Tune prompts, function APIs and documentation using benchmark evidence
+# 004 — Attribute and reduce typed-context cost
 
-Status: backlog
-Kind: experiment-driven improvement
-Source: user feedback, 2026-09-05
-Dependencies: an untuned baseline from [001](001-benchmark.md); [003](003-tool-discovery.md) only for discovery-specific tuning.
+Status: ready for selection; recommended next slice (2026-09-06)
+Dependencies: delivered 026/031 instrumentation and 028 repo-2 artifacts; no new tool or executor required.
 
-## Current priority (2026-09-05 reconciliation)
+## Evidence and hypothesis
 
-Wait for 009's trustworthy grader/dev-set results. Do not tune APIs/prompts to permissive v1 checkers. Measure unfamiliar API/type usage versus tool-selection, capability-gap and compiler-cost failures before blaming model training. Limit the first cycle to two versioned API/prompt revisions, preserving held-out task families and reporting regressions. B/C separates composition, not typing alone; a matched individual-function or checking-disabled ablation would need its own justified experiment with runtime policy still enforced. Negative results can narrow the product or end expansion.
+Dev+held-out: typed profiles made fewer tool calls but cost about 2–2.2× stock with 2.35–2.72× total tokens. Prompts include 17–17.5 KB declarations. This is a correlation: source, other instructions, cache behavior, repair turns and output also contribute. See [reviewed report](../../docs/repo-trials.md). Quiet success is already implemented; do not rebuild 031.
 
-## Goal
+Hypothesis: a concise presentation of the same capability contract reduces total cost without worsening task success or repair burden. Goal is a fair test, not making Strata win.
 
-Use the benchmark to improve the harness, exposed functions, descriptions and system prompt. This means iterative configuration/API/documentation improvement, not model-weight fine-tuning or automatic prompt self-improvement.
+## Slice A — offline attribution
 
-## Candidate variables
+- [ ] Summarize exact effective request components: declarations, fixed instructions, generated programs, prior results/errors and model-response counts. Record bytes separately from estimated tokens; retain actual input/output/cache usage. Repeated context is not necessarily uncached billing.
+- [ ] Inspect why stock uses fewer tokens: classify composition and output selection from a bounded sanitized sample. Count Pi tool calls separately from model responses and broker calls.
+- [ ] Account for declaration generation and prompt injection in one place; distinguish source schemas, compiler declarations and model-facing docs. Propose one compact model-facing presentation retaining every operation, input/output type, enum and critical semantic constraint.
+- [ ] Produce an offline size report and declaration/type-contract parity checks. Preserve grants, runtime schemas, task access and error behavior. Do not select operations using hidden answers. Per-task subsets or on-demand loading change a different factor and require a separate labeled experiment.
 
-- System-prompt instructions for choosing typed_program versus ordinary Pi tools.
-- Examples explaining imports, main(), structured results, composition and recovery.
-- Function naming, parameter structure, return shape and caller burden.
-- JSDoc length, generated declaration verbosity and discovery result descriptions.
-- Compiler/runtime error wording and guidance for narrowing untyped output.
-- Limits and defaults only where observed failures justify changes.
+## Slice B — bounded paired development trial
 
-## Experiment discipline
+- [ ] Use one fixed executor/model and baseline versus compact presentation on existing development tasks. Match backend, checker, caps, policy and fresh-run state. Include stock as the reference, without restricting its scripting.
+- [ ] Predeclare matrix, budget, ordering and practical improvement threshold using docs/evaluation.md. Use existing explicit authorization only within remaining scope; otherwise obtain a concrete spend selection. Preserve all attempts, policy flags, missing usage and cost discrepancies.
+- [ ] Compare task correctness, overall success, estimated cost per success, model responses, context categories and median/tail latency. Report uncertainty and regressions; do not optimize bytes alone.
+- [ ] At most two coherent development revisions. Retain/revert with evidence. If promising, confirm on new uninspected repository/workflow families; the original held-out -3/-4 instances were inspected and rerun and are now regression material. Add a second model after the initial development signal.
 
-Preserve the original prompt and API versions. Change one coherent factor at a time where practical and compare against the same baseline. Track correctness and retries as well as cost and latency. Hold out some tasks to avoid overfitting the harness to a few examples. Record improvements and regressions, including ordinary Pi-tool fallback. No autonomous optimization system is needed.
+## Decision
 
-## Open questions
+If full-surface compact presentation helps, retain it and test independent work. If it does not, do not keep shrinking semantics or inventing harder tasks until a win appears. Consider a separately measured hybrid/structured-service niche or keep the project as a learning harness. Aggregation superiority is unproven. No new engines, persistence, configurable caps or arbitrary Bun access in this ablation.
 
-- Is the main failure mode tool selection, code generation, schema understanding or error recovery?
-- Does a short usage example earn its added context cost?
-- Which instructions belong in the system prompt versus local function documentation?
-- Can better APIs eliminate an instruction rather than adding more prompt text?
-
-## Next step when selected
-
-Review baseline failures, choose one measurable hypothesis and propose a small comparison before changing the harness.
-
-## Completion criteria
-
-A versioned change with paired benchmark evidence, held-out checks and a documented retain/revert decision. Further substantial changes return to the issue board.
+Acceptance: reproducible attribution and a versioned, bounded retain/revert/narrow decision, with complete API semantics preserved. An inconclusive or negative result completes the experiment honestly.

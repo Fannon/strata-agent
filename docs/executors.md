@@ -88,12 +88,6 @@ none was required as a prerequisite.
 
 ## Recommendation and next step
 
-Retain both engines: QuickJS stays the default (contained baseline for typed
-composition); direct Bun stays opt-in (native ergonomics, simpler worker,
-faster startup/compute). The next evidence step is matched seeded-repository
-task trials across stock Pi / typed-QuickJS / typed-Bun with fixed
-model/settings and an explicitly selected spend cap — plus a decision gate
-(continue / narrow / pivot / stop) per the evaluation plan. That step needs a
-concrete model-spend authorization; no paid runs were made for this comparison.
-Harder held-out tasks additionally need `fs.list`/`git.log` style operations
-that the current read-only slice does not provide.
+Retain both engines: QuickJS default, Bun opt-in. Repository model trials subsequently ran across both engines and stock Pi; see [reviewed results](repo-trials.md). Those trials show no stable end-to-end executor advantage and do not establish equivalence in general. Listing, history, diffs and ranged reads are now delivered.
+
+The next selected experiment should target context cost (004) with one fixed engine and unchanged semantic capability surface. No new engine implementation or paid engine-only campaign is required. The measurements above are historical model-free probes; later task trials have separate manifests and budgets.

@@ -1,141 +1,57 @@
-# Repository trial report: dev + held-out rounds (2026-09-06)
+# Repository trials: evidence review and next decision
 
-Model: `meta/muse-spark-1.3-contributor`, thinking off. Protocol repo-2
-(hardened runner: guard reservations, process supervision, final-only
-grading, controller-held oracle, canary, pinned manifest). Dual-ledger
-budgeting: guard admits on worst-case reservations, the cap deducts reported
-actuals (reservation fallback when usage is missing). All artifacts local-only
-under `.work/repo-pilot/`; this file reports threatened-validity notes too.
+Reviewed 2026-09-06 against code at `807562a` and the four local repo-2 result files. This report supersedes earlier narrative summaries; historical result files and verdicts are unchanged. No new paid run or regrading occurred during this review.
 
-## Matrices
+## Evidence and provenance
 
-- **Dev** (2026-09-06T07-19-51): R-EXPORT-1/2, R-LOG-1/2, R-LOC-1/2 ×
-  stock-pi / typed-quickjs / typed-bun × 2 repeats = 36 cells.
-- **Held-out** (2026-09-06T07-44-55): R-EXPORT-3/4, R-LOG-3/4, R-LOC-3/4 ×
-  same profiles × 2 repeats = 36 cells. Frozen at commit, never edited after.
-- Two earlier attempts are preserved as invalid runs (flat-ledger
-  starvation, zero-cost model config) at $0.00 actual combined.
+One model (`meta/muse-spark-1.3-contributor`, thinking off), three profiles: stock Pi, typed QuickJS, typed Bun. Each stage used two independent sessions per task/profile. Stages differ in task and prompt revisions, and the close-out repeats previously observed tasks; pooling them does not produce independent confirmatory evidence.
 
-## Results
+[Sanitized cell summaries](evaluations/repo-2-2026-09-06.json) preserve the source run IDs, result-file SHA-256 hashes, clean Git revisions, per-cell verdict categories, usage and timings. Raw transcripts, requests and credentials stay local. This export permits checking the aggregates; it is not a substitute for raw-trace reproduction. The original fixtures and runner are tracked in `examples/repo-tasks/` and `examples/repo-pilot.ts`.
 
-Dev (36 cells, ledger $0.0513, key delta $0.0465):
+| Stage | Profile | Exact answers | Overall success | Estimated cost | Total tokens | Pi tool calls | Median seconds |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| dev | stock-pi | 12/12 | 11/12 | $0.01102 | 172,652 | 84 | 9.86 |
+| dev | typed-quickjs | 11/12 | 11/12 | $0.01905 | 358,048 | 33 | 10.07 |
+| dev | typed-bun | 12/12 | 12/12 | $0.02122 | 431,947 | 40 | 12.48 |
+| held-out | stock-pi | 12/12 | 12/12 | $0.01011 | 140,182 | 60 | 9.37 |
+| held-out | typed-quickjs | 12/12 | 12/12 | $0.02271 | 376,765 | 35 | 12.25 |
+| held-out | typed-bun | 11/12 | 11/12 | $0.02498 | 419,190 | 39 | 12.60 |
+| wave-2 | stock-pi | 5/6 | 5/6 | $0.00660 | 96,758 | 45 | 14.20 |
+| wave-2 | typed-quickjs | 6/6 | 6/6 | $0.01270 | 211,408 | 19 | 20.58 |
+| wave-2 | typed-bun | 5/6 | 5/6 | $0.01302 | 225,945 | 20 | 15.74 |
+| path-closeout | stock-pi | 10/10 | 9/10 | $0.01212 | 178,851 | 80 | 11.08 |
+| path-closeout | typed-quickjs | 10/10 | 10/10 | $0.01757 | 319,748 | 31 | 12.28 |
+| path-closeout | typed-bun | 10/10 | 10/10 | $0.01691 | 393,573 | 39 | 12.14 |
 
-| profile | success | cost | tokens | tool calls | elapsed med/max |
-| --- | --- | --- | --- | --- | --- |
-| stock-pi | 11/12 | $0.0110 | 172,652 | 84 (bash+read) | 10s / 29s |
-| typed-quickjs | 11/12 | $0.0191 | 358,048 | 33 programs | 10s / 32s |
-| typed-bun | 12/12 | $0.0212 | 431,947 | 40 programs | 15s / 36s |
+Overall success includes policy and harness requirements. Tool calls are Pi tool invocations, not necessarily model round trips or underlying broker operations. Costs are Pi/catalog estimates used by the ledger, not provider billing receipts. Token totals include the recorded categories and should not be treated as equally priced tokens.
 
-Held-out (36 cells, ledger $0.0578, key delta $0.0455):
+## What the results support
 
-| profile | success | cost | tokens | tool calls | elapsed med |
-| --- | --- | --- | --- | --- | --- |
-| stock-pi | 12/12 | $0.0101 | 140,182 | 60 (bash+read) | 9s |
-| typed-quickjs | 12/12 | $0.0227 | 376,765 | 35 programs | 13s |
-| typed-bun | 11/12 | $0.0250 | 419,190 | 39 programs | 14s |
+- **No demonstrated typed advantage on these repository tasks.** In dev+held-out, all profiles had 23/24 overall successes, but exact correctness was stock 24/24, QuickJS 23/24 and Bun 23/24. Typed profiles used 68/79 tool calls versus stock's 144; their aggregate token totals were 2.35×/2.72× stock and estimated costs 1.98×/2.19× stock. Fewer tool calls did not translate into a clear latency win.
+- **Efficiency is informative even at high success.** Wave-2 (chain, 1,500-line aggregation, narrowing) retained the cost disadvantage. This tests those particular mechanics; it does not exhaust structured repository tasks or establish model equivalence.
+- **Context footprint is a candidate explanation, not a causal result.** Typed prompts included 17,072 declaration bytes in dev/held-out and 17,468 in later rounds. Generated programs, error recovery, other instructions and cache behavior also affect cost. Declarations are appended to the system prompt; repeated context processing is not necessarily repeated uncached billing. No matched compact-declaration ablation has run.
+- **Executor choice is not the next priority.** Both support the same tested contracts. Local model-free timings favor Bun by tens of milliseconds on selected probes; paid runs contain model variability and do not show a stable end-to-end engine advantage. Keep QuickJS default and Bun opt-in; do not call the comparison universally settled.
 
-Combined dev+held-out (72 cells): stock 23/24, quickjs 23/24, bun 23/24. No timeouts,
-no blocked attempts, no missing accounting; one canary touch (below).
+## Failures and interpretive corrections
 
-## Wave-2 round (2026-09-06T08-34-15, 18 cells, ledger $0.0323, key delta $0.0230)
+Across all stages there were 116/120 exact answers and 114/120 overall successes. These pooled counts are inventory, not an independent success-rate estimate.
 
-| profile | success | cost | tokens |
-| --- | --- | --- | --- |
-| stock-pi | 5/6 | $0.0066 | 96,758 |
-| typed-quickjs | 6/6 | $0.0127 | 211,408 |
-| typed-bun | 5/6 | $0.0130 | 225,945 |
+Four exact mismatches used a leading `./`: dev QuickJS R-EXPORT-2 r1, held-out Bun R-EXPORT-4 r1, wave-2 stock R-EXPORT-5 r1 and Bun R-EXPORT-5 r0. One model on one date produced these; earlier wording about two models/two days was incorrect. The path convention was subsequently documented and echoed in prompts. Close-out had 30/30 exact answers, zero prefix mismatches, and 29/30 overall successes. Exact and normalized diagnostics agreed there. That is encouraging development feedback, not proof that future formatting failures are eliminated. The close-out reused held-out instances after inspection, so those instances are now regression material rather than untouched evaluation data.
 
-Both misses are R-EXPORT-5 answering `./c.ts` for `c.ts` (stock r1, bun r0)
-— the path-prefix gap a third and fourth time, on two more arms. The
-contract rule (stated in descriptions, pinned by test) is not yet sufficient:
-models add `./` themselves. All three wave-2 mechanics otherwise solved on
-all arms first try, including the 1,500-line aggregation and the forced
-narrowing loop.
+The other two unsuccessful cells had correct final answers but were flagged by the evaluator-material argument audit (stock R-EXPORT-2 r1 in dev and close-out). `snoopedCanary` scans tool-call arguments for forbidden markers/traversal. It is a heuristic audit result, not general proof of reading files or absence of unobserved access. Broad enumeration and computed access can create false positives/negatives. The canary contained no answer. Retain the original policy verdicts and distinguish them from answer errors; do not rename the canary post hoc to improve scores.
 
-Combined 90 cells: stock 28/30, quickjs 29/30, bun 28/30. Efficiency split
-unchanged (~2.3× tokens, ~1.8× cost for typed; fewer trips). Correctness
-still tied; the only recurring discriminator is path-prefix formatting.
+All 120 cells report healthy harnesses and complete accounting. That validates recorded lifecycle/accounting fields, not independent billing or hardened evaluator isolation. Oracle values are controller-held, but candidate processes share host authority; runner/source/artifact discovery is still possible. These remain cooperative diagnostics, not leakage-resistant benchmark scores.
 
-## Findings
+## Accounting and reproducibility limits
 
-1. **Correctness is tied; efficiency is not.** All three setups solve
-   essentially everything. Typed arms make ~2.5× fewer tool trips at ~2.3×
-   the tokens and ~1.8× the cost — declarations dominate every program.
-   The tested trade is *fewer round-trips for more context per trip*.
-2. **Path normalization is unspecified — twice bitten.** Dev:
-   typed-quickjs answered `./core.ts` for `core.ts`. Held-out: typed-bun
-   answered `./src/text.ts` for `src/text.ts`. Same contract gap, two
-   independent occurrences. The API never states whether relative paths
-   carry a leading `./`, and two models guessed differently on two days.
-3. **The canary works, and curiosity is normal.** One stock cell read the
-   `.canary` dotfile (correct answer anyway; flagged per the stated rule).
-   The canary held no oracle, so nothing leaked — but the episode shows
-   exploratory dotfile reads are ordinary agent behavior, not attacks.
-   Interpretation must keep "accessed evaluator material" separate from
-   "benefited from it."
-4. **Trial infrastructure findings.** (a) Flat worst-case reservations
-   starve cells on 1M-context models — fixed by the dual ledger plus
-   fitting per-cell caps. (b) A missing `cost` block in the runner-written
-   model config made Pi price everything at $0, which would have blinded
-   the ledger — fixed; the ledger now reconciles against key deltas
-   ($0.051 vs $0.047, $0.058 vs $0.046). (c) Independent oracle
-   recomputation caught a human date-arithmetic error before it fossilized.
+Recorded ledger totals versus account-global key-usage deltas: dev $0.05129/$0.0465; held-out $0.05779/$0.0455; wave-2 $0.03232/$0.0230; close-out $0.04660/$0.0282. They do not reconcile exactly and must not be presented as verified invoices. Timing, cache/rate accounting and account-wide activity need attribution before explaining the discrepancies. The controller deducts reported estimates per completed cell, reserving worst-case requests before admission and falling back to reservations when usage is missing. This relies on provider limits/prices, not an absolute billing guarantee.
 
-## Limits (threats to validity)
+Earlier flat-reservation/zero-price attempts remain excluded as invalid infrastructure runs. They do not become successful trials after later fixes. All current tasks are original seeded fixtures inspired by prior benchmarks; they are not copied RepoQA/Terminal-Bench tasks or official scores.
 
-- Tasks are easy by design so far: single-figure tool calls, small files,
-  unambiguous oracles. They measure wiring and efficiency, not the
-  hypothesized typed advantage on hard composition.
-- One model, one day, 2 repeats: no variance or generality claims.
-- Stock scripting is unconstrained (fair by design) but unmeasured in
-  kind — we count calls, not cleverness.
-- Our tasks are original, so training-data familiarity cuts the other way:
-  the model knows bash idioms far better than our week-old API.
+## Recommended trajectory
 
-## Suggestions
+1. **004: measure and reduce context cost.** Inventory effective prompts and request usage offline; then compare a compact declaration presentation with the same operations, schemas, checker, policy and one fixed executor. No task-specific answer-informed pruning. Preserve critical semantics and repair feedback; 031 quiet success is already delivered.
+2. **Confirm usefulness on independent work.** Use a small session-informed or licensed repository task set with plausible distractors but objectively resolvable answers. Existing -3/-4 instances have been inspected and rerun; reserve genuinely new families/repos for confirmation. Add a second model after an affordable development signal, not a large engine×model×task campaign.
+3. **Decide continue, narrow or stop.** A read-only hybrid remains plausible, but aggregation superiority is not yet demonstrated. If bounded tuning does not improve task-level economics, keep Strata as a learning/tooling project or a narrowly justified integration. Edits/checks can be a separately selected product-coverage experiment, not a remedy assumed to rescue these numbers.
 
-**Benchmarks, in order:**
-1. Fix the path contract first (normalize `rel` outputs — strip any
-   leading `./` — or state the rule in each operation description), then
-   treat the two prefix misses as fixed-forward, not oracle edits.
-2. Harder instances that target the hypothesis: multi-hop chains where an
-   early mistake breaks the answer, large intermediates where in-program
-   filtering should beat shell text-shoveling, tasks that exceed a cap so
-   narrowing/recovery is required, and at least one adversarial decoy set
-   per family (we have the pattern; deepen it).
-3. Report cost-per-success and trips-per-success as first-class metrics
-   alongside success rate — on current evidence they discriminate more
-   than correctness does.
-4. Add a second model and a latency-variance look before any stop/continue
-   claim; keep 2 repeats until uncertainty demands more.
-5. Rename the canary to something boring (e.g. `.nocommit`) to separate
-   curiosity reads from targeted reads — or keep the enticing name and
-   study the difference. Decide explicitly; don't drift.
-
-**Product, only if harder tasks show a gap:**
-- Declaration tokens are the typed arms' main cost. If that persists,
-  the fix is smaller surfaces (per-task operation subsets, terse
-  descriptions), not a new engine.
-- Nothing in 90 cells justifies edits/checks, memory, sandboxing, or
-  catalog growth. Keep those gated behind measured need.
-
-## Wave-2 addendum
-
-The harder mechanics (chain, large, over-cap) moved neither correctness nor
-the cost split: 16/18 with both misses being `./`-prefix formatting on the
-chain task. Two implications: (1) the formatting rule needs a stronger
-mechanism than description text — options are echoing the convention in the
-runner prompt, or a secondary normalized-correctness diagnostic alongside
-the exact verdict (never editing frozen oracles); (2) seeded unambiguous
-tasks appear exhausted as a discriminator — the next discrimination, if any,
-will come from genuine ambiguity (competing plausible answers), larger
-scale, or a second model, not from harder mechanics alone.
-
-## Path-prefix close-out re-run (2026-09-06T08-49-02, R-EXPORT-1–5 × 3 profiles × 2, 30 cells)
-
-Both mechanisms from the addendum were implemented (prompt echo +
-`normalizedCorrect` column) and the round re-ran: 29/30 with zero prefix
-misses (4 in the prior 90). Exact and normalized verdicts agreed on all 30
-cells. The single failure is another curious canary read (stock, correct
-answer, flagged per rule). Ledger $0.0466, key delta $0.0282. The saga is
-closed as a mechanism; residual misses of this class now classify themselves.
+Keep engines, memory, caps, a new sandbox and broad catalogs out of the next context-cost ablation. 032/013/033 can supply coverage evidence without new adapters. See [handoff](handoff.md), [evaluation](evaluation.md) and the [issue board](../.work/issues/index.md).

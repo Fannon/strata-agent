@@ -1,0 +1,6539 @@
+{
+  "schemaVersion": 1,
+  "reviewedRevision": "807562a",
+  "note": "Sanitized transcription of existing repo-2 results; no model calls or historical regrading. Stages have different task/prompt versions; do not treat pooled cells as independent tasks. Costs are Pi/catalog estimates, not provider invoices. Canary flags are argument-audit observations, not proof of access.",
+  "runs": [
+    {
+      "stage": "dev",
+      "sourceRun": "2026-09-06T07-19-51-608Z",
+      "resultsSha256": "ba144cd4a5feebe50046dd8673df04bf96ae5ac0c46bff2b5536369f9b98fb72",
+      "commit": "dfe4d6b4c7348fadf84a5d63bc4975395b997221",
+      "dirty": false,
+      "model": "meta/muse-spark-1.3-contributor",
+      "spentLedger": 0.051292191999999986,
+      "profiles": [
+        {
+          "profile": "stock-pi",
+          "n": 12,
+          "success": 11,
+          "exactCorrect": 12,
+          "policyCompliant": 11,
+          "healthy": 12,
+          "accountingComplete": 12,
+          "estimatedCostUsd": 0.011019202,
+          "costPerSuccessUsd": 0.0010017456363636363,
+          "totalTokens": 172652,
+          "toolCalls": 84,
+          "medianMs": 9857.98012350002,
+          "declarationBytes": [
+            0
+          ]
+        },
+        {
+          "profile": "typed-quickjs",
+          "n": 12,
+          "success": 11,
+          "exactCorrect": 11,
+          "policyCompliant": 12,
+          "healthy": 12,
+          "accountingComplete": 12,
+          "estimatedCostUsd": 0.019054424,
+          "costPerSuccessUsd": 0.0017322203636363637,
+          "totalTokens": 358048,
+          "toolCalls": 33,
+          "medianMs": 10070.363894499998,
+          "declarationBytes": [
+            17072
+          ]
+        },
+        {
+          "profile": "typed-bun",
+          "n": 12,
+          "success": 12,
+          "exactCorrect": 12,
+          "policyCompliant": 12,
+          "healthy": 12,
+          "accountingComplete": 12,
+          "estimatedCostUsd": 0.021218565999999998,
+          "costPerSuccessUsd": 0.0017682138333333331,
+          "totalTokens": 431947,
+          "toolCalls": 40,
+          "medianMs": 12477.627609499992,
+          "declarationBytes": [
+            17072
+          ]
+        }
+      ],
+      "cells": [
+        {
+          "id": "cell-R-EXPORT-1-stock-pi-r0",
+          "task": "R-EXPORT-1",
+          "profile": "stock-pi",
+          "repeat": 0,
+          "success": true,
+          "correctness": {
+            "correct": true,
+            "reason": null
+          },
+          "policy": {
+            "compliant": true,
+            "violations": []
+          },
+          "harness": {
+            "healthy": true,
+            "errors": []
+          },
+          "accounting": {
+            "complete": true,
+            "issues": []
+          },
+          "usage": {
+            "input": 2891,
+            "output": 877,
+            "cacheRead": 3938,
+            "cacheWrite": 0,
+            "totalTokens": 7706,
+            "cost": 0.00047237599999999994
+          },
+          "toolCounts": {
+            "bash": 1,
+            "read": 6
+          },
+          "modelResponses": 3,
+          "metrics": {
+            "piToolBytes": 1258,
+            "capabilityCalls": null,
+            "rawCapabilityBytes": null,
+            "bytesExposedToPi": null
+          },
+          "execution": {
+            "exitCode": 0,
+            "termination": null,
+            "guardStop": null,
+            "ms": 6297.850307000001
+          },
+          "estimatedCostUsd": 0.00047237599999999994,
+          "snoopedCanary": false,
+          "normalizedCorrect": null,
+          "promptBytes": 394,
+          "declarationBytes": 0
+        },
+        {
+          "id": "cell-R-EXPORT-1-typed-quickjs-r0",
+          "task": "R-EXPORT-1",
+          "profile": "typed-quickjs",
+          "repeat": 0,
+          "success": true,
+          "correctness": {
+            "correct": true,
+            "reason": null
+          },
+          "policy": {
+            "compliant": true,
+            "violations": []
+          },
+          "harness": {
+            "healthy": true,
+            "errors": []
+          },
+          "accounting": {
+            "complete": true,
+            "issues": []
+          },
+          "usage": {
+            "input": 7763,
+            "output": 1032,
+            "cacheRead": 13922,
+            "cacheWrite": 0,
+            "totalTokens": 22717,
+            "cost": 0.001010544
+          },
+          "toolCounts": {
+            "typed_program": 2
+          },
+          "modelResponses": 3,
+          "metrics": {
+            "piToolBytes": 1266,
+            "capabilityCalls": 8,
+            "rawCapabilityBytes": 1649,
+            "bytesExposedToPi": 1266
+          },
+          "execution": {
+            "exitCode": 0,
+            "termination": null,
+            "guardStop": null,
+            "ms": 9673.403509
+          },
+          "estimatedCostUsd": 0.001010544,
+          "snoopedCanary": false,
+          "normalizedCorrect": null,
+          "promptBytes": 485,
+          "declarationBytes": 17072
+        },
+        {
+          "id": "cell-R-EXPORT-1-typed-bun-r0",
+          "task": "R-EXPORT-1",
+          "profile": "typed-bun",
+          "repeat": 0,
+          "success": true,
+          "correctness": {
+            "correct": true,
+            "reason": null
+          },
+          "policy": {
+            "compliant": true,
+            "violations": []
+          },
+          "harness": {
+            "healthy": true,
+            "errors": []
+          },
+          "accounting": {
+            "complete": true,
+            "issues": []
+          },
+          "usage": {
+            "input": 7760,
+            "output": 940,
+            "cacheRead": 14050,
+            "cacheWrite": 0,
+            "totalTokens": 22750,
+            "cost": 0.0009920999999999999
+          },
+          "toolCounts": {
+            "typed_program": 2
+          },
+          "modelResponses": 3,
+          "metrics": {
+            "piToolBytes": 1328,
+            "capabilityCalls": 9,
+            "rawCapabilityBytes": 1885,
+            "bytesExposedToPi": 1328
+          },
+          "execution": {
+            "exitCode": 0,
+            "termination": null,
+            "guardStop": null,
+            "ms": 9038.313558999998
+          },
+          "estimatedCostUsd": 0.0009920999999999999,
+          "snoopedCanary": false,
+          "normalizedCorrect": null,
+          "promptBytes": 667,
+          "declarationBytes": 17072
+        },
+        {
+          "id": "cell-R-EXPORT-2-typed-quickjs-r0",
+          "task": "R-EXPORT-2",
+          "profile": "typed-quickjs",
+          "repeat": 0,
+          "success": true,
+          "correctness": {
+            "correct": true,
+            "reason": null
+          },
+          "policy": {
+            "compliant": true,
+            "violations": []
+          },
+          "harness": {
+            "healthy": true,
+            "errors": []
+          },
+          "accounting": {
+            "complete": true,
+            "issues": []
+          },
+          "usage": {
+            "input": 15691,
+            "output": 3053,
+            "cacheRead": 13794,
+            "cacheWrite": 0,
+            "totalTokens": 32538,
+            "cost": 0.002207288
+          },
+          "toolCounts": {
+            "typed_program": 3
+          },
+          "modelResponses": 4,
+          "metrics": {
+            "piToolBytes": 1266,
+            "capabilityCalls": 9,
+            "rawCapabilityBytes": 1810,
+            "bytesExposedToPi": 1266
+          },
+          "execution": {
+            "exitCode": 0,
+            "termination": null,
+            "guardStop": null,
+            "ms": 31818.11439
+          },
+          "estimatedCostUsd": 0.002207288,
+          "snoopedCanary": false,
+          "normalizedCorrect": null,
+          "promptBytes": 392,
+          "declarationBytes": 17072
+        },
+        {
+          "id": "cell-R-EXPORT-2-typed-bun-r0",
+          "task": "R-EXPORT-2",
+          "profile": "typed-bun",
+          "repeat": 0,
+          "success": true,
+          "correctness": {
+            "correct": true,
+            "reason": null
+          },
+          "policy": {
+            "compliant": true,
+            "violations": []
+          },
+          "harness": {
+            "healthy": true,
+            "errors": []
+          },
+          "accounting": {
+            "complete": true,
+            "issues": []
+          },
+          "usage": {
+            "input": 14988,
+            "output": 2340,
+            "cacheRead": 14547,
+            "cacheWrite": 0,
+            "totalTokens": 31875,
+            "cost": 0.001995894
+          },
+          "toolCounts": {
+            "typed_program": 3
+          },
+          "modelResponses": 4,
+          "metrics": {
+            "piToolBytes": 1214,
+            "capabilityCalls": 9,
+            "rawCapabilityBytes": 1810,
+            "bytesExposedToPi": 1214
+          },
+          "execution": {
+            "exitCode": 0,
+            "termination": null,
+            "guardStop": null,
+            "ms": 20502.804930000006
+          },
+          "estimatedCostUsd": 0.001995894,
+          "snoopedCanary": false,
+          "normalizedCorrect": null,
+          "promptBytes": 574,
+          "declarationBytes": 17072
+        },
+        {
+          "id": "cell-R-EXPORT-2-stock-pi-r0",
+          "task": "R-EXPORT-2",
+          "profile": "stock-pi",
+          "repeat": 0,
+          "success": true,
+          "correctness": {
+            "correct": true,
+            "reason": null
+          },
+          "policy": {
+            "compliant": true,
+            "violations": []
+          },
+          "harness": {
+            "healthy": true,
+            "errors": []
+          },
+          "accounting": {
+            "complete": true,
+            "issues": []
+          },
+          "usage": {
+            "input": 9972,
+            "output": 1333,
+            "cacheRead": 6099,
+            "cacheWrite": 0,
+            "totalTokens": 17404,
+            "cost": 0.001275998
+          },
+          "toolCounts": {
+            "bash": 3,
+            "read": 6
+          },
+          "modelResponses": 5,
+          "metrics": {
+            "piToolBytes": 14972,
+            "capabilityCalls": null,
+            "rawCapabilityBytes": null,
+            "bytesExposedToPi": null
+          },
+          "execution": {
+            "exitCode": 0,
+            "termination": null,
+            "guardStop": null,
+            "ms": 11543.435685999997
+          },
+          "estimatedCostUsd": 0.001275998,
+          "snoopedCanary": false,
+          "normalizedCorrect": null,
+          "promptBytes": 301,
+          "declarationBytes": 0
+        },
+        {
+          "id": "cell-R-LOG-1-typed-bun-r0",
+          "task": "R-LOG-1",
+          "profile": "typed-bun",
+          "repeat": 0,
+          "success": true,
+          "correctness": {
+            "correct": true,
+            "reason": null
+          },
+          "policy": {
+            "compliant": true,
+            "violations": []
+          },
+          "harness": {
+            "healthy": true,
+            "errors": []
+          },
+          "accounting": {
+            "complete": true,
+            "issues": []
+          },
+          "usage": {
+            "input": 17692,
+            "output": 2863,
+            "cacheRead": 21715,
+            "cacheWrite": 0,
+            "totalTokens": 42270,
+            "cost": 0.00238523
+          },
+          "toolCounts": {
+            "typed_program": 4
+          },
+          "modelResponses": 5,
+          "metrics": {
+            "piToolBytes": 2407,
+            "capabilityCalls": 10,
+            "rawCapabilityBytes": 2508,
+            "bytesExposedToPi": 2407
+          },
+          "execution": {
+            "exitCode": 0,
+            "termination": null,
+            "guardStop": null,
+            "ms": 21785.603214000002
+          },
+          "estimatedCostUsd": 0.00238523,
+          "snoopedCanary": false,
+          "normalizedCorrect": null,
+          "promptBytes": 784,
+          "declarationBytes": 17072
+        },
+        {
+          "id": "cell-R-LOG-1-stock-pi-r0",
+          "task": "R-LOG-1",
+          "profile": "stock-pi",
+          "repeat": 0,
+          "success": true,
+          "correctness": {
+            "correct": true,
+            "reason": null
+          },
+          "policy": {
+            "compliant": true,
+            "violations": []
+          },
+          "harness": {
+            "healthy": true,
+            "errors": []
+          },
+          "accounting": {
+            "complete": true,
+            "issues": []
+          },
+          "usage": {
+            "input": 5579,
+            "output": 1580,
+            "cacheRead": 3810,
+            "cacheWrite": 0,
+            "totalTokens": 10969,
+            "cost": 0.0008815199999999999
+          },
+          "toolCounts": {
+            "bash": 2,
+            "read": 3
+          },
+          "modelResponses": 4,
+          "metrics": {
+            "piToolBytes": 1101,
+            "capabilityCalls": null,
+            "rawCapabilityBytes": null,
+            "bytesExposedToPi": null
+          },
+          "execution": {
+            "exitCode": 0,
+            "termination": null,
+            "guardStop": null,
+            "ms": 10366.946552000009
+          },
+          "estimatedCostUsd": 0.0008815199999999999,
+          "snoopedCanary": false,
+          "normalizedCorrect": null,
+          "promptBytes": 511,
+          "declarationBytes": 0
+        },
+        {
+          "id": "cell-R-LOG-1-typed-quickjs-r0",
+          "task": "R-LOG-1",
+          "profile": "typed-quickjs",
+          "repeat": 0,
+          "success": true,
+          "correctness": {
+            "correct": true,
+            "reason": null
+          },
+          "policy": {
+            "compliant": true,
+            "violations": []
+          },
+          "harness": {
+            "healthy": true,
+            "errors": []
+          },
+          "accounting": {
+            "complete": true,
+            "issues": []
+          },
+          "usage": {
+            "input": 14774,
+            "output": 1091,
+            "cacheRead": 6897,
+            "cacheWrite": 0,
+            "totalTokens": 22762,
+            "cost": 0.0017093940000000001
+          },
+          "toolCounts": {
+            "typed_program": 2
+          },
+          "modelResponses": 3,
+          "metrics": {
+            "piToolBytes": 1108,
+            "capabilityCalls": 4,
+            "rawCapabilityBytes": 1022,
+            "bytesExposedToPi": 1108
+          },
+          "execution": {
+            "exitCode": 0,
+            "termination": null,
+            "guardStop": null,
+            "ms": 8169.8210199999885
+          },
+          "estimatedCostUsd": 0.0017093940000000001,
+          "snoopedCanary": false,
+          "normalizedCorrect": null,
+          "promptBytes": 602,
+          "declarationBytes": 17072
+        },
+        {
+          "id": "cell-R-LOG-2-stock-pi-r0",
+          "task": "R-LOG-2",
+          "profile": "stock-pi",
+          "repeat": 0,
+          "success": true,
+          "correctness": {
+            "correct": true,
+            "reason": null
+          },
+          "policy": {
+            "compliant": true,
+            "violations": []
+          },
+          "harness": {
+            "healthy": true,
+            "errors": []
+          },
+          "accounting": {
+            "complete": true,
+            "issues": []
+          },
+          "usage": {
+            "input": 5772,
+            "output": 2076,
+            "cacheRead": 3810,
+            "cacheWrite": 0,
+            "totalTokens": 11658,
+            "cost": 0.00100002
+          },
+          "toolCounts": {
+            "bash": 3
+          },
+          "modelResponses": 4,
+          "metrics": {
+            "piToolBytes": 1265,
+            "capabilityCalls": null,
+            "rawCapabilityBytes": null,
+            "bytesExposedToPi": null
+          },
+          "execution": {
+            "exitCode": 0,
+            "termination": null,
+            "guardStop": null,
+            "ms": 15843.139979000014
+          },
+          "estimatedCostUsd": 0.00100002,
+          "snoopedCanary": false,
+          "normalizedCorrect": null,
+          "promptBytes": 579,
+          "declarationBytes": 0
+        },
+        {
+          "id": "cell-R-LOG-2-typed-quickjs-r0",
+          "task": "R-LOG-2",
+          "profile": "typed-quickjs",
+          "repeat": 0,
+          "success": true,
+          "correctness": {
+            "correct": true,
+            "reason": null
+          },
+          "policy": {
+            "compliant": true,
+            "violations": []
+          },
+          "harness": {
+            "healthy": true,
+            "errors": []
+          },
+          "accounting": {
+            "complete": true,
+            "issues": []
+          },
+          "usage": {
+            "input": 19110,
+            "output": 3944,
+            "cacheRead": 21715,
+            "cacheWrite": 0,
+            "totalTokens": 44769,
+            "cost": 0.00274323
+          },
+          "toolCounts": {
+            "typed_program": 4
+          },
+          "modelResponses": 5,
+          "metrics": {
+            "piToolBytes": 2963,
+            "capabilityCalls": 10,
+            "rawCapabilityBytes": 3100,
+            "bytesExposedToPi": 2963
+          },
+          "execution": {
+            "exitCode": 0,
+            "termination": null,
+            "guardStop": null,
+            "ms": 25940.339632999996
+          },
+          "estimatedCostUsd": 0.00274323,
+          "snoopedCanary": false,
+          "normalizedCorrect": null,
+          "promptBytes": 670,
+          "declarationBytes": 17072
+        },
+        {
+          "id": "cell-R-LOG-2-typed-bun-r0",
+          "task": "R-LOG-2",
+          "profile": "typed-bun",
+          "repeat": 0,
+          "success": true,
+          "correctness": {
+            "correct": true,
+            "reason": null
+          },
+          "policy": {
+            "compliant": true,
+            "violations": []
+          },
+          "harness": {
+            "healthy": true,
+            "errors": []
+          },
+          "accounting": {
+            "complete": true,
+            "issues": []
+          },
+          "usage": {
+            "input": 20139,
+            "output": 5263,
+            "cacheRead": 52262,
+            "cacheWrite": 0,
+            "totalTokens": 77664,
+            "cost": 0.0031710239999999997
+          },
+          "toolCounts": {
+            "typed_program": 7
+          },
+          "modelResponses": 8,
+          "metrics": {
+            "piToolBytes": 6900,
+            "capabilityCalls": 20,
+            "rawCapabilityBytes": 7214,
+            "bytesExposedToPi": 6900
+          },
+          "execution": {
+            "exitCode": 0,
+            "termination": null,
+            "guardStop": null,
+            "ms": 36478.130477
+          },
+          "estimatedCostUsd": 0.0031710239999999997,
+          "snoopedCanary": false,
+          "normalizedCorrect": null,
+          "promptBytes": 852,
+          "declarationBytes": 17072
+        },
+        {
+          "id": "cell-R-LOC-1-typed-quickjs-r0",
+          "task": "R-LOC-1",
+          "profile": "typed-quickjs",
+          "repeat": 0,
+          "success": true,
+          "correctness": {
+            "correct": true,
+            "reason": null
+          },
+          "policy": {
+            "compliant": true,
+            "violations": []
+          },
+          "harness": {
+            "healthy": true,
+            "errors": []
+          },
+          "accounting": {
+            "complete": true,
+            "issues": []
+          },
+          "usage": {
+            "input": 8152,
+            "output": 992,
+            "cacheRead": 21331,
+            "cacheWrite": 0,
+            "totalTokens": 30475,
+            "cost": 0.001056262
+          },
+          "toolCounts": {
+            "typed_program": 3
+          },
+          "modelResponses": 4,
+          "metrics": {
+            "piToolBytes": 2072,
+            "capabilityCalls": 8,
+            "rawCapabilityBytes": 2232,
+            "bytesExposedToPi": 2072
+          },
+          "execution": {
+            "exitCode": 0,
+            "termination": null,
+            "guardStop": null,
+            "ms": 10063.171214000002
+          },
+          "estimatedCostUsd": 0.001056262,
+          "snoopedCanary": false,
+          "normalizedCorrect": null,
+          "promptBytes": 517,
+          "declarationBytes": 17072
+        },
+        {
+          "id": "cell-R-LOC-1-typed-bun-r0",
+          "task": "R-LOC-1",
+          "profile": "typed-bun",
+          "repeat": 0,
+          "success": true,
+          "correctness": {
+            "correct": true,
+            "reason": null
+          },
+          "policy": {
+            "compliant": true,
+            "violations": []
+          },
+          "harness": {
+            "healthy": true,
+            "errors": []
+          },
+          "accounting": {
+            "complete": true,
+            "issues": []
+          },
+          "usage": {
+            "input": 14852,
+            "output": 1057,
+            "cacheRead": 22965,
+            "cacheWrite": 0,
+            "totalTokens": 38874,
+            "cost": 0.00174253
+          },
+          "toolCounts": {
+            "typed_program": 4
+          },
+          "modelResponses": 5,
+          "metrics": {
+            "piToolBytes": 3082,
+            "capabilityCalls": 10,
+            "rawCapabilityBytes": 2311,
+            "bytesExposedToPi": 3082
+          },
+          "execution": {
+            "exitCode": 0,
+            "termination": null,
+            "guardStop": null,
+            "ms": 10297.783146000002
+          },
+          "estimatedCostUsd": 0.00174253,
+          "snoopedCanary": false,
+          "normalizedCorrect": null,
+          "promptBytes": 699,
+          "declarationBytes": 17072
+        },
+        {
+          "id": "cell-R-LOC-1-stock-pi-r0",
+          "task": "R-LOC-1",
+          "profile": "stock-pi",
+          "repeat": 0,
+          "success": true,
+          "correctness": {
+            "correct": true,
+            "reason": null
+          },
+          "policy": {
+            "compliant": true,
+            "violations": []
+          },
+          "harness": {
+            "healthy": true,
+            "errors": []
+          },
+          "accounting": {
+            "complete": true,
+            "issues": []
+          },
+          "usage": {
+            "input": 2433,
+            "output": 773,
+            "cacheRead": 6724,
+            "cacheWrite": 0,
+            "totalTokens": 9930,
+            "cost": 0.000411348
+          },
+          "toolCounts": {
+            "bash": 2,
+            "read": 5
+          },
+          "modelResponses": 4,
+          "metrics": {
+            "piToolBytes": 1322,
+            "capabilityCalls": null,
+            "rawCapabilityBytes": null,
+            "bytesExposedToPi": null
+          },
+          "execution": {
+            "exitCode": 0,
+            "termination": null,
+            "guardStop": null,
+            "ms": 7001.10526099999
+          },
+          "estimatedCostUsd": 0.000411348,
+          "snoopedCanary": false,
+          "normalizedCorrect": null,
+          "promptBytes": 426,
+          "declarationBytes": 0
+        },
+        {
+          "id": "cell-R-LOC-2-typed-bun-r0",
+          "task": "R-LOC-2",
+          "profile": "typed-bun",
+          "repeat": 0,
+          "success": true,
+          "correctness": {
+            "correct": true,
+            "reason": null
+          },
+          "policy": {
+            "compliant": true,
+            "violations": []
+          },
+          "harness": {
+            "healthy": true,
+            "errors": []
+          },
+          "accounting": {
+            "complete": true,
+            "issues": []
+          },
+          "usage": {
+            "input": 15325,
+            "output": 964,
+            "cacheRead": 14675,
+            "cacheWrite": 0,
+            "totalTokens": 30964,
+            "cost": 0.0017546499999999997
+          },
+          "toolCounts": {
+            "typed_program": 3
+          },
+          "modelResponses": 4,
+          "metrics": {
+            "piToolBytes": 2192,
+            "capabilityCalls": 6,
+            "rawCapabilityBytes": 1501,
+            "bytesExposedToPi": 2192
+          },
+          "execution": {
+            "exitCode": 0,
+            "termination": null,
+            "guardStop": null,
+            "ms": 9117.786189000006
+          },
+          "estimatedCostUsd": 0.0017546499999999997,
+          "snoopedCanary": false,
+          "normalizedCorrect": null,
+          "promptBytes": 705,
+          "declarationBytes": 17072
+        },
+        {
+          "id": "cell-R-LOC-2-stock-pi-r0",
+          "task": "R-LOC-2",
+          "profile": "stock-pi",
+          "repeat": 0,
+          "success": true,
+          "correctness": {
+            "correct": true,
+            "reason": null
+          },
+          "policy": {
+            "compliant": true,
+            "violations": []
+          },
+          "harness": {
+            "healthy": true,
+            "errors": []
+          },
+          "accounting": {
+            "complete": true,
+            "issues": []
+          },
+          "usage": {
+            "input": 3404,
+            "output": 938,
+            "cacheRead": 9028,
+            "cacheWrite": 0,
+            "totalTokens": 13370,
+            "cost": 0.0005460560000000001
+          },
+          "toolCounts": {
+            "bash": 3,
+            "read": 4
+          },
+          "modelResponses": 5,
+          "metrics": {
+            "piToolBytes": 2470,
+            "capabilityCalls": null,
+            "rawCapabilityBytes": null,
+            "bytesExposedToPi": null
+          },
+          "execution": {
+            "exitCode": 0,
+            "termination": null,
+            "guardStop": null,
+            "ms": 7944.7200720000255
+          },
+          "estimatedCostUsd": 0.0005460560000000001,
+          "snoopedCanary": false,
+          "normalizedCorrect": null,
+          "promptBytes": 432,
+          "declarationBytes": 0
+        },
+        {
+          "id": "cell-R-LOC-2-typed-quickjs-r0",
+          "task": "R-LOC-2",
+          "profile": "typed-quickjs",
+          "repeat": 0,
+          "success": true,
+          "correctness": {
+            "correct": true,
+            "reason": null
+          },
+          "policy": {
+            "compliant": true,
+            "violations": []
+          },
+          "harness": {
+            "healthy": true,
+            "errors": []
+          },
+          "accounting": {
+            "complete": true,
+            "issues": []
+          },
+          "usage": {
+            "input": 7900,
+            "output": 818,
+            "cacheRead": 13794,
+            "cacheWrite": 0,
+            "totalTokens": 22512,
+            "cost": 0.000981188
+          },
+          "toolCounts": {
+            "typed_program": 2
+          },
+          "modelResponses": 3,
+          "metrics": {
+            "piToolBytes": 1547,
+            "capabilityCalls": 5,
+            "rawCapabilityBytes": 1452,
+            "bytesExposedToPi": 1547
+          },
+          "execution": {
+            "exitCode": 0,
+            "termination": null,
+            "guardStop": null,
+            "ms": 7515.767380999983
+          },
+          "estimatedCostUsd": 0.000981188,
+          "snoopedCanary": false,
+          "normalizedCorrect": null,
+          "promptBytes": 523,
+          "declarationBytes": 17072
+        },
+        {
+          "id": "cell-R-EXPORT-1-typed-quickjs-r1",
+          "task": "R-EXPORT-1",
+          "profile": "typed-quickjs",
+          "repeat": 1,
+          "success": true,
+          "correctness": {
+            "correct": true,
+            "reason": null
+          },
+          "policy": {
+            "compliant": true,
+            "violations": []
+          },
+          "harness": {
+            "healthy": true,
+            "errors": []
+          },
+          "accounting": {
+            "complete": true,
+            "issues": []
+          },
+          "usage": {
+            "input": 7198,
+            "output": 958,
+            "cacheRead": 14419,
+            "cacheWrite": 0,
+            "totalTokens": 22575,
+            "cost": 0.0009402379999999999
+          },
+          "toolCounts": {
+            "typed_program": 2
+          },
+          "modelResponses": 3,
+          "metrics": {
+            "piToolBytes": 1117,
+            "capabilityCalls": 8,
+            "rawCapabilityBytes": 1649,
+            "bytesExposedToPi": 1117
+          },
+          "execution": {
+            "exitCode": 0,
+            "termination": null,
+            "guardStop": null,
+            "ms": 9688.525135000004
+          },
+          "estimatedCostUsd": 0.0009402379999999999,
+          "snoopedCanary": false,
+          "normalizedCorrect": null,
+          "promptBytes": 485,
+          "declarationBytes": 17072
+        },
+        {
+          "id": "cell-R-EXPORT-1-typed-bun-r1",
+          "task": "R-EXPORT-1",
+          "profile": "typed-bun",
+          "repeat": 1,
+          "success": true,
+          "correctness": {
+            "correct": true,
+            "reason": null
+          },
+          "policy": {
+            "compliant": true,
+            "violations": []
+          },
+          "harness": {
+            "healthy": true,
+            "errors": []
+          },
+          "accounting": {
+            "complete": true,
+            "issues": []
+          },
+          "usage": {
+            "input": 14388,
+            "output": 779,
+            "cacheRead": 7394,
+            "cacheWrite": 0,
+            "totalTokens": 22561,
+            "cost": 0.001609388
+          },
+          "toolCounts": {
+            "typed_program": 2
+          },
+          "modelResponses": 3,
+          "metrics": {
+            "piToolBytes": 1254,
+            "capabilityCalls": 9,
+            "rawCapabilityBytes": 1810,
+            "bytesExposedToPi": 1254
+          },
+          "execution": {
+            "exitCode": 0,
+            "termination": null,
+            "guardStop": null,
+            "ms": 8599.102302999992
+          },
+          "estimatedCostUsd": 0.001609388,
+          "snoopedCanary": false,
+          "normalizedCorrect": null,
+          "promptBytes": 667,
+          "declarationBytes": 17072
+        },
+        {
+          "id": "cell-R-EXPORT-1-stock-pi-r1",
+          "task": "R-EXPORT-1",
+          "profile": "stock-pi",
+          "repeat": 1,
+          "success": true,
+          "correctness": {
+            "correct": true,
+            "reason": null
+          },
+          "policy": {
+            "compliant": true,
+            "violations": []
+          },
+          "harness": {
+            "healthy": true,
+            "errors": []
+          },
+          "accounting": {
+            "complete": true,
+            "issues": []
+          },
+          "usage": {
+            "input": 4488,
+            "output": 887,
+            "cacheRead": 1905,
+            "cacheWrite": 0,
+            "totalTokens": 7280,
+            "cost": 0.00063001
+          },
+          "toolCounts": {
+            "bash": 1,
+            "read": 6
+          },
+          "modelResponses": 3,
+          "metrics": {
+            "piToolBytes": 793,
+            "capabilityCalls": null,
+            "rawCapabilityBytes": null,
+            "bytesExposedToPi": null
+          },
+          "execution": {
+            "exitCode": 0,
+            "termination": null,
+            "guardStop": null,
+            "ms": 6489.248514999985
+          },
+          "estimatedCostUsd": 0.00063001,
+          "snoopedCanary": false,
+          "normalizedCorrect": null,
+          "promptBytes": 394,
+          "declarationBytes": 0
+        },
+        {
+          "id": "cell-R-EXPORT-2-typed-bun-r1",
+          "task": "R-EXPORT-2",
+          "profile": "typed-bun",
+          "repeat": 1,
+          "success": true,
+          "correctness": {
+            "correct": true,
+            "reason": null
+          },
+          "policy": {
+            "compliant": true,
+            "violations": []
+          },
+          "harness": {
+            "healthy": true,
+            "errors": []
+          },
+          "accounting": {
+            "complete": true,
+            "issues": []
+          },
+          "usage": {
+            "input": 8308,
+            "output": 3012,
+            "cacheRead": 29749,
+            "cacheWrite": 0,
+            "totalTokens": 41069,
+            "cost": 0.001492698
+          },
+          "toolCounts": {
+            "typed_program": 4
+          },
+          "modelResponses": 5,
+          "metrics": {
+            "piToolBytes": 3391,
+            "capabilityCalls": 11,
+            "rawCapabilityBytes": 3905,
+            "bytesExposedToPi": 3391
+          },
+          "execution": {
+            "exitCode": 0,
+            "termination": null,
+            "guardStop": null,
+            "ms": 26395.904310000013
+          },
+          "estimatedCostUsd": 0.001492698,
+          "snoopedCanary": false,
+          "normalizedCorrect": null,
+          "promptBytes": 574,
+          "declarationBytes": 17072
+        },
+        {
+          "id": "cell-R-EXPORT-2-stock-pi-r1",
+          "task": "R-EXPORT-2",
+          "profile": "stock-pi",
+          "repeat": 1,
+          "success": false,
+          "correctness": {
+            "correct": true,
+            "reason": null
+          },
+          "policy": {
+            "compliant": false,
+            "violations": [
+              "Evaluator canary accessed through tool args"
+            ]
+          },
+          "harness": {
+            "healthy": true,
+            "errors": []
+          },
+          "accounting": {
+            "complete": true,
+            "issues": []
+          },
+          "usage": {
+            "input": 17417,
+            "output": 3310,
+            "cacheRead": 30359,
+            "cacheWrite": 0,
+            "totalTokens": 51086,
+            "cost": 0.0024644180000000003
+          },
+          "toolCounts": {
+            "bash": 5,
+            "read": 10
+          },
+          "modelResponses": 8,
+          "metrics": {
+            "piToolBytes": 49380,
+            "capabilityCalls": null,
+            "rawCapabilityBytes": null,
+            "bytesExposedToPi": null
+          },
+          "execution": {
+            "exitCode": 0,
+            "termination": null,
+            "guardStop": null,
+            "ms": 28961.28979499999
+          },
+          "estimatedCostUsd": 0.0024644180000000003,
+          "snoopedCanary": true,
+          "normalizedCorrect": null,
+          "promptBytes": 301,
+          "declarationBytes": 0
+        },
+        {
+          "id": "cell-R-EXPORT-2-typed-quickjs-r1",
+          "task": "R-EXPORT-2",
+          "profile": "typed-quickjs",
+          "repeat": 1,
+          "success": false,
+          "correctness": {
+            "correct": false,
+            "reason": "Final answer does not equal the independent expected value"
+          },
+          "policy": {
+            "compliant": true,
+            "violations": []
+          },
+          "harness": {
+            "healthy": true,
+            "errors": []
+          },
+          "accounting": {
+            "complete": true,
+            "issues": []
+          },
+          "usage": {
+            "input": 7403,
+            "output": 1683,
+            "cacheRead": 21956,
+            "cacheWrite": 0,
+            "totalTokens": 31042,
+            "cost": 0.0011208120000000001
+          },
+          "toolCounts": {
+            "typed_program": 3
+          },
+          "modelResponses": 4,
+          "metrics": {
+            "piToolBytes": 1271,
+            "capabilityCalls": 9,
+            "rawCapabilityBytes": 1810,
+            "bytesExposedToPi": 1271
+          },
+          "execution": {
+            "exitCode": 0,
+            "termination": null,
+            "guardStop": null,
+            "ms": 16837.21353800001
+          },
+          "estimatedCostUsd": 0.0011208120000000001,
+          "snoopedCanary": false,
+          "normalizedCorrect": null,
+          "promptBytes": 392,
+          "declarationBytes": 17072
+        },
+        {
+          "id": "cell-R-LOG-1-stock-pi-r1",
+          "task": "R-LOG-1",
+          "profile": "stock-pi",
+          "repeat": 1,
+          "success": true,
+          "correctness": {
+            "correct": true,
+            "reason": null
+          },
+          "policy": {
+            "compliant": true,
+            "violations": []
+          },
+          "harness": {
+            "healthy": true,
+            "errors": []
+          },
+          "accounting": {
+            "complete": true,
+            "issues": []
+          },
+          "usage": {
+            "input": 5439,
+            "output": 1802,
+            "cacheRead": 3810,
+            "cacheWrite": 0,
+            "totalTokens": 11051,
+            "cost": 0.0009119199999999999
+          },
+          "toolCounts": {
+            "bash": 2,
+            "read": 3
+          },
+          "modelResponses": 4,
+          "metrics": {
+            "piToolBytes": 999,
+            "capabilityCalls": null,
+            "rawCapabilityBytes": null,
+            "bytesExposedToPi": null
+          },
+          "execution": {
+            "exitCode": 0,
+            "termination": null,
+            "guardStop": null,
+            "ms": 12784.181603999983
+          },
+          "estimatedCostUsd": 0.0009119199999999999,
+          "snoopedCanary": false,
+          "normalizedCorrect": null,
+          "promptBytes": 511,
+          "declarationBytes": 0
+        },
+        {
+          "id": "cell-R-LOG-1-typed-quickjs-r1",
+          "task": "R-LOG-1",
+          "profile": "typed-quickjs",
+          "repeat": 1,
+          "success": true,
+          "correctness": {
+            "correct": true,
+            "reason": null
+          },
+          "policy": {
+            "compliant": true,
+            "violations": []
+          },
+          "harness": {
+            "healthy": true,
+            "errors": []
+          },
+          "accounting": {
+            "complete": true,
+            "issues": []
+          },
+          "usage": {
+            "input": 15706,
+            "output": 2134,
+            "cacheRead": 14419,
+            "cacheWrite": 0,
+            "totalTokens": 32259,
+            "cost": 0.002026238
+          },
+          "toolCounts": {
+            "typed_program": 3
+          },
+          "modelResponses": 4,
+          "metrics": {
+            "piToolBytes": 1514,
+            "capabilityCalls": 7,
+            "rawCapabilityBytes": 1843,
+            "bytesExposedToPi": 1514
+          },
+          "execution": {
+            "exitCode": 0,
+            "termination": null,
+            "guardStop": null,
+            "ms": 15661.270533000003
+          },
+          "estimatedCostUsd": 0.002026238,
+          "snoopedCanary": false,
+          "normalizedCorrect": null,
+          "promptBytes": 602,
+          "declarationBytes": 17072
+        },
+        {
+          "id": "cell-R-LOG-1-typed-bun-r1",
+          "task": "R-LOG-1",
+          "profile": "typed-bun",
+          "repeat": 1,
+          "success": true,
+          "correctness": {
+            "correct": true,
+            "reason": null
+          },
+          "policy": {
+            "compliant": true,
+            "violations": []
+          },
+          "harness": {
+            "healthy": true,
+            "errors": []
+          },
+          "accounting": {
+            "complete": true,
+            "issues": []
+          },
+          "usage": {
+            "input": 8665,
+            "output": 2261,
+            "cacheRead": 21715,
+            "cacheWrite": 0,
+            "totalTokens": 32641,
+            "cost": 0.0013621299999999998
+          },
+          "toolCounts": {
+            "typed_program": 3
+          },
+          "modelResponses": 4,
+          "metrics": {
+            "piToolBytes": 1587,
+            "capabilityCalls": 8,
+            "rawCapabilityBytes": 2044,
+            "bytesExposedToPi": 1587
+          },
+          "execution": {
+            "exitCode": 0,
+            "termination": null,
+            "guardStop": null,
+            "ms": 14657.472072999983
+          },
+          "estimatedCostUsd": 0.0013621299999999998,
+          "snoopedCanary": false,
+          "normalizedCorrect": null,
+          "promptBytes": 784,
+          "declarationBytes": 17072
+        },
+        {
+          "id": "cell-R-LOG-2-typed-quickjs-r1",
+          "task": "R-LOG-2",
+          "profile": "typed-quickjs",
+          "repeat": 1,
+          "success": true,
+          "correctness": {
+            "correct": true,
+            "reason": null
+          },
+          "policy": {
+            "compliant": true,
+            "violations": []
+          },
+          "harness": {
+            "healthy": true,
+            "errors": []
+          },
+          "accounting": {
+            "complete": true,
+            "issues": []
+          },
+          "usage": {
+            "input": 16284,
+            "output": 4463,
+            "cacheRead": 14547,
+            "cacheWrite": 0,
+            "totalTokens": 35294,
+            "cost": 0.002550094
+          },
+          "toolCounts": {
+            "typed_program": 3
+          },
+          "modelResponses": 4,
+          "metrics": {
+            "piToolBytes": 1530,
+            "capabilityCalls": 9,
+            "rawCapabilityBytes": 2848,
+            "bytesExposedToPi": 1530
+          },
+          "execution": {
+            "exitCode": 0,
+            "termination": null,
+            "guardStop": null,
+            "ms": 31083.076189999992
+          },
+          "estimatedCostUsd": 0.002550094,
+          "snoopedCanary": false,
+          "normalizedCorrect": null,
+          "promptBytes": 670,
+          "declarationBytes": 17072
+        },
+        {
+          "id": "cell-R-LOG-2-typed-bun-r1",
+          "task": "R-LOG-2",
+          "profile": "typed-bun",
+          "repeat": 1,
+          "success": true,
+          "correctness": {
+            "correct": true,
+            "reason": null
+          },
+          "policy": {
+            "compliant": true,
+            "violations": []
+          },
+          "harness": {
+            "healthy": true,
+            "errors": []
+          },
+          "accounting": {
+            "complete": true,
+            "issues": []
+          },
+          "usage": {
+            "input": 18848,
+            "output": 4208,
+            "cacheRead": 21843,
+            "cacheWrite": 0,
+            "totalTokens": 44899,
+            "cost": 0.0027700859999999997
+          },
+          "toolCounts": {
+            "typed_program": 4
+          },
+          "modelResponses": 5,
+          "metrics": {
+            "piToolBytes": 2613,
+            "capabilityCalls": 10,
+            "rawCapabilityBytes": 3100,
+            "bytesExposedToPi": 2613
+          },
+          "execution": {
+            "exitCode": 0,
+            "termination": null,
+            "guardStop": null,
+            "ms": 27928.843542999995
+          },
+          "estimatedCostUsd": 0.0027700859999999997,
+          "snoopedCanary": false,
+          "normalizedCorrect": null,
+          "promptBytes": 852,
+          "declarationBytes": 17072
+        },
+        {
+          "id": "cell-R-LOG-2-stock-pi-r1",
+          "task": "R-LOG-2",
+          "profile": "stock-pi",
+          "repeat": 1,
+          "success": true,
+          "correctness": {
+            "correct": true,
+            "reason": null
+          },
+          "policy": {
+            "compliant": true,
+            "violations": []
+          },
+          "harness": {
+            "healthy": true,
+            "errors": []
+          },
+          "accounting": {
+            "complete": true,
+            "issues": []
+          },
+          "usage": {
+            "input": 6341,
+            "output": 2414,
+            "cacheRead": 3810,
+            "cacheWrite": 0,
+            "totalTokens": 12565,
+            "cost": 0.00112452
+          },
+          "toolCounts": {
+            "bash": 2,
+            "read": 4
+          },
+          "modelResponses": 4,
+          "metrics": {
+            "piToolBytes": 2575,
+            "capabilityCalls": null,
+            "rawCapabilityBytes": null,
+            "bytesExposedToPi": null
+          },
+          "execution": {
+            "exitCode": 0,
+            "termination": null,
+            "guardStop": null,
+            "ms": 15987.680547000025
+          },
+          "estimatedCostUsd": 0.00112452,
+          "snoopedCanary": false,
+          "normalizedCorrect": null,
+          "promptBytes": 579,
+          "declarationBytes": 0
+        },
+        {
+          "id": "cell-R-LOC-1-typed-bun-r1",
+          "task": "R-LOC-1",
+          "profile": "typed-bun",
+          "repeat": 1,
+          "success": true,
+          "correctness": {
+            "correct": true,
+            "reason": null
+          },
+          "policy": {
+            "compliant": true,
+            "violations": []
+          },
+          "harness": {
+            "healthy": true,
+            "errors": []
+          },
+          "accounting": {
+            "complete": true,
+            "issues": []
+          },
+          "usage": {
+            "input": 7995,
+            "output": 607,
+            "cacheRead": 14434,
+            "cacheWrite": 0,
+            "totalTokens": 23036,
+            "cost": 0.000949768
+          },
+          "toolCounts": {
+            "typed_program": 2
+          },
+          "modelResponses": 3,
+          "metrics": {
+            "piToolBytes": 2036,
+            "capabilityCalls": 5,
+            "rawCapabilityBytes": 2154,
+            "bytesExposedToPi": 2036
+          },
+          "execution": {
+            "exitCode": 0,
+            "termination": null,
+            "guardStop": null,
+            "ms": 7979.691370000015
+          },
+          "estimatedCostUsd": 0.000949768,
+          "snoopedCanary": false,
+          "normalizedCorrect": null,
+          "promptBytes": 699,
+          "declarationBytes": 17072
+        },
+        {
+          "id": "cell-R-LOC-1-stock-pi-r1",
+          "task": "R-LOC-1",
+          "profile": "stock-pi",
+          "repeat": 1,
+          "success": true,
+          "correctness": {
+            "correct": true,
+            "reason": null
+          },
+          "policy": {
+            "compliant": true,
+            "violations": []
+          },
+          "harness": {
+            "healthy": true,
+            "errors": []
+          },
+          "accounting": {
+            "complete": true,
+            "issues": []
+          },
+          "usage": {
+            "input": 4871,
+            "output": 718,
+            "cacheRead": 4179,
+            "cacheWrite": 0,
+            "totalTokens": 9768,
+            "cost": 0.000639058
+          },
+          "toolCounts": {
+            "bash": 2,
+            "read": 5
+          },
+          "modelResponses": 4,
+          "metrics": {
+            "piToolBytes": 1472,
+            "capabilityCalls": null,
+            "rawCapabilityBytes": null,
+            "bytesExposedToPi": null
+          },
+          "execution": {
+            "exitCode": 0,
+            "termination": null,
+            "guardStop": null,
+            "ms": 6190.679054000007
+          },
+          "estimatedCostUsd": 0.000639058,
+          "snoopedCanary": false,
+          "normalizedCorrect": null,
+          "promptBytes": 426,
+          "declarationBytes": 0
+        },
+        {
+          "id": "cell-R-LOC-1-typed-quickjs-r1",
+          "task": "R-LOC-1",
+          "profile": "typed-quickjs",
+          "repeat": 1,
+          "success": true,
+          "correctness": {
+            "correct": true,
+            "reason": null
+          },
+          "policy": {
+            "compliant": true,
+            "violations": []
+          },
+          "harness": {
+            "healthy": true,
+            "errors": []
+          },
+          "accounting": {
+            "complete": true,
+            "issues": []
+          },
+          "usage": {
+            "input": 8176,
+            "output": 825,
+            "cacheRead": 21203,
+            "cacheWrite": 0,
+            "totalTokens": 30204,
+            "cost": 0.001025006
+          },
+          "toolCounts": {
+            "typed_program": 3
+          },
+          "modelResponses": 4,
+          "metrics": {
+            "piToolBytes": 2281,
+            "capabilityCalls": 6,
+            "rawCapabilityBytes": 1606,
+            "bytesExposedToPi": 2281
+          },
+          "execution": {
+            "exitCode": 0,
+            "termination": null,
+            "guardStop": null,
+            "ms": 9909.285200999992
+          },
+          "estimatedCostUsd": 0.001025006,
+          "snoopedCanary": false,
+          "normalizedCorrect": null,
+          "promptBytes": 517,
+          "declarationBytes": 17072
+        },
+        {
+          "id": "cell-R-LOC-2-stock-pi-r1",
+          "task": "R-LOC-2",
+          "profile": "stock-pi",
+          "repeat": 1,
+          "success": true,
+          "correctness": {
+            "correct": true,
+            "reason": null
+          },
+          "policy": {
+            "compliant": true,
+            "violations": []
+          },
+          "harness": {
+            "healthy": true,
+            "errors": []
+          },
+          "accounting": {
+            "complete": true,
+            "issues": []
+          },
+          "usage": {
+            "input": 4836,
+            "output": 850,
+            "cacheRead": 4179,
+            "cacheWrite": 0,
+            "totalTokens": 9865,
+            "cost": 0.000661958
+          },
+          "toolCounts": {
+            "bash": 2,
+            "read": 4
+          },
+          "modelResponses": 4,
+          "metrics": {
+            "piToolBytes": 1474,
+            "capabilityCalls": null,
+            "rawCapabilityBytes": null,
+            "bytesExposedToPi": null
+          },
+          "execution": {
+            "exitCode": 0,
+            "termination": null,
+            "guardStop": null,
+            "ms": 9349.01369500003
+          },
+          "estimatedCostUsd": 0.000661958,
+          "snoopedCanary": false,
+          "normalizedCorrect": null,
+          "promptBytes": 432,
+          "declarationBytes": 0
+        },
+        {
+          "id": "cell-R-LOC-2-typed-quickjs-r1",
+          "task": "R-LOC-2",
+          "profile": "typed-quickjs",
+          "repeat": 1,
+          "success": true,
+          "correctness": {
+            "correct": true,
+            "reason": null
+          },
+          "policy": {
+            "compliant": true,
+            "violations": []
+          },
+          "harness": {
+            "healthy": true,
+            "errors": []
+          },
+          "accounting": {
+            "complete": true,
+            "issues": []
+          },
+          "usage": {
+            "input": 14637,
+            "output": 949,
+            "cacheRead": 15315,
+            "cacheWrite": 0,
+            "totalTokens": 30901,
+            "cost": 0.0016841299999999998
+          },
+          "toolCounts": {
+            "typed_program": 3
+          },
+          "modelResponses": 4,
+          "metrics": {
+            "piToolBytes": 2346,
+            "capabilityCalls": 7,
+            "rawCapabilityBytes": 1636,
+            "bytesExposedToPi": 2346
+          },
+          "execution": {
+            "exitCode": 0,
+            "termination": null,
+            "guardStop": null,
+            "ms": 10077.556574999995
+          },
+          "estimatedCostUsd": 0.0016841299999999998,
+          "snoopedCanary": false,
+          "normalizedCorrect": null,
+          "promptBytes": 523,
+          "declarationBytes": 17072
+        },
+        {
+          "id": "cell-R-LOC-2-typed-bun-r1",
+          "task": "R-LOC-2",
+          "profile": "typed-bun",
+          "repeat": 1,
+          "success": true,
+          "correctness": {
+            "correct": true,
+            "reason": null
+          },
+          "policy": {
+            "compliant": true,
+            "violations": []
+          },
+          "harness": {
+            "healthy": true,
+            "errors": []
+          },
+          "accounting": {
+            "complete": true,
+            "issues": []
+          },
+          "usage": {
+            "input": 8178,
+            "output": 732,
+            "cacheRead": 14434,
+            "cacheWrite": 0,
+            "totalTokens": 23344,
+            "cost": 0.000993068
+          },
+          "toolCounts": {
+            "typed_program": 2
+          },
+          "modelResponses": 3,
+          "metrics": {
+            "piToolBytes": 2754,
+            "capabilityCalls": 10,
+            "rawCapabilityBytes": 2571,
+            "bytesExposedToPi": 2754
+          },
+          "execution": {
+            "exitCode": 0,
+            "termination": null,
+            "guardStop": null,
+            "ms": 7868.270818000019
+          },
+          "estimatedCostUsd": 0.000993068,
+          "snoopedCanary": false,
+          "normalizedCorrect": null,
+          "promptBytes": 705,
+          "declarationBytes": 17072
+        }
+      ]
+    },
+    {
+      "stage": "held-out",
+      "sourceRun": "2026-09-06T07-44-55-182Z",
+      "resultsSha256": "04e1aca517087e29d1f848b979cb0fb7dca12c1dc93e7ccf4b021901f678c251",
+      "commit": "e08f9a432775edd0bb40217b1f9fda6195a0ae5e",
+      "dirty": false,
+      "model": "meta/muse-spark-1.3-contributor",
+      "spentLedger": 0.057793284000000014,
+      "profiles": [
+        {
+          "profile": "stock-pi",
+          "n": 12,
+          "success": 12,
+          "exactCorrect": 12,
+          "policyCompliant": 12,
+          "healthy": 12,
+          "accountingComplete": 12,
+          "estimatedCostUsd": 0.01010674,
+          "costPerSuccessUsd": 0.0008422283333333333,
+          "totalTokens": 140182,
+          "toolCalls": 60,
+          "medianMs": 9371.203181499994,
+          "declarationBytes": [
+            0
+          ]
+        },
+        {
+          "profile": "typed-quickjs",
+          "n": 12,
+          "success": 12,
+          "exactCorrect": 12,
+          "policyCompliant": 12,
+          "healthy": 12,
+          "accountingComplete": 12,
+          "estimatedCostUsd": 0.022708634,
+          "costPerSuccessUsd": 0.0018923861666666666,
+          "totalTokens": 376765,
+          "toolCalls": 35,
+          "medianMs": 12249.779367000012,
+          "declarationBytes": [
+            17072
+          ]
+        },
+        {
+          "profile": "typed-bun",
+          "n": 12,
+          "success": 11,
+          "exactCorrect": 11,
+          "policyCompliant": 12,
+          "healthy": 12,
+          "accountingComplete": 12,
+          "estimatedCostUsd": 0.02497791,
+          "costPerSuccessUsd": 0.0022707190909090906,
+          "totalTokens": 419190,
+          "toolCalls": 39,
+          "medianMs": 12599.747370999976,
+          "declarationBytes": [
+            17072
+          ]
+        }
+      ],
+      "cells": [
+        {
+          "id": "cell-R-EXPORT-3-stock-pi-r0",
+          "task": "R-EXPORT-3",
+          "profile": "stock-pi",
+          "repeat": 0,
+          "success": true,
+          "correctness": {
+            "correct": true,
+            "reason": null
+          },
+          "policy": {
+            "compliant": true,
+            "violations": []
+          },
+          "harness": {
+            "healthy": true,
+            "errors": []
+          },
+          "accounting": {
+            "complete": true,
+            "issues": []
+          },
+          "usage": {
+            "input": 4748,
+            "output": 934,
+            "cacheRead": 1777,
+            "cacheWrite": 0,
+            "totalTokens": 7459,
+            "cost": 0.0006651539999999999
+          },
+          "toolCounts": {
+            "bash": 2
+          },
+          "modelResponses": 3,
+          "metrics": {
+            "piToolBytes": 1737,
+            "capabilityCalls": null,
+            "rawCapabilityBytes": null,
+            "bytesExposedToPi": null
+          },
+          "execution": {
+            "exitCode": 0,
+            "termination": null,
+            "guardStop": null,
+            "ms": 7450.279269000001
+          },
+          "estimatedCostUsd": 0.0006651539999999999,
+          "snoopedCanary": false,
+          "normalizedCorrect": null,
+          "promptBytes": 395,
+          "declarationBytes": 0
+        },
+        {
+          "id": "cell-R-EXPORT-3-typed-quickjs-r0",
+          "task": "R-EXPORT-3",
+          "profile": "typed-quickjs",
+          "repeat": 0,
+          "success": true,
+          "correctness": {
+            "correct": true,
+            "reason": null
+          },
+          "policy": {
+            "compliant": true,
+            "violations": []
+          },
+          "harness": {
+            "healthy": true,
+            "errors": []
+          },
+          "accounting": {
+            "complete": true,
+            "issues": []
+          },
+          "usage": {
+            "input": 8032,
+            "output": 1089,
+            "cacheRead": 21459,
+            "cacheWrite": 0,
+            "totalTokens": 30580,
+            "cost": 0.001063918
+          },
+          "toolCounts": {
+            "typed_program": 3
+          },
+          "modelResponses": 4,
+          "metrics": {
+            "piToolBytes": 1620,
+            "capabilityCalls": 10,
+            "rawCapabilityBytes": 1861,
+            "bytesExposedToPi": 1620
+          },
+          "execution": {
+            "exitCode": 0,
+            "termination": null,
+            "guardStop": null,
+            "ms": 9738.610284999999
+          },
+          "estimatedCostUsd": 0.001063918,
+          "snoopedCanary": false,
+          "normalizedCorrect": null,
+          "promptBytes": 486,
+          "declarationBytes": 17072
+        },
+        {
+          "id": "cell-R-EXPORT-3-typed-bun-r0",
+          "task": "R-EXPORT-3",
+          "profile": "typed-bun",
+          "repeat": 0,
+          "success": true,
+          "correctness": {
+            "correct": true,
+            "reason": null
+          },
+          "policy": {
+            "compliant": true,
+            "violations": []
+          },
+          "harness": {
+            "healthy": true,
+            "errors": []
+          },
+          "accounting": {
+            "complete": true,
+            "issues": []
+          },
+          "usage": {
+            "input": 14966,
+            "output": 1026,
+            "cacheRead": 14178,
+            "cacheWrite": 0,
+            "totalTokens": 30170,
+            "cost": 0.0017301559999999998
+          },
+          "toolCounts": {
+            "typed_program": 3
+          },
+          "modelResponses": 4,
+          "metrics": {
+            "piToolBytes": 1339,
+            "capabilityCalls": 10,
+            "rawCapabilityBytes": 1861,
+            "bytesExposedToPi": 1339
+          },
+          "execution": {
+            "exitCode": 0,
+            "termination": null,
+            "guardStop": null,
+            "ms": 9947.737119000001
+          },
+          "estimatedCostUsd": 0.0017301559999999998,
+          "snoopedCanary": false,
+          "normalizedCorrect": null,
+          "promptBytes": 668,
+          "declarationBytes": 17072
+        },
+        {
+          "id": "cell-R-EXPORT-4-typed-quickjs-r0",
+          "task": "R-EXPORT-4",
+          "profile": "typed-quickjs",
+          "repeat": 0,
+          "success": true,
+          "correctness": {
+            "correct": true,
+            "reason": null
+          },
+          "policy": {
+            "compliant": true,
+            "violations": []
+          },
+          "harness": {
+            "healthy": true,
+            "errors": []
+          },
+          "accounting": {
+            "complete": true,
+            "issues": []
+          },
+          "usage": {
+            "input": 15178,
+            "output": 1565,
+            "cacheRead": 13794,
+            "cacheWrite": 0,
+            "totalTokens": 30537,
+            "cost": 0.0018583879999999999
+          },
+          "toolCounts": {
+            "typed_program": 3
+          },
+          "modelResponses": 4,
+          "metrics": {
+            "piToolBytes": 1249,
+            "capabilityCalls": 10,
+            "rawCapabilityBytes": 1861,
+            "bytesExposedToPi": 1249
+          },
+          "execution": {
+            "exitCode": 0,
+            "termination": null,
+            "guardStop": null,
+            "ms": 13112.068722
+          },
+          "estimatedCostUsd": 0.0018583879999999999,
+          "snoopedCanary": false,
+          "normalizedCorrect": null,
+          "promptBytes": 393,
+          "declarationBytes": 17072
+        },
+        {
+          "id": "cell-R-EXPORT-4-typed-bun-r0",
+          "task": "R-EXPORT-4",
+          "profile": "typed-bun",
+          "repeat": 0,
+          "success": true,
+          "correctness": {
+            "correct": true,
+            "reason": null
+          },
+          "policy": {
+            "compliant": true,
+            "violations": []
+          },
+          "harness": {
+            "healthy": true,
+            "errors": []
+          },
+          "accounting": {
+            "complete": true,
+            "issues": []
+          },
+          "usage": {
+            "input": 15523,
+            "output": 1265,
+            "cacheRead": 14050,
+            "cacheWrite": 0,
+            "totalTokens": 30838,
+            "cost": 0.0018333999999999998
+          },
+          "toolCounts": {
+            "typed_program": 3
+          },
+          "modelResponses": 4,
+          "metrics": {
+            "piToolBytes": 2048,
+            "capabilityCalls": 10,
+            "rawCapabilityBytes": 1861,
+            "bytesExposedToPi": 2048
+          },
+          "execution": {
+            "exitCode": 0,
+            "termination": null,
+            "guardStop": null,
+            "ms": 13602.300129000003
+          },
+          "estimatedCostUsd": 0.0018333999999999998,
+          "snoopedCanary": false,
+          "normalizedCorrect": null,
+          "promptBytes": 575,
+          "declarationBytes": 17072
+        },
+        {
+          "id": "cell-R-EXPORT-4-stock-pi-r0",
+          "task": "R-EXPORT-4",
+          "profile": "stock-pi",
+          "repeat": 0,
+          "success": true,
+          "correctness": {
+            "correct": true,
+            "reason": null
+          },
+          "policy": {
+            "compliant": true,
+            "violations": []
+          },
+          "harness": {
+            "healthy": true,
+            "errors": []
+          },
+          "accounting": {
+            "complete": true,
+            "issues": []
+          },
+          "usage": {
+            "input": 4963,
+            "output": 2704,
+            "cacheRead": 8260,
+            "cacheWrite": 0,
+            "totalTokens": 15927,
+            "cost": 0.00105362
+          },
+          "toolCounts": {
+            "bash": 2,
+            "read": 3
+          },
+          "modelResponses": 6,
+          "metrics": {
+            "piToolBytes": 1276,
+            "capabilityCalls": null,
+            "rawCapabilityBytes": null,
+            "bytesExposedToPi": null
+          },
+          "execution": {
+            "exitCode": 0,
+            "termination": null,
+            "guardStop": null,
+            "ms": 25839.502486000005
+          },
+          "estimatedCostUsd": 0.00105362,
+          "snoopedCanary": false,
+          "normalizedCorrect": null,
+          "promptBytes": 302,
+          "declarationBytes": 0
+        },
+        {
+          "id": "cell-R-LOG-3-typed-bun-r0",
+          "task": "R-LOG-3",
+          "profile": "typed-bun",
+          "repeat": 0,
+          "success": true,
+          "correctness": {
+            "correct": true,
+            "reason": null
+          },
+          "policy": {
+            "compliant": true,
+            "violations": []
+          },
+          "harness": {
+            "healthy": true,
+            "errors": []
+          },
+          "accounting": {
+            "complete": true,
+            "issues": []
+          },
+          "usage": {
+            "input": 19702,
+            "output": 3681,
+            "cacheRead": 21715,
+            "cacheWrite": 0,
+            "totalTokens": 45098,
+            "cost": 0.0027498299999999995
+          },
+          "toolCounts": {
+            "typed_program": 4
+          },
+          "modelResponses": 5,
+          "metrics": {
+            "piToolBytes": 2582,
+            "capabilityCalls": 10,
+            "rawCapabilityBytes": 2400,
+            "bytesExposedToPi": 2582
+          },
+          "execution": {
+            "exitCode": 0,
+            "termination": null,
+            "guardStop": null,
+            "ms": 23401.53692
+          },
+          "estimatedCostUsd": 0.0027498299999999995,
+          "snoopedCanary": false,
+          "normalizedCorrect": null,
+          "promptBytes": 824,
+          "declarationBytes": 17072
+        },
+        {
+          "id": "cell-R-LOG-3-stock-pi-r0",
+          "task": "R-LOG-3",
+          "profile": "stock-pi",
+          "repeat": 0,
+          "success": true,
+          "correctness": {
+            "correct": true,
+            "reason": null
+          },
+          "policy": {
+            "compliant": true,
+            "violations": []
+          },
+          "harness": {
+            "healthy": true,
+            "errors": []
+          },
+          "accounting": {
+            "complete": true,
+            "issues": []
+          },
+          "usage": {
+            "input": 3278,
+            "output": 1084,
+            "cacheRead": 4066,
+            "cacheWrite": 0,
+            "totalTokens": 8428,
+            "cost": 0.000552732
+          },
+          "toolCounts": {
+            "bash": 2
+          },
+          "modelResponses": 3,
+          "metrics": {
+            "piToolBytes": 2188,
+            "capabilityCalls": null,
+            "rawCapabilityBytes": null,
+            "bytesExposedToPi": null
+          },
+          "execution": {
+            "exitCode": 0,
+            "termination": null,
+            "guardStop": null,
+            "ms": 8477.568067
+          },
+          "estimatedCostUsd": 0.000552732,
+          "snoopedCanary": false,
+          "normalizedCorrect": null,
+          "promptBytes": 551,
+          "declarationBytes": 0
+        },
+        {
+          "id": "cell-R-LOG-3-typed-quickjs-r0",
+          "task": "R-LOG-3",
+          "profile": "typed-quickjs",
+          "repeat": 0,
+          "success": true,
+          "correctness": {
+            "correct": true,
+            "reason": null
+          },
+          "policy": {
+            "compliant": true,
+            "violations": []
+          },
+          "harness": {
+            "healthy": true,
+            "errors": []
+          },
+          "accounting": {
+            "complete": true,
+            "issues": []
+          },
+          "usage": {
+            "input": 17918,
+            "output": 3106,
+            "cacheRead": 21587,
+            "cacheWrite": 0,
+            "totalTokens": 42611,
+            "cost": 0.002456174
+          },
+          "toolCounts": {
+            "typed_program": 4
+          },
+          "modelResponses": 5,
+          "metrics": {
+            "piToolBytes": 1978,
+            "capabilityCalls": 9,
+            "rawCapabilityBytes": 2180,
+            "bytesExposedToPi": 1978
+          },
+          "execution": {
+            "exitCode": 0,
+            "termination": null,
+            "guardStop": null,
+            "ms": 20724.695055999982
+          },
+          "estimatedCostUsd": 0.002456174,
+          "snoopedCanary": false,
+          "normalizedCorrect": null,
+          "promptBytes": 642,
+          "declarationBytes": 17072
+        },
+        {
+          "id": "cell-R-LOG-4-stock-pi-r0",
+          "task": "R-LOG-4",
+          "profile": "stock-pi",
+          "repeat": 0,
+          "success": true,
+          "correctness": {
+            "correct": true,
+            "reason": null
+          },
+          "policy": {
+            "compliant": true,
+            "violations": []
+          },
+          "harness": {
+            "healthy": true,
+            "errors": []
+          },
+          "accounting": {
+            "complete": true,
+            "issues": []
+          },
+          "usage": {
+            "input": 6114,
+            "output": 2400,
+            "cacheRead": 3810,
+            "cacheWrite": 0,
+            "totalTokens": 12324,
+            "cost": 0.00109902
+          },
+          "toolCounts": {
+            "bash": 2,
+            "read": 4
+          },
+          "modelResponses": 4,
+          "metrics": {
+            "piToolBytes": 1397,
+            "capabilityCalls": null,
+            "rawCapabilityBytes": null,
+            "bytesExposedToPi": null
+          },
+          "execution": {
+            "exitCode": 0,
+            "termination": null,
+            "guardStop": null,
+            "ms": 16167.83079800001
+          },
+          "estimatedCostUsd": 0.00109902,
+          "snoopedCanary": false,
+          "normalizedCorrect": null,
+          "promptBytes": 546,
+          "declarationBytes": 0
+        },
+        {
+          "id": "cell-R-LOG-4-typed-quickjs-r0",
+          "task": "R-LOG-4",
+          "profile": "typed-quickjs",
+          "repeat": 0,
+          "success": true,
+          "correctness": {
+            "correct": true,
+            "reason": null
+          },
+          "policy": {
+            "compliant": true,
+            "violations": []
+          },
+          "harness": {
+            "healthy": true,
+            "errors": []
+          },
+          "accounting": {
+            "complete": true,
+            "issues": []
+          },
+          "usage": {
+            "input": 15883,
+            "output": 2385,
+            "cacheRead": 14690,
+            "cacheWrite": 0,
+            "totalTokens": 32958,
+            "cost": 0.00209468
+          },
+          "toolCounts": {
+            "typed_program": 3
+          },
+          "modelResponses": 4,
+          "metrics": {
+            "piToolBytes": 1686,
+            "capabilityCalls": 10,
+            "rawCapabilityBytes": 2880,
+            "bytesExposedToPi": 1686
+          },
+          "execution": {
+            "exitCode": 0,
+            "termination": null,
+            "guardStop": null,
+            "ms": 19661.416935999994
+          },
+          "estimatedCostUsd": 0.00209468,
+          "snoopedCanary": false,
+          "normalizedCorrect": null,
+          "promptBytes": 637,
+          "declarationBytes": 17072
+        },
+        {
+          "id": "cell-R-LOG-4-typed-bun-r0",
+          "task": "R-LOG-4",
+          "profile": "typed-bun",
+          "repeat": 0,
+          "success": true,
+          "correctness": {
+            "correct": true,
+            "reason": null
+          },
+          "policy": {
+            "compliant": true,
+            "violations": []
+          },
+          "harness": {
+            "healthy": true,
+            "errors": []
+          },
+          "accounting": {
+            "complete": true,
+            "issues": []
+          },
+          "usage": {
+            "input": 18765,
+            "output": 3306,
+            "cacheRead": 21715,
+            "cacheWrite": 0,
+            "totalTokens": 43786,
+            "cost": 0.00258113
+          },
+          "toolCounts": {
+            "typed_program": 4
+          },
+          "modelResponses": 5,
+          "metrics": {
+            "piToolBytes": 2207,
+            "capabilityCalls": 11,
+            "rawCapabilityBytes": 3137,
+            "bytesExposedToPi": 2207
+          },
+          "execution": {
+            "exitCode": 0,
+            "termination": null,
+            "guardStop": null,
+            "ms": 18746.674586999987
+          },
+          "estimatedCostUsd": 0.00258113,
+          "snoopedCanary": false,
+          "normalizedCorrect": null,
+          "promptBytes": 819,
+          "declarationBytes": 17072
+        },
+        {
+          "id": "cell-R-LOC-3-typed-quickjs-r0",
+          "task": "R-LOC-3",
+          "profile": "typed-quickjs",
+          "repeat": 0,
+          "success": true,
+          "correctness": {
+            "correct": true,
+            "reason": null
+          },
+          "policy": {
+            "compliant": true,
+            "violations": []
+          },
+          "harness": {
+            "healthy": true,
+            "errors": []
+          },
+          "accounting": {
+            "complete": true,
+            "issues": []
+          },
+          "usage": {
+            "input": 14393,
+            "output": 881,
+            "cacheRead": 7891,
+            "cacheWrite": 0,
+            "totalTokens": 23165,
+            "cost": 0.001631282
+          },
+          "toolCounts": {
+            "typed_program": 2
+          },
+          "modelResponses": 3,
+          "metrics": {
+            "piToolBytes": 2173,
+            "capabilityCalls": 7,
+            "rawCapabilityBytes": 2058,
+            "bytesExposedToPi": 2173
+          },
+          "execution": {
+            "exitCode": 0,
+            "termination": null,
+            "guardStop": null,
+            "ms": 7323.958213000005
+          },
+          "estimatedCostUsd": 0.001631282,
+          "snoopedCanary": false,
+          "normalizedCorrect": null,
+          "promptBytes": 567,
+          "declarationBytes": 17072
+        },
+        {
+          "id": "cell-R-LOC-3-typed-bun-r0",
+          "task": "R-LOC-3",
+          "profile": "typed-bun",
+          "repeat": 0,
+          "success": true,
+          "correctness": {
+            "correct": true,
+            "reason": null
+          },
+          "policy": {
+            "compliant": true,
+            "violations": []
+          },
+          "harness": {
+            "healthy": true,
+            "errors": []
+          },
+          "accounting": {
+            "complete": true,
+            "issues": []
+          },
+          "usage": {
+            "input": 14669,
+            "output": 868,
+            "cacheRead": 7025,
+            "cacheWrite": 0,
+            "totalTokens": 22562,
+            "cost": 0.0016545499999999999
+          },
+          "toolCounts": {
+            "typed_program": 2
+          },
+          "modelResponses": 3,
+          "metrics": {
+            "piToolBytes": 1306,
+            "capabilityCalls": 5,
+            "rawCapabilityBytes": 1215,
+            "bytesExposedToPi": 1306
+          },
+          "execution": {
+            "exitCode": 0,
+            "termination": null,
+            "guardStop": null,
+            "ms": 8101.124536999996
+          },
+          "estimatedCostUsd": 0.0016545499999999999,
+          "snoopedCanary": false,
+          "normalizedCorrect": null,
+          "promptBytes": 749,
+          "declarationBytes": 17072
+        },
+        {
+          "id": "cell-R-LOC-3-stock-pi-r0",
+          "task": "R-LOC-3",
+          "profile": "stock-pi",
+          "repeat": 0,
+          "success": true,
+          "correctness": {
+            "correct": true,
+            "reason": null
+          },
+          "policy": {
+            "compliant": true,
+            "violations": []
+          },
+          "harness": {
+            "healthy": true,
+            "errors": []
+          },
+          "accounting": {
+            "complete": true,
+            "issues": []
+          },
+          "usage": {
+            "input": 4729,
+            "output": 1096,
+            "cacheRead": 4307,
+            "cacheWrite": 0,
+            "totalTokens": 10132,
+            "cost": 0.0007007140000000001
+          },
+          "toolCounts": {
+            "bash": 2,
+            "read": 3
+          },
+          "modelResponses": 4,
+          "metrics": {
+            "piToolBytes": 1322,
+            "capabilityCalls": null,
+            "rawCapabilityBytes": null,
+            "bytesExposedToPi": null
+          },
+          "execution": {
+            "exitCode": 0,
+            "termination": null,
+            "guardStop": null,
+            "ms": 8186.561084000015
+          },
+          "estimatedCostUsd": 0.0007007140000000001,
+          "snoopedCanary": false,
+          "normalizedCorrect": null,
+          "promptBytes": 476,
+          "declarationBytes": 0
+        },
+        {
+          "id": "cell-R-LOC-4-typed-bun-r0",
+          "task": "R-LOC-4",
+          "profile": "typed-bun",
+          "repeat": 0,
+          "success": true,
+          "correctness": {
+            "correct": true,
+            "reason": null
+          },
+          "policy": {
+            "compliant": true,
+            "violations": []
+          },
+          "harness": {
+            "healthy": true,
+            "errors": []
+          },
+          "accounting": {
+            "complete": true,
+            "issues": []
+          },
+          "usage": {
+            "input": 15778,
+            "output": 1416,
+            "cacheRead": 21843,
+            "cacheWrite": 0,
+            "totalTokens": 39037,
+            "cost": 0.0019046860000000003
+          },
+          "toolCounts": {
+            "typed_program": 4
+          },
+          "modelResponses": 5,
+          "metrics": {
+            "piToolBytes": 2340,
+            "capabilityCalls": 6,
+            "rawCapabilityBytes": 1605,
+            "bytesExposedToPi": 2340
+          },
+          "execution": {
+            "exitCode": 0,
+            "termination": null,
+            "guardStop": null,
+            "ms": 11699.701478999981
+          },
+          "estimatedCostUsd": 0.0019046860000000003,
+          "snoopedCanary": false,
+          "normalizedCorrect": null,
+          "promptBytes": 671,
+          "declarationBytes": 17072
+        },
+        {
+          "id": "cell-R-LOC-4-stock-pi-r0",
+          "task": "R-LOC-4",
+          "profile": "stock-pi",
+          "repeat": 0,
+          "success": true,
+          "correctness": {
+            "correct": true,
+            "reason": null
+          },
+          "policy": {
+            "compliant": true,
+            "violations": []
+          },
+          "harness": {
+            "healthy": true,
+            "errors": []
+          },
+          "accounting": {
+            "complete": true,
+            "issues": []
+          },
+          "usage": {
+            "input": 4685,
+            "output": 891,
+            "cacheRead": 4179,
+            "cacheWrite": 0,
+            "totalTokens": 9755,
+            "cost": 0.000655058
+          },
+          "toolCounts": {
+            "bash": 2,
+            "read": 4
+          },
+          "modelResponses": 4,
+          "metrics": {
+            "piToolBytes": 1517,
+            "capabilityCalls": null,
+            "rawCapabilityBytes": null,
+            "bytesExposedToPi": null
+          },
+          "execution": {
+            "exitCode": 0,
+            "termination": null,
+            "guardStop": null,
+            "ms": 7544.230408000003
+          },
+          "estimatedCostUsd": 0.000655058,
+          "snoopedCanary": false,
+          "normalizedCorrect": null,
+          "promptBytes": 398,
+          "declarationBytes": 0
+        },
+        {
+          "id": "cell-R-LOC-4-typed-quickjs-r0",
+          "task": "R-LOC-4",
+          "profile": "typed-quickjs",
+          "repeat": 0,
+          "success": true,
+          "correctness": {
+            "correct": true,
+            "reason": null
+          },
+          "policy": {
+            "compliant": true,
+            "violations": []
+          },
+          "harness": {
+            "healthy": true,
+            "errors": []
+          },
+          "accounting": {
+            "complete": true,
+            "issues": []
+          },
+          "usage": {
+            "input": 15120,
+            "output": 1363,
+            "cacheRead": 14291,
+            "cacheWrite": 0,
+            "totalTokens": 30774,
+            "cost": 0.001813182
+          },
+          "toolCounts": {
+            "typed_program": 3
+          },
+          "modelResponses": 4,
+          "metrics": {
+            "piToolBytes": 1754,
+            "capabilityCalls": 7,
+            "rawCapabilityBytes": 1909,
+            "bytesExposedToPi": 1754
+          },
+          "execution": {
+            "exitCode": 0,
+            "termination": null,
+            "guardStop": null,
+            "ms": 11387.490012000024
+          },
+          "estimatedCostUsd": 0.001813182,
+          "snoopedCanary": false,
+          "normalizedCorrect": null,
+          "promptBytes": 489,
+          "declarationBytes": 17072
+        },
+        {
+          "id": "cell-R-EXPORT-3-typed-quickjs-r1",
+          "task": "R-EXPORT-3",
+          "profile": "typed-quickjs",
+          "repeat": 1,
+          "success": true,
+          "correctness": {
+            "correct": true,
+            "reason": null
+          },
+          "policy": {
+            "compliant": true,
+            "violations": []
+          },
+          "harness": {
+            "healthy": true,
+            "errors": []
+          },
+          "accounting": {
+            "complete": true,
+            "issues": []
+          },
+          "usage": {
+            "input": 14482,
+            "output": 757,
+            "cacheRead": 7266,
+            "cacheWrite": 0,
+            "totalTokens": 22505,
+            "cost": 0.001614132
+          },
+          "toolCounts": {
+            "typed_program": 2
+          },
+          "modelResponses": 3,
+          "metrics": {
+            "piToolBytes": 1479,
+            "capabilityCalls": 9,
+            "rawCapabilityBytes": 1807,
+            "bytesExposedToPi": 1479
+          },
+          "execution": {
+            "exitCode": 0,
+            "termination": null,
+            "guardStop": null,
+            "ms": 7270.73978199999
+          },
+          "estimatedCostUsd": 0.001614132,
+          "snoopedCanary": false,
+          "normalizedCorrect": null,
+          "promptBytes": 486,
+          "declarationBytes": 17072
+        },
+        {
+          "id": "cell-R-EXPORT-3-typed-bun-r1",
+          "task": "R-EXPORT-3",
+          "profile": "typed-bun",
+          "repeat": 1,
+          "success": true,
+          "correctness": {
+            "correct": true,
+            "reason": null
+          },
+          "policy": {
+            "compliant": true,
+            "violations": []
+          },
+          "harness": {
+            "healthy": true,
+            "errors": []
+          },
+          "accounting": {
+            "complete": true,
+            "issues": []
+          },
+          "usage": {
+            "input": 14611,
+            "output": 1069,
+            "cacheRead": 7153,
+            "cacheWrite": 0,
+            "totalTokens": 22833,
+            "cost": 0.0016892060000000002
+          },
+          "toolCounts": {
+            "typed_program": 2
+          },
+          "modelResponses": 3,
+          "metrics": {
+            "piToolBytes": 1197,
+            "capabilityCalls": 9,
+            "rawCapabilityBytes": 1807,
+            "bytesExposedToPi": 1197
+          },
+          "execution": {
+            "exitCode": 0,
+            "termination": null,
+            "guardStop": null,
+            "ms": 8663.789889000007
+          },
+          "estimatedCostUsd": 0.0016892060000000002,
+          "snoopedCanary": false,
+          "normalizedCorrect": null,
+          "promptBytes": 668,
+          "declarationBytes": 17072
+        },
+        {
+          "id": "cell-R-EXPORT-3-stock-pi-r1",
+          "task": "R-EXPORT-3",
+          "profile": "stock-pi",
+          "repeat": 1,
+          "success": true,
+          "correctness": {
+            "correct": true,
+            "reason": null
+          },
+          "policy": {
+            "compliant": true,
+            "violations": []
+          },
+          "harness": {
+            "healthy": true,
+            "errors": []
+          },
+          "accounting": {
+            "complete": true,
+            "issues": []
+          },
+          "usage": {
+            "input": 5273,
+            "output": 1256,
+            "cacheRead": 4066,
+            "cacheWrite": 0,
+            "totalTokens": 10595,
+            "cost": 0.000786632
+          },
+          "toolCounts": {
+            "bash": 2,
+            "read": 7
+          },
+          "modelResponses": 4,
+          "metrics": {
+            "piToolBytes": 1627,
+            "capabilityCalls": null,
+            "rawCapabilityBytes": null,
+            "bytesExposedToPi": null
+          },
+          "execution": {
+            "exitCode": 0,
+            "termination": null,
+            "guardStop": null,
+            "ms": 8630.54423
+          },
+          "estimatedCostUsd": 0.000786632,
+          "snoopedCanary": false,
+          "normalizedCorrect": null,
+          "promptBytes": 395,
+          "declarationBytes": 0
+        },
+        {
+          "id": "cell-R-EXPORT-4-typed-bun-r1",
+          "task": "R-EXPORT-4",
+          "profile": "typed-bun",
+          "repeat": 1,
+          "success": false,
+          "correctness": {
+            "correct": false,
+            "reason": "Final answer does not equal the independent expected value"
+          },
+          "policy": {
+            "compliant": true,
+            "violations": []
+          },
+          "harness": {
+            "healthy": true,
+            "errors": []
+          },
+          "accounting": {
+            "complete": true,
+            "issues": []
+          },
+          "usage": {
+            "input": 14942,
+            "output": 1558,
+            "cacheRead": 14547,
+            "cacheWrite": 0,
+            "totalTokens": 31047,
+            "cost": 0.001834894
+          },
+          "toolCounts": {
+            "typed_program": 3
+          },
+          "modelResponses": 4,
+          "metrics": {
+            "piToolBytes": 1563,
+            "capabilityCalls": 10,
+            "rawCapabilityBytes": 2120,
+            "bytesExposedToPi": 1563
+          },
+          "execution": {
+            "exitCode": 0,
+            "termination": null,
+            "guardStop": null,
+            "ms": 13499.79326299997
+          },
+          "estimatedCostUsd": 0.001834894,
+          "snoopedCanary": false,
+          "normalizedCorrect": null,
+          "promptBytes": 575,
+          "declarationBytes": 17072
+        },
+        {
+          "id": "cell-R-EXPORT-4-stock-pi-r1",
+          "task": "R-EXPORT-4",
+          "profile": "stock-pi",
+          "repeat": 1,
+          "success": true,
+          "correctness": {
+            "correct": true,
+            "reason": null
+          },
+          "policy": {
+            "compliant": true,
+            "violations": []
+          },
+          "harness": {
+            "healthy": true,
+            "errors": []
+          },
+          "accounting": {
+            "complete": true,
+            "issues": []
+          },
+          "usage": {
+            "input": 9732,
+            "output": 1957,
+            "cacheRead": 12567,
+            "cacheWrite": 0,
+            "totalTokens": 24256,
+            "cost": 0.001389734
+          },
+          "toolCounts": {
+            "bash": 4,
+            "read": 3
+          },
+          "modelResponses": 7,
+          "metrics": {
+            "piToolBytes": 13613,
+            "capabilityCalls": null,
+            "rawCapabilityBytes": null,
+            "bytesExposedToPi": null
+          },
+          "execution": {
+            "exitCode": 0,
+            "termination": null,
+            "guardStop": null,
+            "ms": 20873.519820999994
+          },
+          "estimatedCostUsd": 0.001389734,
+          "snoopedCanary": false,
+          "normalizedCorrect": null,
+          "promptBytes": 302,
+          "declarationBytes": 0
+        },
+        {
+          "id": "cell-R-EXPORT-4-typed-quickjs-r1",
+          "task": "R-EXPORT-4",
+          "profile": "typed-quickjs",
+          "repeat": 1,
+          "success": true,
+          "correctness": {
+            "correct": true,
+            "reason": null
+          },
+          "policy": {
+            "compliant": true,
+            "violations": []
+          },
+          "harness": {
+            "healthy": true,
+            "errors": []
+          },
+          "accounting": {
+            "complete": true,
+            "issues": []
+          },
+          "usage": {
+            "input": 15763,
+            "output": 1553,
+            "cacheRead": 13794,
+            "cacheWrite": 0,
+            "totalTokens": 31110,
+            "cost": 0.0019144879999999998
+          },
+          "toolCounts": {
+            "typed_program": 3
+          },
+          "modelResponses": 4,
+          "metrics": {
+            "piToolBytes": 1899,
+            "capabilityCalls": 10,
+            "rawCapabilityBytes": 1861,
+            "bytesExposedToPi": 1899
+          },
+          "execution": {
+            "exitCode": 0,
+            "termination": null,
+            "guardStop": null,
+            "ms": 14152.928412000008
+          },
+          "estimatedCostUsd": 0.0019144879999999998,
+          "snoopedCanary": false,
+          "normalizedCorrect": null,
+          "promptBytes": 393,
+          "declarationBytes": 17072
+        },
+        {
+          "id": "cell-R-LOG-3-stock-pi-r1",
+          "task": "R-LOG-3",
+          "profile": "stock-pi",
+          "repeat": 1,
+          "success": true,
+          "correctness": {
+            "correct": true,
+            "reason": null
+          },
+          "policy": {
+            "compliant": true,
+            "violations": []
+          },
+          "harness": {
+            "healthy": true,
+            "errors": []
+          },
+          "accounting": {
+            "complete": true,
+            "issues": []
+          },
+          "usage": {
+            "input": 4477,
+            "output": 1614,
+            "cacheRead": 2786,
+            "cacheWrite": 0,
+            "totalTokens": 8877,
+            "cost": 0.0007760719999999999
+          },
+          "toolCounts": {
+            "bash": 2
+          },
+          "modelResponses": 3,
+          "metrics": {
+            "piToolBytes": 1793,
+            "capabilityCalls": null,
+            "rawCapabilityBytes": null,
+            "bytesExposedToPi": null
+          },
+          "execution": {
+            "exitCode": 0,
+            "termination": null,
+            "guardStop": null,
+            "ms": 9907.952117999957
+          },
+          "estimatedCostUsd": 0.0007760719999999999,
+          "snoopedCanary": false,
+          "normalizedCorrect": null,
+          "promptBytes": 551,
+          "declarationBytes": 0
+        },
+        {
+          "id": "cell-R-LOG-3-typed-quickjs-r1",
+          "task": "R-LOG-3",
+          "profile": "typed-quickjs",
+          "repeat": 1,
+          "success": true,
+          "correctness": {
+            "correct": true,
+            "reason": null
+          },
+          "policy": {
+            "compliant": true,
+            "violations": []
+          },
+          "harness": {
+            "healthy": true,
+            "errors": []
+          },
+          "accounting": {
+            "complete": true,
+            "issues": []
+          },
+          "usage": {
+            "input": 16714,
+            "output": 2195,
+            "cacheRead": 14050,
+            "cacheWrite": 0,
+            "totalTokens": 32959,
+            "cost": 0.0021384999999999998
+          },
+          "toolCounts": {
+            "typed_program": 3
+          },
+          "modelResponses": 4,
+          "metrics": {
+            "piToolBytes": 1935,
+            "capabilityCalls": 11,
+            "rawCapabilityBytes": 2517,
+            "bytesExposedToPi": 1935
+          },
+          "execution": {
+            "exitCode": 0,
+            "termination": null,
+            "guardStop": null,
+            "ms": 21963.099057000014
+          },
+          "estimatedCostUsd": 0.0021384999999999998,
+          "snoopedCanary": false,
+          "normalizedCorrect": null,
+          "promptBytes": 642,
+          "declarationBytes": 17072
+        },
+        {
+          "id": "cell-R-LOG-3-typed-bun-r1",
+          "task": "R-LOG-3",
+          "profile": "typed-bun",
+          "repeat": 1,
+          "success": true,
+          "correctness": {
+            "correct": true,
+            "reason": null
+          },
+          "policy": {
+            "compliant": true,
+            "violations": []
+          },
+          "harness": {
+            "healthy": true,
+            "errors": []
+          },
+          "accounting": {
+            "complete": true,
+            "issues": []
+          },
+          "usage": {
+            "input": 17645,
+            "output": 4536,
+            "cacheRead": 23620,
+            "cacheWrite": 0,
+            "totalTokens": 45801,
+            "cost": 0.00271894
+          },
+          "toolCounts": {
+            "typed_program": 4
+          },
+          "modelResponses": 5,
+          "metrics": {
+            "piToolBytes": 2208,
+            "capabilityCalls": 9,
+            "rawCapabilityBytes": 2150,
+            "bytesExposedToPi": 2208
+          },
+          "execution": {
+            "exitCode": 0,
+            "termination": null,
+            "guardStop": null,
+            "ms": 29082.830610000005
+          },
+          "estimatedCostUsd": 0.00271894,
+          "snoopedCanary": false,
+          "normalizedCorrect": null,
+          "promptBytes": 824,
+          "declarationBytes": 17072
+        },
+        {
+          "id": "cell-R-LOG-4-typed-quickjs-r1",
+          "task": "R-LOG-4",
+          "profile": "typed-quickjs",
+          "repeat": 1,
+          "success": true,
+          "correctness": {
+            "correct": true,
+            "reason": null
+          },
+          "policy": {
+            "compliant": true,
+            "violations": []
+          },
+          "harness": {
+            "healthy": true,
+            "errors": []
+          },
+          "accounting": {
+            "complete": true,
+            "issues": []
+          },
+          "usage": {
+            "input": 18141,
+            "output": 3554,
+            "cacheRead": 22867,
+            "cacheWrite": 0,
+            "totalTokens": 44562,
+            "cost": 0.002570634
+          },
+          "toolCounts": {
+            "typed_program": 4
+          },
+          "modelResponses": 5,
+          "metrics": {
+            "piToolBytes": 2447,
+            "capabilityCalls": 11,
+            "rawCapabilityBytes": 3137,
+            "bytesExposedToPi": 2447
+          },
+          "execution": {
+            "exitCode": 0,
+            "termination": null,
+            "guardStop": null,
+            "ms": 21687.806704999995
+          },
+          "estimatedCostUsd": 0.002570634,
+          "snoopedCanary": false,
+          "normalizedCorrect": null,
+          "promptBytes": 637,
+          "declarationBytes": 17072
+        },
+        {
+          "id": "cell-R-LOG-4-typed-bun-r1",
+          "task": "R-LOG-4",
+          "profile": "typed-bun",
+          "repeat": 1,
+          "success": true,
+          "correctness": {
+            "correct": true,
+            "reason": null
+          },
+          "policy": {
+            "compliant": true,
+            "violations": []
+          },
+          "harness": {
+            "healthy": true,
+            "errors": []
+          },
+          "accounting": {
+            "complete": true,
+            "issues": []
+          },
+          "usage": {
+            "input": 17930,
+            "output": 3658,
+            "cacheRead": 22837,
+            "cacheWrite": 0,
+            "totalTokens": 44425,
+            "cost": 0.002570274
+          },
+          "toolCounts": {
+            "typed_program": 4
+          },
+          "modelResponses": 5,
+          "metrics": {
+            "piToolBytes": 2401,
+            "capabilityCalls": 11,
+            "rawCapabilityBytes": 3137,
+            "bytesExposedToPi": 2401
+          },
+          "execution": {
+            "exitCode": 0,
+            "termination": null,
+            "guardStop": null,
+            "ms": 22410.392565999995
+          },
+          "estimatedCostUsd": 0.002570274,
+          "snoopedCanary": false,
+          "normalizedCorrect": null,
+          "promptBytes": 819,
+          "declarationBytes": 17072
+        },
+        {
+          "id": "cell-R-LOG-4-stock-pi-r1",
+          "task": "R-LOG-4",
+          "profile": "stock-pi",
+          "repeat": 1,
+          "success": true,
+          "correctness": {
+            "correct": true,
+            "reason": null
+          },
+          "policy": {
+            "compliant": true,
+            "violations": []
+          },
+          "harness": {
+            "healthy": true,
+            "errors": []
+          },
+          "accounting": {
+            "complete": true,
+            "issues": []
+          },
+          "usage": {
+            "input": 4821,
+            "output": 1411,
+            "cacheRead": 2274,
+            "cacheWrite": 0,
+            "totalTokens": 8506,
+            "cost": 0.0007688479999999999
+          },
+          "toolCounts": {
+            "bash": 2
+          },
+          "modelResponses": 3,
+          "metrics": {
+            "piToolBytes": 2048,
+            "capabilityCalls": null,
+            "rawCapabilityBytes": null,
+            "bytesExposedToPi": null
+          },
+          "execution": {
+            "exitCode": 0,
+            "termination": null,
+            "guardStop": null,
+            "ms": 9450.67874599999
+          },
+          "estimatedCostUsd": 0.0007688479999999999,
+          "snoopedCanary": false,
+          "normalizedCorrect": null,
+          "promptBytes": 546,
+          "declarationBytes": 0
+        },
+        {
+          "id": "cell-R-LOC-3-typed-bun-r1",
+          "task": "R-LOC-3",
+          "profile": "typed-bun",
+          "repeat": 1,
+          "success": true,
+          "correctness": {
+            "correct": true,
+            "reason": null
+          },
+          "policy": {
+            "compliant": true,
+            "violations": []
+          },
+          "harness": {
+            "healthy": true,
+            "errors": []
+          },
+          "accounting": {
+            "complete": true,
+            "issues": []
+          },
+          "usage": {
+            "input": 15785,
+            "output": 1077,
+            "cacheRead": 14547,
+            "cacheWrite": 0,
+            "totalTokens": 31409,
+            "cost": 0.0018229939999999999
+          },
+          "toolCounts": {
+            "typed_program": 3
+          },
+          "modelResponses": 4,
+          "metrics": {
+            "piToolBytes": 2765,
+            "capabilityCalls": 7,
+            "rawCapabilityBytes": 2058,
+            "bytesExposedToPi": 2765
+          },
+          "execution": {
+            "exitCode": 0,
+            "termination": null,
+            "guardStop": null,
+            "ms": 10499.848858999962
+          },
+          "estimatedCostUsd": 0.0018229939999999999,
+          "snoopedCanary": false,
+          "normalizedCorrect": null,
+          "promptBytes": 749,
+          "declarationBytes": 17072
+        },
+        {
+          "id": "cell-R-LOC-3-stock-pi-r1",
+          "task": "R-LOC-3",
+          "profile": "stock-pi",
+          "repeat": 1,
+          "success": true,
+          "correctness": {
+            "correct": true,
+            "reason": null
+          },
+          "policy": {
+            "compliant": true,
+            "violations": []
+          },
+          "harness": {
+            "healthy": true,
+            "errors": []
+          },
+          "accounting": {
+            "complete": true,
+            "issues": []
+          },
+          "usage": {
+            "input": 5416,
+            "output": 1485,
+            "cacheRead": 6596,
+            "cacheWrite": 0,
+            "totalTokens": 13497,
+            "cost": 0.000851792
+          },
+          "toolCounts": {
+            "bash": 3,
+            "read": 4
+          },
+          "modelResponses": 5,
+          "metrics": {
+            "piToolBytes": 1783,
+            "capabilityCalls": null,
+            "rawCapabilityBytes": null,
+            "bytesExposedToPi": null
+          },
+          "execution": {
+            "exitCode": 0,
+            "termination": null,
+            "guardStop": null,
+            "ms": 10662.459337000037
+          },
+          "estimatedCostUsd": 0.000851792,
+          "snoopedCanary": false,
+          "normalizedCorrect": null,
+          "promptBytes": 476,
+          "declarationBytes": 0
+        },
+        {
+          "id": "cell-R-LOC-3-typed-quickjs-r1",
+          "task": "R-LOC-3",
+          "profile": "typed-quickjs",
+          "repeat": 1,
+          "success": true,
+          "correctness": {
+            "correct": true,
+            "reason": null
+          },
+          "policy": {
+            "compliant": true,
+            "violations": []
+          },
+          "harness": {
+            "healthy": true,
+            "errors": []
+          },
+          "accounting": {
+            "complete": true,
+            "issues": []
+          },
+          "usage": {
+            "input": 14786,
+            "output": 694,
+            "cacheRead": 7409,
+            "cacheWrite": 0,
+            "totalTokens": 22889,
+            "cost": 0.0016322180000000002
+          },
+          "toolCounts": {
+            "typed_program": 2
+          },
+          "modelResponses": 3,
+          "metrics": {
+            "piToolBytes": 2015,
+            "capabilityCalls": 6,
+            "rawCapabilityBytes": 1912,
+            "bytesExposedToPi": 2015
+          },
+          "execution": {
+            "exitCode": 0,
+            "termination": null,
+            "guardStop": null,
+            "ms": 7876.087530000019
+          },
+          "estimatedCostUsd": 0.0016322180000000002,
+          "snoopedCanary": false,
+          "normalizedCorrect": null,
+          "promptBytes": 567,
+          "declarationBytes": 17072
+        },
+        {
+          "id": "cell-R-LOC-4-stock-pi-r1",
+          "task": "R-LOC-4",
+          "profile": "stock-pi",
+          "repeat": 1,
+          "success": true,
+          "correctness": {
+            "correct": true,
+            "reason": null
+          },
+          "policy": {
+            "compliant": true,
+            "violations": []
+          },
+          "harness": {
+            "healthy": true,
+            "errors": []
+          },
+          "accounting": {
+            "complete": true,
+            "issues": []
+          },
+          "usage": {
+            "input": 5488,
+            "output": 1256,
+            "cacheRead": 3682,
+            "cacheWrite": 0,
+            "totalTokens": 10426,
+            "cost": 0.000807364
+          },
+          "toolCounts": {
+            "bash": 2,
+            "read": 5
+          },
+          "modelResponses": 4,
+          "metrics": {
+            "piToolBytes": 1581,
+            "capabilityCalls": null,
+            "rawCapabilityBytes": null,
+            "bytesExposedToPi": null
+          },
+          "execution": {
+            "exitCode": 0,
+            "termination": null,
+            "guardStop": null,
+            "ms": 9291.727616999997
+          },
+          "estimatedCostUsd": 0.000807364,
+          "snoopedCanary": false,
+          "normalizedCorrect": null,
+          "promptBytes": 398,
+          "declarationBytes": 0
+        },
+        {
+          "id": "cell-R-LOC-4-typed-quickjs-r1",
+          "task": "R-LOC-4",
+          "profile": "typed-quickjs",
+          "repeat": 1,
+          "success": true,
+          "correctness": {
+            "correct": true,
+            "reason": null
+          },
+          "policy": {
+            "compliant": true,
+            "violations": []
+          },
+          "harness": {
+            "healthy": true,
+            "errors": []
+          },
+          "accounting": {
+            "complete": true,
+            "issues": []
+          },
+          "usage": {
+            "input": 16470,
+            "output": 1226,
+            "cacheRead": 14419,
+            "cacheWrite": 0,
+            "totalTokens": 32115,
+            "cost": 0.0019210380000000001
+          },
+          "toolCounts": {
+            "typed_program": 3
+          },
+          "modelResponses": 4,
+          "metrics": {
+            "piToolBytes": 4084,
+            "capabilityCalls": 8,
+            "rawCapabilityBytes": 3420,
+            "bytesExposedToPi": 4084
+          },
+          "execution": {
+            "exitCode": 0,
+            "termination": null,
+            "guardStop": null,
+            "ms": 8971.288254999963
+          },
+          "estimatedCostUsd": 0.0019210380000000001,
+          "snoopedCanary": false,
+          "normalizedCorrect": null,
+          "promptBytes": 489,
+          "declarationBytes": 17072
+        },
+        {
+          "id": "cell-R-LOC-4-typed-bun-r1",
+          "task": "R-LOC-4",
+          "profile": "typed-bun",
+          "repeat": 1,
+          "success": true,
+          "correctness": {
+            "correct": true,
+            "reason": null
+          },
+          "policy": {
+            "compliant": true,
+            "violations": []
+          },
+          "harness": {
+            "healthy": true,
+            "errors": []
+          },
+          "accounting": {
+            "complete": true,
+            "issues": []
+          },
+          "usage": {
+            "input": 16433,
+            "output": 1076,
+            "cacheRead": 14675,
+            "cacheWrite": 0,
+            "totalTokens": 32184,
+            "cost": 0.00188785
+          },
+          "toolCounts": {
+            "typed_program": 3
+          },
+          "modelResponses": 4,
+          "metrics": {
+            "piToolBytes": 4150,
+            "capabilityCalls": 8,
+            "rawCapabilityBytes": 3420,
+            "bytesExposedToPi": 4150
+          },
+          "execution": {
+            "exitCode": 0,
+            "termination": null,
+            "guardStop": null,
+            "ms": 8662.065816999995
+          },
+          "estimatedCostUsd": 0.00188785,
+          "snoopedCanary": false,
+          "normalizedCorrect": null,
+          "promptBytes": 671,
+          "declarationBytes": 17072
+        }
+      ]
+    },
+    {
+      "stage": "wave-2",
+      "sourceRun": "2026-09-06T08-34-15-575Z",
+      "resultsSha256": "6ebc1492304f93d5a744d1192b9e93db3afa38a45c62536ed1f2a937e70dd98d",
+      "commit": "1b349144bef8c515bfe704d41dc40624be9409d3",
+      "dirty": false,
+      "model": "meta/muse-spark-1.3-contributor",
+      "spentLedger": 0.03231673799999999,
+      "profiles": [
+        {
+          "profile": "stock-pi",
+          "n": 6,
+          "success": 5,
+          "exactCorrect": 5,
+          "policyCompliant": 6,
+          "healthy": 6,
+          "accountingComplete": 6,
+          "estimatedCostUsd": 0.006597122,
+          "costPerSuccessUsd": 0.0013194244000000002,
+          "totalTokens": 96758,
+          "toolCalls": 45,
+          "medianMs": 14196.479649499997,
+          "declarationBytes": [
+            0
+          ]
+        },
+        {
+          "profile": "typed-quickjs",
+          "n": 6,
+          "success": 6,
+          "exactCorrect": 6,
+          "policyCompliant": 6,
+          "healthy": 6,
+          "accountingComplete": 6,
+          "estimatedCostUsd": 0.012702683999999999,
+          "costPerSuccessUsd": 0.002117114,
+          "totalTokens": 211408,
+          "toolCalls": 19,
+          "medianMs": 20578.948804000007,
+          "declarationBytes": [
+            17468
+          ]
+        },
+        {
+          "profile": "typed-bun",
+          "n": 6,
+          "success": 5,
+          "exactCorrect": 5,
+          "policyCompliant": 6,
+          "healthy": 6,
+          "accountingComplete": 6,
+          "estimatedCostUsd": 0.013016931999999998,
+          "costPerSuccessUsd": 0.0026033863999999998,
+          "totalTokens": 225945,
+          "toolCalls": 20,
+          "medianMs": 15743.452110000006,
+          "declarationBytes": [
+            17468
+          ]
+        }
+      ],
+      "cells": [
+        {
+          "id": "cell-R-EXPORT-5-stock-pi-r0",
+          "task": "R-EXPORT-5",
+          "profile": "stock-pi",
+          "repeat": 0,
+          "success": true,
+          "correctness": {
+            "correct": true,
+            "reason": null
+          },
+          "policy": {
+            "compliant": true,
+            "violations": []
+          },
+          "harness": {
+            "healthy": true,
+            "errors": []
+          },
+          "accounting": {
+            "complete": true,
+            "issues": []
+          },
+          "usage": {
+            "input": 14278,
+            "output": 1802,
+            "cacheRead": 11204,
+            "cacheWrite": 0,
+            "totalTokens": 27284,
+            "cost": 0.001810608
+          },
+          "toolCounts": {
+            "bash": 4,
+            "read": 4
+          },
+          "modelResponses": 6,
+          "metrics": {
+            "piToolBytes": 29407,
+            "capabilityCalls": null,
+            "rawCapabilityBytes": null,
+            "bytesExposedToPi": null
+          },
+          "execution": {
+            "exitCode": 0,
+            "termination": null,
+            "guardStop": null,
+            "ms": 16761.188928
+          },
+          "estimatedCostUsd": 0.001810608,
+          "snoopedCanary": false,
+          "normalizedCorrect": null,
+          "promptBytes": 369,
+          "declarationBytes": 0
+        },
+        {
+          "id": "cell-R-EXPORT-5-typed-quickjs-r0",
+          "task": "R-EXPORT-5",
+          "profile": "typed-quickjs",
+          "repeat": 0,
+          "success": true,
+          "correctness": {
+            "correct": true,
+            "reason": null
+          },
+          "policy": {
+            "compliant": true,
+            "violations": []
+          },
+          "harness": {
+            "healthy": true,
+            "errors": []
+          },
+          "accounting": {
+            "complete": true,
+            "issues": []
+          },
+          "usage": {
+            "input": 15810,
+            "output": 2529,
+            "cacheRead": 21971,
+            "cacheWrite": 0,
+            "totalTokens": 40310,
+            "cost": 0.0021307419999999997
+          },
+          "toolCounts": {
+            "typed_program": 4
+          },
+          "modelResponses": 5,
+          "metrics": {
+            "piToolBytes": 1419,
+            "capabilityCalls": 8,
+            "rawCapabilityBytes": 1362,
+            "bytesExposedToPi": 1419
+          },
+          "execution": {
+            "exitCode": 0,
+            "termination": null,
+            "guardStop": null,
+            "ms": 22041.155381
+          },
+          "estimatedCostUsd": 0.0021307419999999997,
+          "snoopedCanary": false,
+          "normalizedCorrect": null,
+          "promptBytes": 460,
+          "declarationBytes": 17468
+        },
+        {
+          "id": "cell-R-EXPORT-5-typed-bun-r0",
+          "task": "R-EXPORT-5",
+          "profile": "typed-bun",
+          "repeat": 0,
+          "success": false,
+          "correctness": {
+            "correct": false,
+            "reason": "Final answer does not equal the independent expected value"
+          },
+          "policy": {
+            "compliant": true,
+            "violations": []
+          },
+          "harness": {
+            "healthy": true,
+            "errors": []
+          },
+          "accounting": {
+            "complete": true,
+            "issues": []
+          },
+          "usage": {
+            "input": 15390,
+            "output": 1590,
+            "cacheRead": 14178,
+            "cacheWrite": 0,
+            "totalTokens": 31158,
+            "cost": 0.0018853559999999997
+          },
+          "toolCounts": {
+            "typed_program": 3
+          },
+          "modelResponses": 4,
+          "metrics": {
+            "piToolBytes": 886,
+            "capabilityCalls": 7,
+            "rawCapabilityBytes": 1163,
+            "bytesExposedToPi": 886
+          },
+          "execution": {
+            "exitCode": 0,
+            "termination": null,
+            "guardStop": null,
+            "ms": 13732.473381000003
+          },
+          "estimatedCostUsd": 0.0018853559999999997,
+          "snoopedCanary": false,
+          "normalizedCorrect": null,
+          "promptBytes": 642,
+          "declarationBytes": 17468
+        },
+        {
+          "id": "cell-R-LOG-5-typed-quickjs-r0",
+          "task": "R-LOG-5",
+          "profile": "typed-quickjs",
+          "repeat": 0,
+          "success": true,
+          "correctness": {
+            "correct": true,
+            "reason": null
+          },
+          "policy": {
+            "compliant": true,
+            "violations": []
+          },
+          "harness": {
+            "healthy": true,
+            "errors": []
+          },
+          "accounting": {
+            "complete": true,
+            "issues": []
+          },
+          "usage": {
+            "input": 19029,
+            "output": 4569,
+            "cacheRead": 27603,
+            "cacheWrite": 0,
+            "totalTokens": 51201,
+            "cost": 0.002871906
+          },
+          "toolCounts": {
+            "typed_program": 4
+          },
+          "modelResponses": 5,
+          "metrics": {
+            "piToolBytes": 6148,
+            "capabilityCalls": 22,
+            "rawCapabilityBytes": 112327,
+            "bytesExposedToPi": 6148
+          },
+          "execution": {
+            "exitCode": 0,
+            "termination": null,
+            "guardStop": null,
+            "ms": 42664.781154000004
+          },
+          "estimatedCostUsd": 0.002871906,
+          "snoopedCanary": false,
+          "normalizedCorrect": null,
+          "promptBytes": 738,
+          "declarationBytes": 17468
+        },
+        {
+          "id": "cell-R-LOG-5-typed-bun-r0",
+          "task": "R-LOG-5",
+          "profile": "typed-bun",
+          "repeat": 0,
+          "success": true,
+          "correctness": {
+            "correct": true,
+            "reason": null
+          },
+          "policy": {
+            "compliant": true,
+            "violations": []
+          },
+          "harness": {
+            "healthy": true,
+            "errors": []
+          },
+          "accounting": {
+            "complete": true,
+            "issues": []
+          },
+          "usage": {
+            "input": 17635,
+            "output": 3717,
+            "cacheRead": 14803,
+            "cacheWrite": 0,
+            "totalTokens": 36155,
+            "cost": 0.002536506
+          },
+          "toolCounts": {
+            "typed_program": 3
+          },
+          "modelResponses": 4,
+          "metrics": {
+            "piToolBytes": 1474,
+            "capabilityCalls": 9,
+            "rawCapabilityBytes": 53995,
+            "bytesExposedToPi": 1474
+          },
+          "execution": {
+            "exitCode": 0,
+            "termination": null,
+            "guardStop": null,
+            "ms": 25847.73715799999
+          },
+          "estimatedCostUsd": 0.002536506,
+          "snoopedCanary": false,
+          "normalizedCorrect": null,
+          "promptBytes": 920,
+          "declarationBytes": 17468
+        },
+        {
+          "id": "cell-R-LOG-5-stock-pi-r0",
+          "task": "R-LOG-5",
+          "profile": "stock-pi",
+          "repeat": 0,
+          "success": true,
+          "correctness": {
+            "correct": true,
+            "reason": null
+          },
+          "policy": {
+            "compliant": true,
+            "violations": []
+          },
+          "harness": {
+            "healthy": true,
+            "errors": []
+          },
+          "accounting": {
+            "complete": true,
+            "issues": []
+          },
+          "usage": {
+            "input": 7013,
+            "output": 1935,
+            "cacheRead": 5587,
+            "cacheWrite": 0,
+            "totalTokens": 14535,
+            "cost": 0.001099474
+          },
+          "toolCounts": {
+            "bash": 3
+          },
+          "modelResponses": 4,
+          "metrics": {
+            "piToolBytes": 4464,
+            "capabilityCalls": null,
+            "rawCapabilityBytes": null,
+            "bytesExposedToPi": null
+          },
+          "execution": {
+            "exitCode": 0,
+            "termination": null,
+            "guardStop": null,
+            "ms": 16103.290282999995
+          },
+          "estimatedCostUsd": 0.001099474,
+          "snoopedCanary": false,
+          "normalizedCorrect": null,
+          "promptBytes": 647,
+          "declarationBytes": 0
+        },
+        {
+          "id": "cell-R-LOC-5-typed-bun-r0",
+          "task": "R-LOC-5",
+          "profile": "typed-bun",
+          "repeat": 0,
+          "success": true,
+          "correctness": {
+            "correct": true,
+            "reason": null
+          },
+          "policy": {
+            "compliant": true,
+            "violations": []
+          },
+          "harness": {
+            "healthy": true,
+            "errors": []
+          },
+          "accounting": {
+            "complete": true,
+            "issues": []
+          },
+          "usage": {
+            "input": 15527,
+            "output": 631,
+            "cacheRead": 14178,
+            "cacheWrite": 0,
+            "totalTokens": 30336,
+            "cost": 0.0017072559999999999
+          },
+          "toolCounts": {
+            "typed_program": 3
+          },
+          "modelResponses": 4,
+          "metrics": {
+            "piToolBytes": 1557,
+            "capabilityCalls": 3,
+            "rawCapabilityBytes": 876,
+            "bytesExposedToPi": 1557
+          },
+          "execution": {
+            "exitCode": 0,
+            "termination": null,
+            "guardStop": null,
+            "ms": 8151.1952460000175
+          },
+          "estimatedCostUsd": 0.0017072559999999999,
+          "snoopedCanary": false,
+          "normalizedCorrect": null,
+          "promptBytes": 643,
+          "declarationBytes": 17468
+        },
+        {
+          "id": "cell-R-LOC-5-stock-pi-r0",
+          "task": "R-LOC-5",
+          "profile": "stock-pi",
+          "repeat": 0,
+          "success": true,
+          "correctness": {
+            "correct": true,
+            "reason": null
+          },
+          "policy": {
+            "compliant": true,
+            "violations": []
+          },
+          "harness": {
+            "healthy": true,
+            "errors": []
+          },
+          "accounting": {
+            "complete": true,
+            "issues": []
+          },
+          "usage": {
+            "input": 7371,
+            "output": 1604,
+            "cacheRead": 9013,
+            "cacheWrite": 0,
+            "totalTokens": 17988,
+            "cost": 0.001075926
+          },
+          "toolCounts": {
+            "bash": 2,
+            "read": 10
+          },
+          "modelResponses": 6,
+          "metrics": {
+            "piToolBytes": 4089,
+            "capabilityCalls": null,
+            "rawCapabilityBytes": null,
+            "bytesExposedToPi": null
+          },
+          "execution": {
+            "exitCode": 0,
+            "termination": null,
+            "guardStop": null,
+            "ms": 12289.669016
+          },
+          "estimatedCostUsd": 0.001075926,
+          "snoopedCanary": false,
+          "normalizedCorrect": null,
+          "promptBytes": 370,
+          "declarationBytes": 0
+        },
+        {
+          "id": "cell-R-LOC-5-typed-quickjs-r0",
+          "task": "R-LOC-5",
+          "profile": "typed-quickjs",
+          "repeat": 0,
+          "success": true,
+          "correctness": {
+            "correct": true,
+            "reason": null
+          },
+          "policy": {
+            "compliant": true,
+            "violations": []
+          },
+          "harness": {
+            "healthy": true,
+            "errors": []
+          },
+          "accounting": {
+            "complete": true,
+            "issues": []
+          },
+          "usage": {
+            "input": 7597,
+            "output": 569,
+            "cacheRead": 14050,
+            "cacheWrite": 0,
+            "totalTokens": 22216,
+            "cost": 0.0009015999999999999
+          },
+          "toolCounts": {
+            "typed_program": 2
+          },
+          "modelResponses": 3,
+          "metrics": {
+            "piToolBytes": 781,
+            "capabilityCalls": 3,
+            "rawCapabilityBytes": 742,
+            "bytesExposedToPi": 781
+          },
+          "execution": {
+            "exitCode": 0,
+            "termination": null,
+            "guardStop": null,
+            "ms": 19116.74222700001
+          },
+          "estimatedCostUsd": 0.0009015999999999999,
+          "snoopedCanary": false,
+          "normalizedCorrect": null,
+          "promptBytes": 461,
+          "declarationBytes": 17468
+        },
+        {
+          "id": "cell-R-EXPORT-5-typed-quickjs-r1",
+          "task": "R-EXPORT-5",
+          "profile": "typed-quickjs",
+          "repeat": 1,
+          "success": true,
+          "correctness": {
+            "correct": true,
+            "reason": null
+          },
+          "policy": {
+            "compliant": true,
+            "violations": []
+          },
+          "harness": {
+            "healthy": true,
+            "errors": []
+          },
+          "accounting": {
+            "complete": true,
+            "issues": []
+          },
+          "usage": {
+            "input": 14607,
+            "output": 1504,
+            "cacheRead": 14803,
+            "cacheWrite": 0,
+            "totalTokens": 30914,
+            "cost": 0.0017911059999999998
+          },
+          "toolCounts": {
+            "typed_program": 3
+          },
+          "modelResponses": 4,
+          "metrics": {
+            "piToolBytes": 883,
+            "capabilityCalls": 7,
+            "rawCapabilityBytes": 1163,
+            "bytesExposedToPi": 883
+          },
+          "execution": {
+            "exitCode": 0,
+            "termination": null,
+            "guardStop": null,
+            "ms": 13041.212232999998
+          },
+          "estimatedCostUsd": 0.0017911059999999998,
+          "snoopedCanary": false,
+          "normalizedCorrect": null,
+          "promptBytes": 460,
+          "declarationBytes": 17468
+        },
+        {
+          "id": "cell-R-EXPORT-5-typed-bun-r1",
+          "task": "R-EXPORT-5",
+          "profile": "typed-bun",
+          "repeat": 1,
+          "success": true,
+          "correctness": {
+            "correct": true,
+            "reason": null
+          },
+          "policy": {
+            "compliant": true,
+            "violations": []
+          },
+          "harness": {
+            "healthy": true,
+            "errors": []
+          },
+          "accounting": {
+            "complete": true,
+            "issues": []
+          },
+          "usage": {
+            "input": 14595,
+            "output": 2012,
+            "cacheRead": 7281,
+            "cacheWrite": 0,
+            "totalTokens": 23888,
+            "cost": 0.0018764619999999997
+          },
+          "toolCounts": {
+            "typed_program": 2
+          },
+          "modelResponses": 3,
+          "metrics": {
+            "piToolBytes": 847,
+            "capabilityCalls": 7,
+            "rawCapabilityBytes": 1163,
+            "bytesExposedToPi": 847
+          },
+          "execution": {
+            "exitCode": 0,
+            "termination": null,
+            "guardStop": null,
+            "ms": 17754.430839000008
+          },
+          "estimatedCostUsd": 0.0018764619999999997,
+          "snoopedCanary": false,
+          "normalizedCorrect": null,
+          "promptBytes": 642,
+          "declarationBytes": 17468
+        },
+        {
+          "id": "cell-R-EXPORT-5-stock-pi-r1",
+          "task": "R-EXPORT-5",
+          "profile": "stock-pi",
+          "repeat": 1,
+          "success": false,
+          "correctness": {
+            "correct": false,
+            "reason": "Final answer does not equal the independent expected value"
+          },
+          "policy": {
+            "compliant": true,
+            "violations": []
+          },
+          "harness": {
+            "healthy": true,
+            "errors": []
+          },
+          "accounting": {
+            "complete": true,
+            "issues": []
+          },
+          "usage": {
+            "input": 2952,
+            "output": 1296,
+            "cacheRead": 6355,
+            "cacheWrite": 0,
+            "totalTokens": 10603,
+            "cost": 0.00056711
+          },
+          "toolCounts": {
+            "bash": 2,
+            "read": 5
+          },
+          "modelResponses": 4,
+          "metrics": {
+            "piToolBytes": 1191,
+            "capabilityCalls": null,
+            "rawCapabilityBytes": null,
+            "bytesExposedToPi": null
+          },
+          "execution": {
+            "exitCode": 0,
+            "termination": null,
+            "guardStop": null,
+            "ms": 12023.183017999982
+          },
+          "estimatedCostUsd": 0.00056711,
+          "snoopedCanary": false,
+          "normalizedCorrect": null,
+          "promptBytes": 369,
+          "declarationBytes": 0
+        },
+        {
+          "id": "cell-R-LOG-5-typed-bun-r1",
+          "task": "R-LOG-5",
+          "profile": "typed-bun",
+          "repeat": 1,
+          "success": true,
+          "correctness": {
+            "correct": true,
+            "reason": null
+          },
+          "policy": {
+            "compliant": true,
+            "violations": []
+          },
+          "harness": {
+            "healthy": true,
+            "errors": []
+          },
+          "accounting": {
+            "complete": true,
+            "issues": []
+          },
+          "usage": {
+            "input": 21690,
+            "output": 5362,
+            "cacheRead": 54679,
+            "cacheWrite": 0,
+            "totalTokens": 81731,
+            "cost": 0.0033507579999999997
+          },
+          "toolCounts": {
+            "typed_program": 7
+          },
+          "modelResponses": 8,
+          "metrics": {
+            "piToolBytes": 7169,
+            "capabilityCalls": 45,
+            "rawCapabilityBytes": 163729,
+            "bytesExposedToPi": 7169
+          },
+          "execution": {
+            "exitCode": 0,
+            "termination": null,
+            "guardStop": null,
+            "ms": 63755.447212
+          },
+          "estimatedCostUsd": 0.0033507579999999997,
+          "snoopedCanary": false,
+          "normalizedCorrect": null,
+          "promptBytes": 920,
+          "declarationBytes": 17468
+        },
+        {
+          "id": "cell-R-LOG-5-stock-pi-r1",
+          "task": "R-LOG-5",
+          "profile": "stock-pi",
+          "repeat": 1,
+          "success": true,
+          "correctness": {
+            "correct": true,
+            "reason": null
+          },
+          "policy": {
+            "compliant": true,
+            "violations": []
+          },
+          "harness": {
+            "healthy": true,
+            "errors": []
+          },
+          "accounting": {
+            "complete": true,
+            "issues": []
+          },
+          "usage": {
+            "input": 4503,
+            "output": 2780,
+            "cacheRead": 7507,
+            "cacheWrite": 0,
+            "totalTokens": 14790,
+            "cost": 0.001021314
+          },
+          "toolCounts": {
+            "bash": 3
+          },
+          "modelResponses": 4,
+          "metrics": {
+            "piToolBytes": 2933,
+            "capabilityCalls": null,
+            "rawCapabilityBytes": null,
+            "bytesExposedToPi": null
+          },
+          "execution": {
+            "exitCode": 0,
+            "termination": null,
+            "guardStop": null,
+            "ms": 21455.461095999985
+          },
+          "estimatedCostUsd": 0.001021314,
+          "snoopedCanary": false,
+          "normalizedCorrect": null,
+          "promptBytes": 647,
+          "declarationBytes": 0
+        },
+        {
+          "id": "cell-R-LOG-5-typed-quickjs-r1",
+          "task": "R-LOG-5",
+          "profile": "typed-quickjs",
+          "repeat": 1,
+          "success": true,
+          "correctness": {
+            "correct": true,
+            "reason": null
+          },
+          "policy": {
+            "compliant": true,
+            "violations": []
+          },
+          "harness": {
+            "healthy": true,
+            "errors": []
+          },
+          "accounting": {
+            "complete": true,
+            "issues": []
+          },
+          "usage": {
+            "input": 22709,
+            "output": 2942,
+            "cacheRead": 0,
+            "cacheWrite": 0,
+            "totalTokens": 25651,
+            "cost": 0.0028593
+          },
+          "toolCounts": {
+            "typed_program": 2
+          },
+          "modelResponses": 3,
+          "metrics": {
+            "piToolBytes": 726,
+            "capabilityCalls": 8,
+            "rawCapabilityBytes": 53590,
+            "bytesExposedToPi": 726
+          },
+          "execution": {
+            "exitCode": 0,
+            "termination": null,
+            "guardStop": null,
+            "ms": 23641.215639000002
+          },
+          "estimatedCostUsd": 0.0028593,
+          "snoopedCanary": false,
+          "normalizedCorrect": null,
+          "promptBytes": 738,
+          "declarationBytes": 17468
+        },
+        {
+          "id": "cell-R-LOC-5-stock-pi-r1",
+          "task": "R-LOC-5",
+          "profile": "stock-pi",
+          "repeat": 1,
+          "success": true,
+          "correctness": {
+            "correct": true,
+            "reason": null
+          },
+          "policy": {
+            "compliant": true,
+            "violations": []
+          },
+          "harness": {
+            "healthy": true,
+            "errors": []
+          },
+          "accounting": {
+            "complete": true,
+            "issues": []
+          },
+          "usage": {
+            "input": 7850,
+            "output": 1163,
+            "cacheRead": 2545,
+            "cacheWrite": 0,
+            "totalTokens": 11558,
+            "cost": 0.00102269
+          },
+          "toolCounts": {
+            "bash": 2,
+            "read": 10
+          },
+          "modelResponses": 4,
+          "metrics": {
+            "piToolBytes": 4051,
+            "capabilityCalls": null,
+            "rawCapabilityBytes": null,
+            "bytesExposedToPi": null
+          },
+          "execution": {
+            "exitCode": 0,
+            "termination": null,
+            "guardStop": null,
+            "ms": 9653.086422000022
+          },
+          "estimatedCostUsd": 0.00102269,
+          "snoopedCanary": false,
+          "normalizedCorrect": null,
+          "promptBytes": 370,
+          "declarationBytes": 0
+        },
+        {
+          "id": "cell-R-LOC-5-typed-quickjs-r1",
+          "task": "R-LOC-5",
+          "profile": "typed-quickjs",
+          "repeat": 1,
+          "success": true,
+          "correctness": {
+            "correct": true,
+            "reason": null
+          },
+          "policy": {
+            "compliant": true,
+            "violations": []
+          },
+          "harness": {
+            "healthy": true,
+            "errors": []
+          },
+          "accounting": {
+            "complete": true,
+            "issues": []
+          },
+          "usage": {
+            "input": 17756,
+            "output": 1645,
+            "cacheRead": 21715,
+            "cacheWrite": 0,
+            "totalTokens": 41116,
+            "cost": 0.00214803
+          },
+          "toolCounts": {
+            "typed_program": 4
+          },
+          "modelResponses": 5,
+          "metrics": {
+            "piToolBytes": 6024,
+            "capabilityCalls": 13,
+            "rawCapabilityBytes": 5224,
+            "bytesExposedToPi": 6024
+          },
+          "execution": {
+            "exitCode": 0,
+            "termination": null,
+            "guardStop": null,
+            "ms": 14549.24940999999
+          },
+          "estimatedCostUsd": 0.00214803,
+          "snoopedCanary": false,
+          "normalizedCorrect": null,
+          "promptBytes": 461,
+          "declarationBytes": 17468
+        },
+        {
+          "id": "cell-R-LOC-5-typed-bun-r1",
+          "task": "R-LOC-5",
+          "profile": "typed-bun",
+          "repeat": 1,
+          "success": true,
+          "correctness": {
+            "correct": true,
+            "reason": null
+          },
+          "policy": {
+            "compliant": true,
+            "violations": []
+          },
+          "harness": {
+            "healthy": true,
+            "errors": []
+          },
+          "accounting": {
+            "complete": true,
+            "issues": []
+          },
+          "usage": {
+            "input": 15092,
+            "output": 688,
+            "cacheRead": 6897,
+            "cacheWrite": 0,
+            "totalTokens": 22677,
+            "cost": 0.0016605939999999998
+          },
+          "toolCounts": {
+            "typed_program": 2
+          },
+          "modelResponses": 3,
+          "metrics": {
+            "piToolBytes": 766,
+            "capabilityCalls": 5,
+            "rawCapabilityBytes": 1305,
+            "bytesExposedToPi": 766
+          },
+          "execution": {
+            "exitCode": 0,
+            "termination": null,
+            "guardStop": null,
+            "ms": 6648.425713000004
+          },
+          "estimatedCostUsd": 0.0016605939999999998,
+          "snoopedCanary": false,
+          "normalizedCorrect": null,
+          "promptBytes": 643,
+          "declarationBytes": 17468
+        }
+      ]
+    },
+    {
+      "stage": "path-closeout",
+      "sourceRun": "2026-09-06T08-49-02-901Z",
+      "resultsSha256": "9a43a768bcb9af983001dcad53c4b1fbbc10c087bab0bd2fbcfe678ca3e93d08",
+      "commit": "0ba4fdc018115ac7beab49834213e21119318384",
+      "dirty": false,
+      "model": "meta/muse-spark-1.3-contributor",
+      "spentLedger": 0.046602816,
+      "profiles": [
+        {
+          "profile": "stock-pi",
+          "n": 10,
+          "success": 9,
+          "exactCorrect": 10,
+          "policyCompliant": 9,
+          "healthy": 10,
+          "accountingComplete": 10,
+          "estimatedCostUsd": 0.012116082,
+          "costPerSuccessUsd": 0.0013462313333333334,
+          "totalTokens": 178851,
+          "toolCalls": 80,
+          "medianMs": 11078.10261599999,
+          "declarationBytes": [
+            0
+          ]
+        },
+        {
+          "profile": "typed-quickjs",
+          "n": 10,
+          "success": 10,
+          "exactCorrect": 10,
+          "policyCompliant": 10,
+          "healthy": 10,
+          "accountingComplete": 10,
+          "estimatedCostUsd": 0.017574158,
+          "costPerSuccessUsd": 0.0017574157999999999,
+          "totalTokens": 319748,
+          "toolCalls": 31,
+          "medianMs": 12282.992845000012,
+          "declarationBytes": [
+            17468
+          ]
+        },
+        {
+          "profile": "typed-bun",
+          "n": 10,
+          "success": 10,
+          "exactCorrect": 10,
+          "policyCompliant": 10,
+          "healthy": 10,
+          "accountingComplete": 10,
+          "estimatedCostUsd": 0.016912576,
+          "costPerSuccessUsd": 0.0016912575999999998,
+          "totalTokens": 393573,
+          "toolCalls": 39,
+          "medianMs": 12143.141893500004,
+          "declarationBytes": [
+            17468
+          ]
+        }
+      ],
+      "cells": [
+        {
+          "id": "cell-R-EXPORT-1-stock-pi-r0",
+          "task": "R-EXPORT-1",
+          "profile": "stock-pi",
+          "repeat": 0,
+          "success": true,
+          "correctness": {
+            "correct": true,
+            "reason": null
+          },
+          "policy": {
+            "compliant": true,
+            "violations": []
+          },
+          "harness": {
+            "healthy": true,
+            "errors": []
+          },
+          "accounting": {
+            "complete": true,
+            "issues": []
+          },
+          "usage": {
+            "input": 6785,
+            "output": 994,
+            "cacheRead": 0,
+            "cacheWrite": 0,
+            "totalTokens": 7779,
+            "cost": 0.0008772999999999999
+          },
+          "toolCounts": {
+            "bash": 2
+          },
+          "modelResponses": 3,
+          "metrics": {
+            "piToolBytes": 1492,
+            "capabilityCalls": null,
+            "rawCapabilityBytes": null,
+            "bytesExposedToPi": null
+          },
+          "execution": {
+            "exitCode": 0,
+            "termination": null,
+            "guardStop": null,
+            "ms": 9618.632281
+          },
+          "estimatedCostUsd": 0.0008772999999999999,
+          "snoopedCanary": false,
+          "normalizedCorrect": true,
+          "promptBytes": 470,
+          "declarationBytes": 0
+        },
+        {
+          "id": "cell-R-EXPORT-1-typed-quickjs-r0",
+          "task": "R-EXPORT-1",
+          "profile": "typed-quickjs",
+          "repeat": 0,
+          "success": true,
+          "correctness": {
+            "correct": true,
+            "reason": null
+          },
+          "policy": {
+            "compliant": true,
+            "violations": []
+          },
+          "harness": {
+            "healthy": true,
+            "errors": []
+          },
+          "accounting": {
+            "complete": true,
+            "issues": []
+          },
+          "usage": {
+            "input": 8270,
+            "output": 1214,
+            "cacheRead": 21715,
+            "cacheWrite": 0,
+            "totalTokens": 31199,
+            "cost": 0.00111323
+          },
+          "toolCounts": {
+            "typed_program": 3
+          },
+          "modelResponses": 4,
+          "metrics": {
+            "piToolBytes": 1948,
+            "capabilityCalls": 9,
+            "rawCapabilityBytes": 1810,
+            "bytesExposedToPi": 1948
+          },
+          "execution": {
+            "exitCode": 0,
+            "termination": null,
+            "guardStop": null,
+            "ms": 11928.846453
+          },
+          "estimatedCostUsd": 0.00111323,
+          "snoopedCanary": false,
+          "normalizedCorrect": true,
+          "promptBytes": 561,
+          "declarationBytes": 17468
+        },
+        {
+          "id": "cell-R-EXPORT-1-typed-bun-r0",
+          "task": "R-EXPORT-1",
+          "profile": "typed-bun",
+          "repeat": 0,
+          "success": true,
+          "correctness": {
+            "correct": true,
+            "reason": null
+          },
+          "policy": {
+            "compliant": true,
+            "violations": []
+          },
+          "harness": {
+            "healthy": true,
+            "errors": []
+          },
+          "accounting": {
+            "complete": true,
+            "issues": []
+          },
+          "usage": {
+            "input": 7936,
+            "output": 1055,
+            "cacheRead": 14050,
+            "cacheWrite": 0,
+            "totalTokens": 23041,
+            "cost": 0.0010327
+          },
+          "toolCounts": {
+            "typed_program": 2
+          },
+          "modelResponses": 3,
+          "metrics": {
+            "piToolBytes": 1153,
+            "capabilityCalls": 8,
+            "rawCapabilityBytes": 1649,
+            "bytesExposedToPi": 1153
+          },
+          "execution": {
+            "exitCode": 0,
+            "termination": null,
+            "guardStop": null,
+            "ms": 8931.832317
+          },
+          "estimatedCostUsd": 0.0010327,
+          "snoopedCanary": false,
+          "normalizedCorrect": true,
+          "promptBytes": 743,
+          "declarationBytes": 17468
+        },
+        {
+          "id": "cell-R-EXPORT-2-typed-quickjs-r0",
+          "task": "R-EXPORT-2",
+          "profile": "typed-quickjs",
+          "repeat": 0,
+          "success": true,
+          "correctness": {
+            "correct": true,
+            "reason": null
+          },
+          "policy": {
+            "compliant": true,
+            "violations": []
+          },
+          "harness": {
+            "healthy": true,
+            "errors": []
+          },
+          "accounting": {
+            "complete": true,
+            "issues": []
+          },
+          "usage": {
+            "input": 17147,
+            "output": 2159,
+            "cacheRead": 28996,
+            "cacheWrite": 0,
+            "totalTokens": 48302,
+            "cost": 0.002204492
+          },
+          "toolCounts": {
+            "typed_program": 5
+          },
+          "modelResponses": 6,
+          "metrics": {
+            "piToolBytes": 2838,
+            "capabilityCalls": 16,
+            "rawCapabilityBytes": 2607,
+            "bytesExposedToPi": 2838
+          },
+          "execution": {
+            "exitCode": 0,
+            "termination": null,
+            "guardStop": null,
+            "ms": 20056.884699
+          },
+          "estimatedCostUsd": 0.002204492,
+          "snoopedCanary": false,
+          "normalizedCorrect": true,
+          "promptBytes": 468,
+          "declarationBytes": 17468
+        },
+        {
+          "id": "cell-R-EXPORT-2-typed-bun-r0",
+          "task": "R-EXPORT-2",
+          "profile": "typed-bun",
+          "repeat": 0,
+          "success": true,
+          "correctness": {
+            "correct": true,
+            "reason": null
+          },
+          "policy": {
+            "compliant": true,
+            "violations": []
+          },
+          "harness": {
+            "healthy": true,
+            "errors": []
+          },
+          "accounting": {
+            "complete": true,
+            "issues": []
+          },
+          "usage": {
+            "input": 8989,
+            "output": 2620,
+            "cacheRead": 37173,
+            "cacheWrite": 0,
+            "totalTokens": 48782,
+            "cost": 0.0014972459999999998
+          },
+          "toolCounts": {
+            "typed_program": 5
+          },
+          "modelResponses": 6,
+          "metrics": {
+            "piToolBytes": 2480,
+            "capabilityCalls": 14,
+            "rawCapabilityBytes": 1989,
+            "bytesExposedToPi": 2480
+          },
+          "execution": {
+            "exitCode": 0,
+            "termination": null,
+            "guardStop": null,
+            "ms": 24209.449721000005
+          },
+          "estimatedCostUsd": 0.0014972459999999998,
+          "snoopedCanary": false,
+          "normalizedCorrect": true,
+          "promptBytes": 650,
+          "declarationBytes": 17468
+        },
+        {
+          "id": "cell-R-EXPORT-2-stock-pi-r0",
+          "task": "R-EXPORT-2",
+          "profile": "stock-pi",
+          "repeat": 0,
+          "success": true,
+          "correctness": {
+            "correct": true,
+            "reason": null
+          },
+          "policy": {
+            "compliant": true,
+            "violations": []
+          },
+          "harness": {
+            "healthy": true,
+            "errors": []
+          },
+          "accounting": {
+            "complete": true,
+            "issues": []
+          },
+          "usage": {
+            "input": 14204,
+            "output": 2587,
+            "cacheRead": 9796,
+            "cacheWrite": 0,
+            "totalTokens": 26587,
+            "cost": 0.001957392
+          },
+          "toolCounts": {
+            "bash": 4,
+            "read": 7
+          },
+          "modelResponses": 6,
+          "metrics": {
+            "piToolBytes": 21536,
+            "capabilityCalls": null,
+            "rawCapabilityBytes": null,
+            "bytesExposedToPi": null
+          },
+          "execution": {
+            "exitCode": 0,
+            "termination": null,
+            "guardStop": null,
+            "ms": 23293.96272899999
+          },
+          "estimatedCostUsd": 0.001957392,
+          "snoopedCanary": false,
+          "normalizedCorrect": true,
+          "promptBytes": 377,
+          "declarationBytes": 0
+        },
+        {
+          "id": "cell-R-EXPORT-3-typed-bun-r0",
+          "task": "R-EXPORT-3",
+          "profile": "typed-bun",
+          "repeat": 0,
+          "success": true,
+          "correctness": {
+            "correct": true,
+            "reason": null
+          },
+          "policy": {
+            "compliant": true,
+            "violations": []
+          },
+          "harness": {
+            "healthy": true,
+            "errors": []
+          },
+          "accounting": {
+            "complete": true,
+            "issues": []
+          },
+          "usage": {
+            "input": 8111,
+            "output": 1221,
+            "cacheRead": 21715,
+            "cacheWrite": 0,
+            "totalTokens": 31047,
+            "cost": 0.00109873
+          },
+          "toolCounts": {
+            "typed_program": 3
+          },
+          "modelResponses": 4,
+          "metrics": {
+            "piToolBytes": 1395,
+            "capabilityCalls": 10,
+            "rawCapabilityBytes": 1861,
+            "bytesExposedToPi": 1395
+          },
+          "execution": {
+            "exitCode": 0,
+            "termination": null,
+            "guardStop": null,
+            "ms": 12060.638369000008
+          },
+          "estimatedCostUsd": 0.00109873,
+          "snoopedCanary": false,
+          "normalizedCorrect": true,
+          "promptBytes": 744,
+          "declarationBytes": 17468
+        },
+        {
+          "id": "cell-R-EXPORT-3-stock-pi-r0",
+          "task": "R-EXPORT-3",
+          "profile": "stock-pi",
+          "repeat": 0,
+          "success": true,
+          "correctness": {
+            "correct": true,
+            "reason": null
+          },
+          "policy": {
+            "compliant": true,
+            "violations": []
+          },
+          "harness": {
+            "healthy": true,
+            "errors": []
+          },
+          "accounting": {
+            "complete": true,
+            "issues": []
+          },
+          "usage": {
+            "input": 6412,
+            "output": 930,
+            "cacheRead": 0,
+            "cacheWrite": 0,
+            "totalTokens": 7342,
+            "cost": 0.0008271999999999999
+          },
+          "toolCounts": {
+            "bash": 1,
+            "read": 7
+          },
+          "modelResponses": 3,
+          "metrics": {
+            "piToolBytes": 663,
+            "capabilityCalls": null,
+            "rawCapabilityBytes": null,
+            "bytesExposedToPi": null
+          },
+          "execution": {
+            "exitCode": 0,
+            "termination": null,
+            "guardStop": null,
+            "ms": 7374.215685000003
+          },
+          "estimatedCostUsd": 0.0008271999999999999,
+          "snoopedCanary": false,
+          "normalizedCorrect": true,
+          "promptBytes": 471,
+          "declarationBytes": 0
+        },
+        {
+          "id": "cell-R-EXPORT-3-typed-quickjs-r0",
+          "task": "R-EXPORT-3",
+          "profile": "typed-quickjs",
+          "repeat": 0,
+          "success": true,
+          "correctness": {
+            "correct": true,
+            "reason": null
+          },
+          "policy": {
+            "compliant": true,
+            "violations": []
+          },
+          "harness": {
+            "healthy": true,
+            "errors": []
+          },
+          "accounting": {
+            "complete": true,
+            "issues": []
+          },
+          "usage": {
+            "input": 15184,
+            "output": 1461,
+            "cacheRead": 22596,
+            "cacheWrite": 0,
+            "totalTokens": 39241,
+            "cost": 0.0018557919999999998
+          },
+          "toolCounts": {
+            "typed_program": 4
+          },
+          "modelResponses": 5,
+          "metrics": {
+            "piToolBytes": 1933,
+            "capabilityCalls": 9,
+            "rawCapabilityBytes": 1807,
+            "bytesExposedToPi": 1933
+          },
+          "execution": {
+            "exitCode": 0,
+            "termination": null,
+            "guardStop": null,
+            "ms": 16603.55945999999
+          },
+          "estimatedCostUsd": 0.0018557919999999998,
+          "snoopedCanary": false,
+          "normalizedCorrect": true,
+          "promptBytes": 562,
+          "declarationBytes": 17468
+        },
+        {
+          "id": "cell-R-EXPORT-4-stock-pi-r0",
+          "task": "R-EXPORT-4",
+          "profile": "stock-pi",
+          "repeat": 0,
+          "success": true,
+          "correctness": {
+            "correct": true,
+            "reason": null
+          },
+          "policy": {
+            "compliant": true,
+            "violations": []
+          },
+          "harness": {
+            "healthy": true,
+            "errors": []
+          },
+          "accounting": {
+            "complete": true,
+            "issues": []
+          },
+          "usage": {
+            "input": 4815,
+            "output": 2028,
+            "cacheRead": 5971,
+            "cacheWrite": 0,
+            "totalTokens": 12814,
+            "cost": 0.000899042
+          },
+          "toolCounts": {
+            "bash": 1,
+            "read": 7
+          },
+          "modelResponses": 5,
+          "metrics": {
+            "piToolBytes": 768,
+            "capabilityCalls": null,
+            "rawCapabilityBytes": null,
+            "bytesExposedToPi": null
+          },
+          "execution": {
+            "exitCode": 0,
+            "termination": null,
+            "guardStop": null,
+            "ms": 17344.537490999995
+          },
+          "estimatedCostUsd": 0.000899042,
+          "snoopedCanary": false,
+          "normalizedCorrect": true,
+          "promptBytes": 378,
+          "declarationBytes": 0
+        },
+        {
+          "id": "cell-R-EXPORT-4-typed-quickjs-r0",
+          "task": "R-EXPORT-4",
+          "profile": "typed-quickjs",
+          "repeat": 0,
+          "success": true,
+          "correctness": {
+            "correct": true,
+            "reason": null
+          },
+          "policy": {
+            "compliant": true,
+            "violations": []
+          },
+          "harness": {
+            "healthy": true,
+            "errors": []
+          },
+          "accounting": {
+            "complete": true,
+            "issues": []
+          },
+          "usage": {
+            "input": 16019,
+            "output": 1597,
+            "cacheRead": 21715,
+            "cacheWrite": 0,
+            "totalTokens": 39331,
+            "cost": 0.00196473
+          },
+          "toolCounts": {
+            "typed_program": 4
+          },
+          "modelResponses": 5,
+          "metrics": {
+            "piToolBytes": 1907,
+            "capabilityCalls": 10,
+            "rawCapabilityBytes": 1861,
+            "bytesExposedToPi": 1907
+          },
+          "execution": {
+            "exitCode": 0,
+            "termination": null,
+            "guardStop": null,
+            "ms": 15563.309381
+          },
+          "estimatedCostUsd": 0.00196473,
+          "snoopedCanary": false,
+          "normalizedCorrect": true,
+          "promptBytes": 469,
+          "declarationBytes": 17468
+        },
+        {
+          "id": "cell-R-EXPORT-4-typed-bun-r0",
+          "task": "R-EXPORT-4",
+          "profile": "typed-bun",
+          "repeat": 0,
+          "success": true,
+          "correctness": {
+            "correct": true,
+            "reason": null
+          },
+          "policy": {
+            "compliant": true,
+            "violations": []
+          },
+          "harness": {
+            "healthy": true,
+            "errors": []
+          },
+          "accounting": {
+            "complete": true,
+            "issues": []
+          },
+          "usage": {
+            "input": 14646,
+            "output": 1544,
+            "cacheRead": 15187,
+            "cacheWrite": 0,
+            "totalTokens": 31377,
+            "cost": 0.001803774
+          },
+          "toolCounts": {
+            "typed_program": 3
+          },
+          "modelResponses": 4,
+          "metrics": {
+            "piToolBytes": 1298,
+            "capabilityCalls": 10,
+            "rawCapabilityBytes": 1861,
+            "bytesExposedToPi": 1298
+          },
+          "execution": {
+            "exitCode": 0,
+            "termination": null,
+            "guardStop": null,
+            "ms": 12225.645418
+          },
+          "estimatedCostUsd": 0.001803774,
+          "snoopedCanary": false,
+          "normalizedCorrect": true,
+          "promptBytes": 651,
+          "declarationBytes": 17468
+        },
+        {
+          "id": "cell-R-EXPORT-5-typed-quickjs-r0",
+          "task": "R-EXPORT-5",
+          "profile": "typed-quickjs",
+          "repeat": 0,
+          "success": true,
+          "correctness": {
+            "correct": true,
+            "reason": null
+          },
+          "policy": {
+            "compliant": true,
+            "violations": []
+          },
+          "harness": {
+            "healthy": true,
+            "errors": []
+          },
+          "accounting": {
+            "complete": true,
+            "issues": []
+          },
+          "usage": {
+            "input": 7225,
+            "output": 1014,
+            "cacheRead": 14547,
+            "cacheWrite": 0,
+            "totalTokens": 22786,
+            "cost": 0.0009543940000000001
+          },
+          "toolCounts": {
+            "typed_program": 2
+          },
+          "modelResponses": 3,
+          "metrics": {
+            "piToolBytes": 768,
+            "capabilityCalls": 6,
+            "rawCapabilityBytes": 1002,
+            "bytesExposedToPi": 768
+          },
+          "execution": {
+            "exitCode": 0,
+            "termination": null,
+            "guardStop": null,
+            "ms": 8560.381629999989
+          },
+          "estimatedCostUsd": 0.0009543940000000001,
+          "snoopedCanary": false,
+          "normalizedCorrect": true,
+          "promptBytes": 536,
+          "declarationBytes": 17468
+        },
+        {
+          "id": "cell-R-EXPORT-5-typed-bun-r0",
+          "task": "R-EXPORT-5",
+          "profile": "typed-bun",
+          "repeat": 0,
+          "success": true,
+          "correctness": {
+            "correct": true,
+            "reason": null
+          },
+          "policy": {
+            "compliant": true,
+            "violations": []
+          },
+          "harness": {
+            "healthy": true,
+            "errors": []
+          },
+          "accounting": {
+            "complete": true,
+            "issues": []
+          },
+          "usage": {
+            "input": 16692,
+            "output": 2971,
+            "cacheRead": 47127,
+            "cacheWrite": 0,
+            "totalTokens": 66790,
+            "cost": 0.002357654
+          },
+          "toolCounts": {
+            "typed_program": 7
+          },
+          "modelResponses": 8,
+          "metrics": {
+            "piToolBytes": 2848,
+            "capabilityCalls": 17,
+            "rawCapabilityBytes": 2396,
+            "bytesExposedToPi": 2848
+          },
+          "execution": {
+            "exitCode": 0,
+            "termination": null,
+            "guardStop": null,
+            "ms": 25789.441115000023
+          },
+          "estimatedCostUsd": 0.002357654,
+          "snoopedCanary": false,
+          "normalizedCorrect": true,
+          "promptBytes": 718,
+          "declarationBytes": 17468
+        },
+        {
+          "id": "cell-R-EXPORT-5-stock-pi-r0",
+          "task": "R-EXPORT-5",
+          "profile": "stock-pi",
+          "repeat": 0,
+          "success": true,
+          "correctness": {
+            "correct": true,
+            "reason": null
+          },
+          "policy": {
+            "compliant": true,
+            "violations": []
+          },
+          "harness": {
+            "healthy": true,
+            "errors": []
+          },
+          "accounting": {
+            "complete": true,
+            "issues": []
+          },
+          "usage": {
+            "input": 16296,
+            "output": 1962,
+            "cacheRead": 9412,
+            "cacheWrite": 0,
+            "totalTokens": 27670,
+            "cost": 0.002040824
+          },
+          "toolCounts": {
+            "bash": 4,
+            "read": 4
+          },
+          "modelResponses": 6,
+          "metrics": {
+            "piToolBytes": 30935,
+            "capabilityCalls": null,
+            "rawCapabilityBytes": null,
+            "bytesExposedToPi": null
+          },
+          "execution": {
+            "exitCode": 0,
+            "termination": null,
+            "guardStop": null,
+            "ms": 18130.86358199999
+          },
+          "estimatedCostUsd": 0.002040824,
+          "snoopedCanary": false,
+          "normalizedCorrect": true,
+          "promptBytes": 445,
+          "declarationBytes": 0
+        },
+        {
+          "id": "cell-R-EXPORT-1-typed-quickjs-r1",
+          "task": "R-EXPORT-1",
+          "profile": "typed-quickjs",
+          "repeat": 1,
+          "success": true,
+          "correctness": {
+            "correct": true,
+            "reason": null
+          },
+          "policy": {
+            "compliant": true,
+            "violations": []
+          },
+          "harness": {
+            "healthy": true,
+            "errors": []
+          },
+          "accounting": {
+            "complete": true,
+            "issues": []
+          },
+          "usage": {
+            "input": 15205,
+            "output": 1100,
+            "cacheRead": 14675,
+            "cacheWrite": 0,
+            "totalTokens": 30980,
+            "cost": 0.00176985
+          },
+          "toolCounts": {
+            "typed_program": 3
+          },
+          "modelResponses": 4,
+          "metrics": {
+            "piToolBytes": 1852,
+            "capabilityCalls": 9,
+            "rawCapabilityBytes": 1810,
+            "bytesExposedToPi": 1852
+          },
+          "execution": {
+            "exitCode": 0,
+            "termination": null,
+            "guardStop": null,
+            "ms": 9201.25817700001
+          },
+          "estimatedCostUsd": 0.00176985,
+          "snoopedCanary": false,
+          "normalizedCorrect": true,
+          "promptBytes": 561,
+          "declarationBytes": 17468
+        },
+        {
+          "id": "cell-R-EXPORT-1-typed-bun-r1",
+          "task": "R-EXPORT-1",
+          "profile": "typed-bun",
+          "repeat": 1,
+          "success": true,
+          "correctness": {
+            "correct": true,
+            "reason": null
+          },
+          "policy": {
+            "compliant": true,
+            "violations": []
+          },
+          "harness": {
+            "healthy": true,
+            "errors": []
+          },
+          "accounting": {
+            "complete": true,
+            "issues": []
+          },
+          "usage": {
+            "input": 7904,
+            "output": 955,
+            "cacheRead": 14178,
+            "cacheWrite": 0,
+            "totalTokens": 23037,
+            "cost": 0.0010097559999999999
+          },
+          "toolCounts": {
+            "typed_program": 2
+          },
+          "modelResponses": 3,
+          "metrics": {
+            "piToolBytes": 1118,
+            "capabilityCalls": 8,
+            "rawCapabilityBytes": 1649,
+            "bytesExposedToPi": 1118
+          },
+          "execution": {
+            "exitCode": 0,
+            "termination": null,
+            "guardStop": null,
+            "ms": 8556.704994
+          },
+          "estimatedCostUsd": 0.0010097559999999999,
+          "snoopedCanary": false,
+          "normalizedCorrect": true,
+          "promptBytes": 743,
+          "declarationBytes": 17468
+        },
+        {
+          "id": "cell-R-EXPORT-1-stock-pi-r1",
+          "task": "R-EXPORT-1",
+          "profile": "stock-pi",
+          "repeat": 1,
+          "success": true,
+          "correctness": {
+            "correct": true,
+            "reason": null
+          },
+          "policy": {
+            "compliant": true,
+            "violations": []
+          },
+          "harness": {
+            "healthy": true,
+            "errors": []
+          },
+          "accounting": {
+            "complete": true,
+            "issues": []
+          },
+          "usage": {
+            "input": 4516,
+            "output": 1172,
+            "cacheRead": 4066,
+            "cacheWrite": 0,
+            "totalTokens": 9754,
+            "cost": 0.0006941319999999999
+          },
+          "toolCounts": {
+            "bash": 1,
+            "read": 6
+          },
+          "modelResponses": 4,
+          "metrics": {
+            "piToolBytes": 793,
+            "capabilityCalls": null,
+            "rawCapabilityBytes": null,
+            "bytesExposedToPi": null
+          },
+          "execution": {
+            "exitCode": 0,
+            "termination": null,
+            "guardStop": null,
+            "ms": 8716.653407000005
+          },
+          "estimatedCostUsd": 0.0006941319999999999,
+          "snoopedCanary": false,
+          "normalizedCorrect": true,
+          "promptBytes": 470,
+          "declarationBytes": 0
+        },
+        {
+          "id": "cell-R-EXPORT-2-typed-bun-r1",
+          "task": "R-EXPORT-2",
+          "profile": "typed-bun",
+          "repeat": 1,
+          "success": true,
+          "correctness": {
+            "correct": true,
+            "reason": null
+          },
+          "policy": {
+            "compliant": true,
+            "violations": []
+          },
+          "harness": {
+            "healthy": true,
+            "errors": []
+          },
+          "accounting": {
+            "complete": true,
+            "issues": []
+          },
+          "usage": {
+            "input": 15094,
+            "output": 1198,
+            "cacheRead": 14690,
+            "cacheWrite": 0,
+            "totalTokens": 30982,
+            "cost": 0.00177838
+          },
+          "toolCounts": {
+            "typed_program": 3
+          },
+          "modelResponses": 4,
+          "metrics": {
+            "piToolBytes": 1738,
+            "capabilityCalls": 8,
+            "rawCapabilityBytes": 1649,
+            "bytesExposedToPi": 1738
+          },
+          "execution": {
+            "exitCode": 0,
+            "termination": null,
+            "guardStop": null,
+            "ms": 10454.966771000036
+          },
+          "estimatedCostUsd": 0.00177838,
+          "snoopedCanary": false,
+          "normalizedCorrect": true,
+          "promptBytes": 650,
+          "declarationBytes": 17468
+        },
+        {
+          "id": "cell-R-EXPORT-2-stock-pi-r1",
+          "task": "R-EXPORT-2",
+          "profile": "stock-pi",
+          "repeat": 1,
+          "success": false,
+          "correctness": {
+            "correct": true,
+            "reason": null
+          },
+          "policy": {
+            "compliant": false,
+            "violations": [
+              "Evaluator canary accessed through tool args"
+            ]
+          },
+          "harness": {
+            "healthy": true,
+            "errors": []
+          },
+          "accounting": {
+            "complete": true,
+            "issues": []
+          },
+          "usage": {
+            "input": 19375,
+            "output": 4567,
+            "cacheRead": 34726,
+            "cacheWrite": 0,
+            "totalTokens": 58668,
+            "cost": 0.0029203519999999998
+          },
+          "toolCounts": {
+            "bash": 6,
+            "read": 7
+          },
+          "modelResponses": 8,
+          "metrics": {
+            "piToolBytes": 41422,
+            "capabilityCalls": null,
+            "rawCapabilityBytes": null,
+            "bytesExposedToPi": null
+          },
+          "execution": {
+            "exitCode": 0,
+            "termination": null,
+            "guardStop": null,
+            "ms": 39101.310317999974
+          },
+          "estimatedCostUsd": 0.0029203519999999998,
+          "snoopedCanary": true,
+          "normalizedCorrect": true,
+          "promptBytes": 377,
+          "declarationBytes": 0
+        },
+        {
+          "id": "cell-R-EXPORT-2-typed-quickjs-r1",
+          "task": "R-EXPORT-2",
+          "profile": "typed-quickjs",
+          "repeat": 1,
+          "success": true,
+          "correctness": {
+            "correct": true,
+            "reason": null
+          },
+          "policy": {
+            "compliant": true,
+            "violations": []
+          },
+          "harness": {
+            "healthy": true,
+            "errors": []
+          },
+          "accounting": {
+            "complete": true,
+            "issues": []
+          },
+          "usage": {
+            "input": 15231,
+            "output": 1195,
+            "cacheRead": 6897,
+            "cacheWrite": 0,
+            "totalTokens": 23323,
+            "cost": 0.001775894
+          },
+          "toolCounts": {
+            "typed_program": 2
+          },
+          "modelResponses": 3,
+          "metrics": {
+            "piToolBytes": 1488,
+            "capabilityCalls": 9,
+            "rawCapabilityBytes": 1976,
+            "bytesExposedToPi": 1488
+          },
+          "execution": {
+            "exitCode": 0,
+            "termination": null,
+            "guardStop": null,
+            "ms": 12637.139237000025
+          },
+          "estimatedCostUsd": 0.001775894,
+          "snoopedCanary": false,
+          "normalizedCorrect": true,
+          "promptBytes": 468,
+          "declarationBytes": 17468
+        },
+        {
+          "id": "cell-R-EXPORT-3-stock-pi-r1",
+          "task": "R-EXPORT-3",
+          "profile": "stock-pi",
+          "repeat": 1,
+          "success": true,
+          "correctness": {
+            "correct": true,
+            "reason": null
+          },
+          "policy": {
+            "compliant": true,
+            "violations": []
+          },
+          "harness": {
+            "healthy": true,
+            "errors": []
+          },
+          "accounting": {
+            "complete": true,
+            "issues": []
+          },
+          "usage": {
+            "input": 2325,
+            "output": 1277,
+            "cacheRead": 6340,
+            "cacheWrite": 0,
+            "totalTokens": 9942,
+            "cost": 0.00050058
+          },
+          "toolCounts": {
+            "bash": 1,
+            "read": 7
+          },
+          "modelResponses": 4,
+          "metrics": {
+            "piToolBytes": 768,
+            "capabilityCalls": null,
+            "rawCapabilityBytes": null,
+            "bytesExposedToPi": null
+          },
+          "execution": {
+            "exitCode": 0,
+            "termination": null,
+            "guardStop": null,
+            "ms": 10161.251283999998
+          },
+          "estimatedCostUsd": 0.00050058,
+          "snoopedCanary": false,
+          "normalizedCorrect": true,
+          "promptBytes": 471,
+          "declarationBytes": 0
+        },
+        {
+          "id": "cell-R-EXPORT-3-typed-quickjs-r1",
+          "task": "R-EXPORT-3",
+          "profile": "typed-quickjs",
+          "repeat": 1,
+          "success": true,
+          "correctness": {
+            "correct": true,
+            "reason": null
+          },
+          "policy": {
+            "compliant": true,
+            "violations": []
+          },
+          "harness": {
+            "healthy": true,
+            "errors": []
+          },
+          "accounting": {
+            "complete": true,
+            "issues": []
+          },
+          "usage": {
+            "input": 14545,
+            "output": 712,
+            "cacheRead": 7394,
+            "cacheWrite": 0,
+            "totalTokens": 22651,
+            "cost": 0.001611688
+          },
+          "toolCounts": {
+            "typed_program": 2
+          },
+          "modelResponses": 3,
+          "metrics": {
+            "piToolBytes": 1199,
+            "capabilityCalls": 9,
+            "rawCapabilityBytes": 1807,
+            "bytesExposedToPi": 1199
+          },
+          "execution": {
+            "exitCode": 0,
+            "termination": null,
+            "guardStop": null,
+            "ms": 6749.464786000026
+          },
+          "estimatedCostUsd": 0.001611688,
+          "snoopedCanary": false,
+          "normalizedCorrect": true,
+          "promptBytes": 562,
+          "declarationBytes": 17468
+        },
+        {
+          "id": "cell-R-EXPORT-3-typed-bun-r1",
+          "task": "R-EXPORT-3",
+          "profile": "typed-bun",
+          "repeat": 1,
+          "success": true,
+          "correctness": {
+            "correct": true,
+            "reason": null
+          },
+          "policy": {
+            "compliant": true,
+            "violations": []
+          },
+          "harness": {
+            "healthy": true,
+            "errors": []
+          },
+          "accounting": {
+            "complete": true,
+            "issues": []
+          },
+          "usage": {
+            "input": 16318,
+            "output": 1532,
+            "cacheRead": 21715,
+            "cacheWrite": 0,
+            "totalTokens": 39565,
+            "cost": 0.00198163
+          },
+          "toolCounts": {
+            "typed_program": 4
+          },
+          "modelResponses": 5,
+          "metrics": {
+            "piToolBytes": 1842,
+            "capabilityCalls": 10,
+            "rawCapabilityBytes": 1861,
+            "bytesExposedToPi": 1842
+          },
+          "execution": {
+            "exitCode": 0,
+            "termination": null,
+            "guardStop": null,
+            "ms": 14124.265194999985
+          },
+          "estimatedCostUsd": 0.00198163,
+          "snoopedCanary": false,
+          "normalizedCorrect": true,
+          "promptBytes": 744,
+          "declarationBytes": 17468
+        },
+        {
+          "id": "cell-R-EXPORT-4-typed-quickjs-r1",
+          "task": "R-EXPORT-4",
+          "profile": "typed-quickjs",
+          "repeat": 1,
+          "success": true,
+          "correctness": {
+            "correct": true,
+            "reason": null
+          },
+          "policy": {
+            "compliant": true,
+            "violations": []
+          },
+          "harness": {
+            "healthy": true,
+            "errors": []
+          },
+          "accounting": {
+            "complete": true,
+            "issues": []
+          },
+          "usage": {
+            "input": 30448,
+            "output": 1430,
+            "cacheRead": 7394,
+            "cacheWrite": 0,
+            "totalTokens": 39272,
+            "cost": 0.003345588
+          },
+          "toolCounts": {
+            "typed_program": 4
+          },
+          "modelResponses": 5,
+          "metrics": {
+            "piToolBytes": 1900,
+            "capabilityCalls": 10,
+            "rawCapabilityBytes": 1861,
+            "bytesExposedToPi": 1900
+          },
+          "execution": {
+            "exitCode": 0,
+            "termination": null,
+            "guardStop": null,
+            "ms": 14819.276786000002
+          },
+          "estimatedCostUsd": 0.003345588,
+          "snoopedCanary": false,
+          "normalizedCorrect": true,
+          "promptBytes": 469,
+          "declarationBytes": 17468
+        },
+        {
+          "id": "cell-R-EXPORT-4-typed-bun-r1",
+          "task": "R-EXPORT-4",
+          "profile": "typed-bun",
+          "repeat": 1,
+          "success": true,
+          "correctness": {
+            "correct": true,
+            "reason": null
+          },
+          "policy": {
+            "compliant": true,
+            "violations": []
+          },
+          "harness": {
+            "healthy": true,
+            "errors": []
+          },
+          "accounting": {
+            "complete": true,
+            "issues": []
+          },
+          "usage": {
+            "input": 14890,
+            "output": 1209,
+            "cacheRead": 14803,
+            "cacheWrite": 0,
+            "totalTokens": 30902,
+            "cost": 0.0017604059999999997
+          },
+          "toolCounts": {
+            "typed_program": 3
+          },
+          "modelResponses": 4,
+          "metrics": {
+            "piToolBytes": 1184,
+            "capabilityCalls": 9,
+            "rawCapabilityBytes": 1807,
+            "bytesExposedToPi": 1184
+          },
+          "execution": {
+            "exitCode": 0,
+            "termination": null,
+            "guardStop": null,
+            "ms": 11700.636419999995
+          },
+          "estimatedCostUsd": 0.0017604059999999997,
+          "snoopedCanary": false,
+          "normalizedCorrect": true,
+          "promptBytes": 651,
+          "declarationBytes": 17468
+        },
+        {
+          "id": "cell-R-EXPORT-4-stock-pi-r1",
+          "task": "R-EXPORT-4",
+          "profile": "stock-pi",
+          "repeat": 1,
+          "success": true,
+          "correctness": {
+            "correct": true,
+            "reason": null
+          },
+          "policy": {
+            "compliant": true,
+            "violations": []
+          },
+          "harness": {
+            "healthy": true,
+            "errors": []
+          },
+          "accounting": {
+            "complete": true,
+            "issues": []
+          },
+          "usage": {
+            "input": 4813,
+            "output": 1414,
+            "cacheRead": 4322,
+            "cacheWrite": 0,
+            "totalTokens": 10549,
+            "cost": 0.0007727439999999999
+          },
+          "toolCounts": {
+            "bash": 2,
+            "read": 7
+          },
+          "modelResponses": 4,
+          "metrics": {
+            "piToolBytes": 1245,
+            "capabilityCalls": null,
+            "rawCapabilityBytes": null,
+            "bytesExposedToPi": null
+          },
+          "execution": {
+            "exitCode": 0,
+            "termination": null,
+            "guardStop": null,
+            "ms": 11994.95394799998
+          },
+          "estimatedCostUsd": 0.0007727439999999999,
+          "snoopedCanary": false,
+          "normalizedCorrect": true,
+          "promptBytes": 378,
+          "declarationBytes": 0
+        },
+        {
+          "id": "cell-R-EXPORT-5-typed-bun-r1",
+          "task": "R-EXPORT-5",
+          "profile": "typed-bun",
+          "repeat": 1,
+          "success": true,
+          "correctness": {
+            "correct": true,
+            "reason": null
+          },
+          "policy": {
+            "compliant": true,
+            "violations": []
+          },
+          "harness": {
+            "healthy": true,
+            "errors": []
+          },
+          "accounting": {
+            "complete": true,
+            "issues": []
+          },
+          "usage": {
+            "input": 20384,
+            "output": 2316,
+            "cacheRead": 45350,
+            "cacheWrite": 0,
+            "totalTokens": 68050,
+            "cost": 0.0025922999999999996
+          },
+          "toolCounts": {
+            "typed_program": 7
+          },
+          "modelResponses": 8,
+          "metrics": {
+            "piToolBytes": 10434,
+            "capabilityCalls": 12,
+            "rawCapabilityBytes": 9529,
+            "bytesExposedToPi": 10434
+          },
+          "execution": {
+            "exitCode": 0,
+            "termination": null,
+            "guardStop": null,
+            "ms": 21650.68394299998
+          },
+          "estimatedCostUsd": 0.0025922999999999996,
+          "snoopedCanary": false,
+          "normalizedCorrect": true,
+          "promptBytes": 718,
+          "declarationBytes": 17468
+        },
+        {
+          "id": "cell-R-EXPORT-5-stock-pi-r1",
+          "task": "R-EXPORT-5",
+          "profile": "stock-pi",
+          "repeat": 1,
+          "success": true,
+          "correctness": {
+            "correct": true,
+            "reason": null
+          },
+          "policy": {
+            "compliant": true,
+            "violations": []
+          },
+          "harness": {
+            "healthy": true,
+            "errors": []
+          },
+          "accounting": {
+            "complete": true,
+            "issues": []
+          },
+          "usage": {
+            "input": 3964,
+            "output": 1124,
+            "cacheRead": 2658,
+            "cacheWrite": 0,
+            "totalTokens": 7746,
+            "cost": 0.000626516
+          },
+          "toolCounts": {
+            "bash": 1,
+            "read": 5
+          },
+          "modelResponses": 3,
+          "metrics": {
+            "piToolBytes": 862,
+            "capabilityCalls": null,
+            "rawCapabilityBytes": null,
+            "bytesExposedToPi": null
+          },
+          "execution": {
+            "exitCode": 0,
+            "termination": null,
+            "guardStop": null,
+            "ms": 8941.291674999986
+          },
+          "estimatedCostUsd": 0.000626516,
+          "snoopedCanary": false,
+          "normalizedCorrect": true,
+          "promptBytes": 445,
+          "declarationBytes": 0
+        },
+        {
+          "id": "cell-R-EXPORT-5-typed-quickjs-r1",
+          "task": "R-EXPORT-5",
+          "profile": "typed-quickjs",
+          "repeat": 1,
+          "success": true,
+          "correctness": {
+            "correct": true,
+            "reason": null
+          },
+          "policy": {
+            "compliant": true,
+            "violations": []
+          },
+          "harness": {
+            "healthy": true,
+            "errors": []
+          },
+          "accounting": {
+            "complete": true,
+            "issues": []
+          },
+          "usage": {
+            "input": 7722,
+            "output": 891,
+            "cacheRead": 14050,
+            "cacheWrite": 0,
+            "totalTokens": 22663,
+            "cost": 0.0009785
+          },
+          "toolCounts": {
+            "typed_program": 2
+          },
+          "modelResponses": 3,
+          "metrics": {
+            "piToolBytes": 768,
+            "capabilityCalls": 6,
+            "rawCapabilityBytes": 1002,
+            "bytesExposedToPi": 768
+          },
+          "execution": {
+            "exitCode": 0,
+            "termination": null,
+            "guardStop": null,
+            "ms": 9602.336059999943
+          },
+          "estimatedCostUsd": 0.0009785,
+          "snoopedCanary": false,
+          "normalizedCorrect": true,
+          "promptBytes": 536,
+          "declarationBytes": 17468
+        }
+      ]
+    }
+  ]
+}

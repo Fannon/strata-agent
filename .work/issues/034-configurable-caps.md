@@ -1,6 +1,6 @@
-# 034 — Operator-configurableCaps for result, logs, and tool text
+# 034 — Operator-configurable caps for result, logs, and tool text
 
-Status: backlog, ready (small slice, follows 031)
+Status: deferred pending measured cap failures or operator requirement; follows 031
 Kind: configurability follow-up
 Source: user discussion 2026-09-06 — current caps are reasonable guesses, not science.
 
@@ -21,8 +21,7 @@ a large-context analysis task may justify more.
 
 Move all three into operator configuration (session options with env/config
 defaults, e.g. `STRATA_RESULT_CHARS`, `STRATA_LOG_BYTES`,
-`STRATA_TOOL_BYTES`), validated at session startup (positive integers, tool
-budget ≥ result + log budgets, hard ceiling to prevent context flooding).
+`STRATA_TOOL_BYTES`), validated at session startup (positive integers and explicit per-field ceilings. Result chars and log/tool UTF-8 bytes are different units: never sum them directly. Enforce serialized output bytes including JSON/envelope overhead at runtime; quiet success excludes logs, while error/details have separate shapes).
 Record effective caps in the run manifest and per-cell artifacts so trials
 stay reproducible.
 

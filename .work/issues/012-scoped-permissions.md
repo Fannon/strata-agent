@@ -1,6 +1,6 @@
 # 012 — Authorize concrete effects and filesystem resources
 
-Status: ready (design documented, implementation not started)
+Status: Phase A best-effort repository reads delivered; interactive/stronger grants remain backlog
 Kind: policy contract and staged enforcement
 Source: user question about function/parameter permissions replacing shell permissions.
 Dependencies: existing broker; read subset precedes 011, mutation/approval subset precedes 015.

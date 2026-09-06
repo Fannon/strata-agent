@@ -1,9 +1,13 @@
 # 009 — Baseline hardening: variance, warm sessions, wider tasks
 
-Status: backlog for native evaluation; deterministic Slice A complete in 1513917 (2026-09-05)
+Status: fixture hardening and initial repo-2 trials delivered; independent confirmation remains open
 Kind: benchmark follow-up to [001](001-benchmark.md)
 Source: baseline analysis 2026-09-05 (assistant)
 Dependencies: [001](001-benchmark.md) baseline (done); T3 rewording pairs with [004](004-harness-tuning.md).
+
+## Current decision
+
+028 delivered repository runner integration and four trial stages; [reviewed evidence](../../docs/repo-trials.md) separates exact answers, audit failures and accounting. Current priority is 004 context-cost attribution, then independent confirmation with new task material. The stages/checklists below preserve the original plan, not instructions to rebuild delivered work. No hardened evaluator isolation or paid fixture-v2 campaign is implied by the repo-2 results.
 
 ## Confirmed observations (baseline `baseline-2026-09-05T08-37-15Z`, n=1/cell)
 
@@ -37,7 +41,7 @@ Delivered code: `examples/benchmark.ts` plus `examples/benchmark/{protocol,confi
 
 Verification: typecheck and full 53-test suite pass, including real Pi against a local fake provider; additional typed recovery case confirms actual compile rejection then successful execution. No paid run. Three initial support files were included in concurrent commit 316cb28; 1513917 completes/integrates the repair without rewriting shared history. Budget reservations are deliberately conservative and assume provider limits/pricing compliance; they are not billing reconciliation or a shell security boundary.
 
-Next: follow [020](020-next-sequence.md). Mechanical strict profiles/native tasks remain Slice B. Do not rerun the full synthetic matrix merely to postpone testing useful repository behavior. Small seeded repetitions are still needed before interpreting success rates.
+Historical next step was [020](020-next-sequence.md); that sequence and initial Slice B trials are now delivered. Do not rerun the full synthetic matrix merely to postpone testing useful repository behavior. Small seeded repetitions are still needed before interpreting success rates.
 
 ### Slice B: useful native tasks and strict profiles
 
@@ -53,6 +57,13 @@ Current follow-through: [028](028-harder-repository-tasks.md) owns the next task
 ### Slice C: decision
 
 Apply frozen success margin and practical cost/latency threshold from the evaluation plan. Allow bounded 004 tuning, then continue/narrow/pivot/stop. Prime comparison is 014, discovery D conditional. Do not grow the adapter catalog to avoid an unfavorable result.
+
+## Evidence-quality follow-ups (before stronger claims)
+
+- [ ] Reconcile estimated cost with available provider/account usage, recording timing/cache/rate caveats. Account-global deltas are not per-cell invoices; do not overwrite historical estimates.
+- [ ] Review audit-flag evidence and define false-positive/negative handling for future protocols; a tool-argument match is not proof of file I/O. Preserve old policy verdicts alongside exact correctness.
+- [ ] Add precise model-response/request versus Pi-call counts to summaries. Same-surface declaration ablation belongs to 004; old held-out task instances are now regression material.
+- [ ] Reproducibility manifest improvement: record actual selected task instances, fixture hashes and all backend versions. A source commit plus a whole-corpus definition list is useful provenance but not a complete environment snapshot.
 
 ## Dependencies and open decisions
 

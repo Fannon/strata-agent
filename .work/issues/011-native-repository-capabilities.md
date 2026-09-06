@@ -1,9 +1,13 @@
 # 011 — Typed repository orientation without model-authored shell
 
-Status: ready after prerequisites
+Status: read-only usability slice delivered; further coverage conditional (reviewed 2026-09-06)
 Kind: contract design and implementation
 Source: user's package/tree/work-board/Git inspection example.
 Dependencies: 012 read policy, 016 cancellation; selected 005/007 caps included. 013 may refine priorities but is optional.
+
+## Current scope (supersedes historical slice checklist below)
+
+Delivered: line-range reads, filtered literal search and narrowing hints, bounded listing, status, history with changed paths, staged/unstaged diffs and historical file reads; four reference workflows run on both engines. See `src/capabilities/repo/connector.ts` and [handoff](../../docs/handoff.md). Repo-2 trial implementation is delivered under 028. Remaining stat/tail/regex/list-glob/commit-range-diff/edit/check needs must be justified by actual workflows; there is no outstanding mandate to add all of them. Historical pilot results below remain history, not current evaluator guarantees.
 
 ## Hypothesis
 
