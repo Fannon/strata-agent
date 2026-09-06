@@ -131,3 +131,20 @@ test("trial registry builds every task fixture offline", async () => {
   }
   await expect(buildTrialFixture("NOPE", tmpdir())).rejects.toThrow("Unknown trial task");
 });
+
+test("dual ledger deducts reported actuals, falls back to reservations", async () => {
+  const { cellCharge } = await import("../../examples/repo-protocol.ts");
+  const usage = { input: 100, output: 50, cacheRead: 0, cacheWrite: 0, totalTokens: 150, cost: 0.00002 };
+  const complete = cellCharge(usage, 2, 0.1056768, 0);
+  expect(complete.actual).toBeCloseTo(0.00002, 8);
+  expect(complete.reserved).toBeCloseTo(0.2113536, 8);
+  expect(complete.charged).toBe(complete.actual);
+  const withFee = cellCharge(usage, 2, 0.1056768, 0.001);
+  expect(withFee.actual).toBeCloseTo(0.00202, 8);
+  const missing = cellCharge({ ...usage, input: null, output: null, cacheRead: null,
+    cacheWrite: null, totalTokens: null, cost: null }, 2, 0.1056768, 0);
+  expect(missing.actual).toBeNull();
+  expect(missing.charged).toBe(missing.reserved);
+  const idle = cellCharge(usage, 0, 0.1056768, 0);
+  expect(idle.charged).toBe(usage.cost);
+});

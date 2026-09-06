@@ -24,7 +24,7 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { reserve, priceModel, type Budget } from "./benchmark/config.ts";
 import { assess, record } from "./benchmark/protocol.ts";
-import { PROFILES, planCells, repoPolicy, snoopedCanary, trialTasks, buildTrialFixture, type RepoProfile } from "./repo-protocol.ts";
+import { PROFILES, planCells, repoPolicy, snoopedCanary, trialTasks, buildTrialFixture, cellCharge, type RepoProfile } from "./repo-protocol.ts";
 import { capture } from "./benchmark/process.ts";
 import type { GuardConfig } from "./benchmark/guard.ts";
 import { connectRepo } from "../src/capabilities/repo/connector.ts";
@@ -94,6 +94,28 @@ const engineOf = (profile: Profile) =>
 // Counterbalanced profile order within each task block across repeats.
 const cells = planCells(tasks, profiles as Profile[], REPEATS);
 
+// Budget model: dual ledger. Admission control stays worst-case (the guard
+// reserves full-context catalog prices per request, so no single request can
+// exceed what remains). Cap accounting deducts REPORTED actuals per
+// completed cell (summed message usage costs + fixed request fees) and falls
+// back to the reservation only when usage is missing — hidden usage can
+// never silently cost zero. Rationale: OpenRouter returns per-request token
+// usage, not billed cost; Pi multiplies by catalog rates into usage.cost, so
+// actuals are estimates, while per-request ground truth would need generation
+// IDs Pi does not surface. Key-level reconciliation (cumulative credits,
+// account-global) is recorded start/end for reporting, never enforcement.
+async function keyUsage(): Promise<number | null> {
+  try {
+    const response = await fetch("https://openrouter.ai/api/v1/auth/key",
+      { headers: { Authorization: `Bearer ${key}` }, signal: AbortSignal.timeout(15000) });
+    const body: unknown = await response.json();
+    const used = record(body) && record(body.data) ? (body.data as Record<string, unknown>).usage : undefined;
+    return typeof used === "number" ? used : null;
+  } catch {
+    return null;
+  }
+}
+
 if (!LIVE) {
   console.log(
     JSON.stringify({ protocol, artifactVersion, note: "Offline dry run: no files, network or model calls. Live mode requires --run and --max-cost-usd.", cells }, null, 2),
@@ -138,11 +160,17 @@ try {
       maxOutputTokens: MAX_OUTPUT_TOKENS, maxCellTokens: MAX_CELL_TOKENS, maxCostUsd },
     isolation: ISOLATION, externalRestrictions: "none (same for all profiles); typed profiles additionally run under STRATA_STRICT=1" });
   await writeFile(join(outDir, "declarations.d.ts"), declarations);
-  let reservedCostUsd = 0;
-  const persist = async () => save("results.json", { protocol, artifactVersion, model: MODEL, reservedCostUsd, cells: results });
+  // Dual ledger: admission stays worst-case (guard reservations), while the
+  // cap deducts reported actuals per completed cell and falls back to the
+  // reservation only when usage is missing. Key-level reconciliation below
+  // is report-only (account-global) and never enforcement.
+  const keyUsageStart = await keyUsage();
+  let spentLedger = 0;
+  let reservedTotal = 0;
+  const persist = async () => save("results.json", { protocol, artifactVersion, model: MODEL, spentLedger, reservedTotal, keyUsageStart, cells: results });
   for (const cell of cells) {
     const task = trialTasks.find((t) => t.id === cell.task)!;
-    const budget: Budget = { maxRequests: MAX_REQUESTS, maxTokens: MAX_CELL_TOKENS, maxCostUsd: maxCostUsd! - reservedCostUsd, requestTokens, requestCostUsd };
+    const budget: Budget = { maxRequests: MAX_REQUESTS, maxTokens: MAX_CELL_TOKENS, maxCostUsd: maxCostUsd! - spentLedger, requestTokens, requestCostUsd };
     const skip = reserve(budget, 0);
     if (skip) {
       results.push({ ...cell, status: "not_run", reason: skip });
@@ -194,7 +222,6 @@ try {
       }
       requests = receipts.length;
     } catch (error) { if ((error as NodeJS.ErrnoException).code !== "ENOENT") throw error; }
-    reservedCostUsd += requests * requestCostUsd;
     const termination = processResult.exitCode === 78 ? "guard" as const : processResult.termination;
     let guardStop: unknown = null;
     if (termination === "guard") {
@@ -215,24 +242,32 @@ try {
       assessment.policy.violations.push("Evaluator canary accessed through tool args");
       assessment.success = false;
     }
+    const charge = cellCharge(assessment.usage, requests, requestCostUsd, rates.request);
+    spentLedger += charge.charged;
+    reservedTotal += charge.reserved;
     const result = { ...cell, status: "attempted", engine: engineOf(cell.profile),
       strict: cell.profile !== "stock-pi", containment: "none — cooperative diagnostics",
       attempt: 1, ...assessment,
       execution: { exitCode: processResult.exitCode, termination, guardStop, ms: processResult.ms },
       estimatedCostUsd: assessment.usage.cost === null ? null : assessment.usage.cost + requests * rates.request,
       reservation: { requests, tokens: requests * requestTokens, costUsd: requests * requestCostUsd },
+      charge,
       snoopedCanary: snooped,
       promptBytes: Buffer.byteLength(prompt),
       declarationBytes: cell.profile === "stock-pi" ? 0 : Buffer.byteLength(declarations) };
     results.push(result);
     await save(`${cell.id}.json`, result);
     await persist();
-    console.log(`${cell.id}: success=${assessment.success} healthy=${assessment.harness.healthy} usageComplete=${assessment.accounting.complete} snooped=${snooped}`);
+    console.log(`${cell.id}: success=${assessment.success} healthy=${assessment.harness.healthy} usageComplete=${assessment.accounting.complete} snooped=${snooped} charged=$${charge.charged.toFixed(4)}${charge.actual === null ? " (reservation fallback)" : ""}`);
     if (unreserved) throw new Error("Stopping run: guard request accounting failed");
   }
   // Incorrect answers are data; incomplete execution/accounting/adherence invalidates a comparison run.
   if (results.some((r) => (r as Record<string, unknown>).status !== "attempted" || !record((r as Record<string, unknown>).harness) || !((r as Record<string, unknown>).harness as Record<string, unknown>).healthy || !record((r as Record<string, unknown>).accounting) || !((r as Record<string, unknown>).accounting as Record<string, unknown>).complete || !record((r as Record<string, unknown>).policy) || !((r as Record<string, unknown>).policy as Record<string, unknown>).compliant)) process.exitCode = 1;
   console.log(`Results: ${join(outDir, "results.json")}`);
+  const keyUsageEnd = await keyUsage();
+  await save("results.json", { protocol, artifactVersion, model: MODEL, spentLedger, reservedTotal, keyUsageStart, keyUsageEnd,
+    keyDeltaNote: "key usage is account-global (includes any concurrent usage outside this run), for reconciliation only", cells: results });
+  console.log(`Ledger: $${spentLedger.toFixed(4)} actual-or-fallback of $${maxCostUsd} cap; key credits ${keyUsageStart ?? "?"} → ${keyUsageEnd ?? "?"}`);
 } catch (error) {
   await save("failure.json", { error: error instanceof Error ? error.message : String(error) });
   throw error;

@@ -6,6 +6,7 @@ import { mkdir, writeFile } from "node:fs/promises";
 import { REXPORT_TASKS, buildRexportFixture } from "./repo-tasks/rexport.ts";
 import { RLOG_TASKS, buildRlogFixture } from "./repo-tasks/rlog.ts";
 import { RLOC_TASKS, buildRlocFixture } from "./repo-tasks/rloc.ts";
+import type { Usage } from "./benchmark/protocol.ts";
 import { record, type AssessPolicy } from "./benchmark/protocol.ts";
 import { auditToolArgs } from "./benchmark/audit.ts";
 
@@ -62,6 +63,18 @@ export function repoPolicy(profile: RepoProfile, expected: unknown): AssessPolic
     recoveryRequired: false,
     noToolsViolation: "No tool use observed",
   };
+}
+
+/** Dual-ledger cell charge (see header note in repo-pilot.ts).
+ * OpenRouter reports per-request tokens, not billed cost; Pi multiplies by
+ * catalog rates into usage.cost. When the trace accounting is complete we
+ * deduct the reported actuals; when usage is missing we fall back to the
+ * worst-case reservation so hidden usage can never silently cost zero. */
+export interface CellCharge { actual: number | null; reserved: number; charged: number }
+export function cellCharge(usage: Usage, requests: number, requestCostUsd: number, requestFee: number): CellCharge {
+  const reserved = requests * requestCostUsd;
+  const actual = usage.cost === null ? null : usage.cost + requests * requestFee;
+  return { actual, reserved, charged: actual ?? reserved };
 }
 
 /** Detect evaluator-material access: any tool-call argument referencing the
