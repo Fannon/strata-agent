@@ -104,7 +104,7 @@ test("rlog oracle recomputed independently from fixture files", async () => {
 test("rloc oracle locations and decoys verified against source", async () => {
   for (let i = 0; i < RLOC_TASKS.length; i++) {
     const task = RLOC_TASKS[i]!;
-    const files = await buildRlocFixture(dir, i as 0 | 1);
+    const files = await buildRlocFixture(dir, i);
     const lines = files[task.expected.path]!.split("\n");
     expect(lines[task.expected.line - 1]!.trim()).toBe(task.expected.definition);
     // Same-name traps exist but resolve elsewhere or out of scope.

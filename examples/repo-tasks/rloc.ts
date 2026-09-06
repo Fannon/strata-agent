@@ -25,6 +25,8 @@ import type { ExecutorKind } from "../../src/runtime/executor.ts";
 export interface RlocTask {
   id: string;
   ask: string;
+  /** Index into FIXTURES below. */
+  fixture: number;
   expected: { path: string; name: string; line: number; definition: string };
 }
 
@@ -90,6 +92,7 @@ export const RLOC_TASKS: RlocTask[] = [
   {
     id: "R-LOC-1",
     ask: "Takes a user record and returns a one-line display string, shortening names longer than 12 characters. Report exactly {\"path\" (defining file repo-relative), \"name\" (function name), \"line\" (1-based definition line), \"definition\" (the full definition line, trimmed)}.",
+    fixture: 0,
     expected: {
       path: "src/users.ts",
       name: "formatUser",
@@ -100,6 +103,7 @@ export const RLOC_TASKS: RlocTask[] = [
   {
     id: "R-LOC-2",
     ask: "Runs an async operation again with growing delays when it fails, giving up after a fixed number of attempts. Report exactly {\"path\" (defining file repo-relative), \"name\" (function name), \"line\" (1-based definition line), \"definition\" (the full definition line, trimmed)}.",
+    fixture: 1,
     expected: {
       path: "lib/retry.ts",
       name: "withRetry",
@@ -107,12 +111,83 @@ export const RLOC_TASKS: RlocTask[] = [
       definition: "export async function withRetry<T>(fn: () => Promise<T>, opts: RetryOpts): Promise<T> {",
     },
   },
+  {
+    id: "R-LOC-3",
+    ask: "Checks whether a string looks like an email address, returning true only when it has exactly one @ with text on both sides and a dot in the domain part. Report exactly {\"path\" (defining file repo-relative), \"name\" (function name), \"line\" (1-based definition line), \"definition\" (the full definition line, trimmed)}.",
+    fixture: 2,
+    expected: {
+      path: "src/validate.ts",
+      name: "isEmail",
+      line: 4,
+      definition: "export function isEmail(addr: string): boolean {",
+    },
+  },
+  {
+    id: "R-LOC-4",
+    ask: "Computes the final price of a shopping cart by adding tax to the subtotal. Report exactly {\"path\" (defining file repo-relative), \"name\" (function name), \"line\" (1-based definition line), \"definition\" (the full definition line, trimmed)}.",
+    fixture: 3,
+    expected: {
+      path: "shop/cart.ts",
+      name: "cartTotal",
+      line: 4,
+      definition: "export function cartTotal(items: CartItem[], taxRate: number): number {",
+    },
+  },
 ];
 
-const FIXTURES = [LOC_1, LOC_2];
+// Instance 3: email check. Target isEmail; traps are isEmailLike (name
+// trap), a test-local isEmail (scope trap) and a comment repeating the
+// description.
+const LOC_3: Record<string, string> = {
+  "src/validate.ts":
+    'import type { Contact } from "./models.js";\n' +
+    "\n" +
+    "// Validation helpers shared by forms.\n" +
+    "export function isEmail(addr: string): boolean {\n" +
+    "  return /^[^@\\s]+@[^@\\s]+\\.[^@\\s]+$/.test(addr);\n" +
+    "}\n",
+  "src/validateLike.ts":
+    "export function isEmailLike(addr: string): boolean {\n  return addr.includes(\"@\");\n}\n",
+  "src/models.ts": "export interface Contact {\n  email: string;\n}\n",
+  "test/validate.test.ts":
+    "// Checks the address looks like an email.\n" +
+    'import { isEmail } from "../src/validate.js";\n' +
+    "\n" +
+    "function isEmail(addr: string): boolean {\n  return true;\n}\n",
+};
+
+// Instance 4: cart total. Target cartTotal; traps are cartSubtotal (name
+// trap), a usage import (use trap), a test-local cartTotal (scope trap) and
+// a comment repeating the description.
+const LOC_4: Record<string, string> = {
+  "shop/cart.ts":
+    'import type { CartItem } from "./item.js";\n' +
+    'import { subtotal } from "./money.js";\n' +
+    "\n" +
+    "export function cartTotal(items: CartItem[], taxRate: number): number {\n" +
+    "  return subtotal(items) * (1 + taxRate);\n" +
+    "}\n",
+  "shop/money.ts":
+    'import type { CartItem } from "./item.js";\n' +
+    "\n" +
+    "export function subtotal(items: CartItem[]): number {\n  return 0;\n}\n" +
+    "export function cartSubtotal(items: CartItem[]): number {\n  return subtotal(items);\n}\n",
+  "shop/item.ts": "export interface CartItem {\n  price: number;\n}\n",
+  "shop/checkout.ts":
+    'import { cartTotal } from "./cart.js";\n' +
+    "\n" +
+    "export function checkoutTotal(items: never[]): number {\n  return cartTotal(items, 0.2);\n}\n",
+  "test/cart.test.ts":
+    "// Adds tax to the cart subtotal for snapshots.\n" +
+    'import { cartTotal } from "../shop/cart.js";\n' +
+    "\n" +
+    "function cartTotal(items: unknown): number {\n  return 0;\n}\n",
+};
+
+const FIXTURES = [LOC_1, LOC_2, LOC_3, LOC_4];
 
 /** Write one instance fixture into an existing directory. */
-export async function buildRlocFixture(dir: string, instance: 0 | 1): Promise<Record<string, string>> {
+export async function buildRlocFixture(dir: string, instance: number): Promise<Record<string, string>> {
   const files = FIXTURES[instance]!;
   for (const [name, content] of Object.entries(files)) {
     const full = join(dir, name);
@@ -123,7 +198,7 @@ export async function buildRlocFixture(dir: string, instance: 0 | 1): Promise<Re
 }
 
 // Human-written reference compositions (kept out of candidate prompts).
-// Each searches abehavioral keyword, reads the candidates, and returns the
+// Each searches a behavioral keyword, reads the candidates, and returns the
 // definition line that exactly declares the target symbol outside test dirs.
 const REFERENCES = [
   `import { api } from '@c/repo';
@@ -152,9 +227,35 @@ const REFERENCES = [
      const pick = defs[0]!;
      return { path: pick.path, name: "withRetry", line: pick.line, definition: pick.text };
    }`,
+  `import { api } from '@c/repo';
+   export async function main() {
+     const found = await api.searchText({ pattern: "isEmail" });
+     const defs = [];
+     for (const m of found.matches) {
+       if (m.path.startsWith("test/")) continue;
+       const src = (await api.readText({ path: m.path, fromLine: m.line, maxLines: 1 })).content;
+       if (new RegExp("export function " + "isEmail" + "\\\\(").test(src)) defs.push({ path: m.path, line: m.line, text: src });
+     }
+     const pick = defs.find((d) => d.text.includes("(addr: string)")) ?? defs[0];
+     if (!pick) throw new Error("no definition found");
+     return { path: pick.path, name: "isEmail", line: pick.line, definition: pick.text };
+   }`,
+  `import { api } from '@c/repo';
+   export async function main() {
+     const found = await api.searchText({ pattern: "cartTotal" });
+     const defs = [];
+     for (const m of found.matches) {
+       if (m.path.startsWith("test/")) continue;
+       if (!m.text.startsWith("export function cartTotal(")) continue;
+       defs.push({ path: m.path, line: m.line, text: m.text });
+     }
+     if (defs.length !== 1) throw new Error("ambiguous: " + defs.length);
+     const pick = defs[0]!;
+     return { path: pick.path, name: "cartTotal", line: pick.line, definition: pick.text };
+   }`,
 ];
 
-async function runReference(dir: string, engine: ExecutorKind, instance: 0 | 1) {
+async function runReference(dir: string, engine: ExecutorKind, instance: number) {
   const { manifest, connector } = await connectRepo({ root: dir });
   const session = await createSession(
     manifest,
@@ -174,18 +275,17 @@ async function runReference(dir: string, engine: ExecutorKind, instance: 0 | 1) 
 if (import.meta.main) {
   const dir = await mkdtemp(join(tmpdir(), "strata-rloc-"));
   try {
-    for (let i = 0; i < RLOC_TASKS.length; i++) {
-      const task = RLOC_TASKS[i]!;
-      await buildRlocFixture(dir, i as 0 | 1);
-      const quick = await runReference(dir, "quickjs", i as 0 | 1);
-      const bun = await runReference(dir, "bun", i as 0 | 1);
+    for (const task of RLOC_TASKS) {
+      await buildRlocFixture(dir, task.fixture);
+      const quick = await runReference(dir, "quickjs", task.fixture);
+      const bun = await runReference(dir, "bun", task.fixture);
       if (!isDeepStrictEqual(quick, bun))
         throw new Error(`${task.id}: engines disagree:\n${JSON.stringify({ quick, bun }, null, 2)}`);
       if (!isDeepStrictEqual(quick, task.expected))
         throw new Error(`${task.id}: unexpected answer:\n${JSON.stringify(quick, null, 2)}`);
       console.log(`ok ${task.id} (engines agree, oracle matched)`);
       const { rm: rmDir } = await import("node:fs/promises");
-      for (const name of Object.keys(FIXTURES[i]!)) await rmDir(join(dir, name), { force: true });
+      for (const name of Object.keys(FIXTURES[task.fixture]!)) await rmDir(join(dir, name), { force: true });
     }
   } finally {
     await rm(dir, { recursive: true, force: true });
