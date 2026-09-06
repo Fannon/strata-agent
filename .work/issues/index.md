@@ -31,7 +31,7 @@ Statuses: `backlog`, `research`, `ready`, `in-progress`, `blocked`, `done`, `def
 
 ## Conditional work
 
-New follow-ups: [026 — Correlated observability](026-observability.md) minimal slice delivered (trace v1, JSONL sink, summary example; overhead measured with 027); [027 — Replaceable executor and direct Bun comparison](027-permission-aware-runtime-alternatives.md) implementation + deterministic comparison delivered (see [docs/executors.md](../../docs/executors.md)); 2026-09-06 model trial 27/27 ($0.0117) confirmed engines don't affect outcomes on easy tasks; [028 — Harder repository tasks](028-harder-repository-tasks.md) proposed, awaiting review — no implementation authorized yet. Permission-aware functions extend 012; import checks alone are not an enforcement boundary. The ACD now records the critical assessment and hybrid-product possibility.
+New follow-ups: [026 — Correlated observability](026-observability.md) minimal slice delivered (trace v1, JSONL sink, summary example; overhead measured with 027); [027 — Replaceable executor and direct Bun comparison](027-permission-aware-runtime-alternatives.md) implementation + deterministic comparison delivered (see [docs/executors.md](../../docs/executors.md)); 2026-09-06 model trial reported 27/27 ($0.0117), feasibility evidence with runner limitations recorded in 028; [028 — Discriminating repository workflows](028-harder-repository-tasks.md) reviewed and ready for selection: evaluator hardening → licensed task contracts → necessary API gaps → bounded comparison; [benchmark research](../../docs/research/repository-benchmarks.md) covers FrontierHarness, RepoQA and Terminal-Bench. Permission-aware functions extend 012; import checks alone are not an enforcement boundary. The ACD now records the critical assessment and hybrid-product possibility.
 
 | Issue | Status | Trigger |
 | --- | --- | --- |
@@ -43,6 +43,7 @@ New follow-ups: [026 — Correlated observability](026-observability.md) minimal
 | [021 — Code Mode and semantic-checking ablation](021-code-mode-checking.md) | backlog | Research captured; reuse native tasks before controlled comparison |
 | [020 — Proposed next sequence](020-next-sequence.md) | backlog, awaiting selection | 016 done → 012 → 011 slice + strict pilot, with stop conditions |
 | [025 — Load/shutdown race](025-load-shutdown-race.md) | backlog | From 016; connector leak on load racing shutdown |
+| [029 — Policy-aware search](029-policy-aware-search.md) | backlog, ready (small) | Hide/mark not-allowed hits in search; load refusal stays authoritative |
 | [022 — `@c/` import alias](022-import-alias.md) | done | Dual-prefix support; `@c/` advertised, `@cap/` retained |
 | [023 — Library-backed capabilities](023-library-backed-capabilities.md) | backlog, informs 011/012 | Evaluate simple-git during the first Git slice; reuse suitable APIs and types, verify Bun compatibility and effect bounds |
 | [024 — Filesystem/search library candidates](024-filesystem-search-library-candidates.md) | backlog, informs 011/012/015 | Bun built-ins first; fast-glob/fs-extra only for demonstrated gaps or benefits; distinguish path discovery from content search |

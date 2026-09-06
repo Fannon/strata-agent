@@ -39,6 +39,8 @@ Next: follow [020](020-next-sequence.md). Mechanical strict profiles/native task
 
 ### Slice B: useful native tasks and strict profiles
 
+Current follow-through: [028](028-harder-repository-tasks.md) owns the next task corpus and adaptation of this runner to repository trials. Its source review found that the separate `repo-pilot.ts` bypasses several delivered safeguards (final-only/complete-run grading, pre-request reservations, bounded process handling and evaluator isolation). Repair those before further comparative spending. Keep descriptive profile/engine fields: pilot B means Bun, while fixture B means single-operation typing. Do not copy that ambiguity into a shared protocol.
+
 - [ ] Consume 011's seeded orientation/search/Git tasks; final oracles don't reuse adapter algorithms.
 - [ ] Enforce B/C active tools; instrument B's one-operation constraint. Allow A normal shell pipelines/scripts. Add hybrid separately.
 - [ ] Add denied/missing/invalid-output/recovery and cancellation cases with equivalent authority and independent effect counters. Keep unknown-output narrowing honest; don't add artificial untyped outputs merely to fill a matrix.

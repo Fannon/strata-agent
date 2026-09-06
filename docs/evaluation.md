@@ -39,6 +39,11 @@ Disable tool surfaces for C/B through Pi configuration/extension behavior; a pro
 
 ## Task corpus and grading
 
+The next repository-task selection is documented in [benchmark reuse research](research/repository-benchmarks.md) and local issue 028. Prefer a small mixed suite: adapted RepoQA function location, an original export-chain task, and an adapted Terminal-Bench date-range log aggregation task. Review task-specific licenses and pin artifacts before copying; modified tasks do not yield official benchmark scores. Freeze development/held-out instances before comparative runs. Perfect success can still reveal cost/latency differences; do not require failure or keep modifying held-out tasks until one occurs.
+
+The separate repository pilot needs the existing v2 runner safeguards before stronger claims: grade only a final completed answer, reject malformed/incomplete runs, reserve spend before requests, bound process/output handling and isolate expected answers from stock shell and ambient Bun access. A sibling answer file is not isolation. Historical pilot results retain their original evidential limits.
+
+
 Keep fixture tasks as inexpensive diagnostics. Use seeded repository snapshots, generated variations and independently computed answers for real workflows:
 
 1. Orientation: manifest, source/test trees, optional `.work` board, Git status and last commits, matching the motivating example.
