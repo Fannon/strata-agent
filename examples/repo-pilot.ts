@@ -24,10 +24,7 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { reserve, priceModel, type Budget } from "./benchmark/config.ts";
 import { assess, record } from "./benchmark/protocol.ts";
-import { PROFILES, planCells, repoPolicy, snoopedCanary, type RepoProfile } from "./repo-protocol.ts";
-import { REXPORT_TASKS, buildRexportFixture } from "./repo-tasks/rexport.ts";
-import { RLOG_TASKS, buildRlogFixture } from "./repo-tasks/rlog.ts";
-import { RLOC_TASKS, buildRlocFixture } from "./repo-tasks/rloc.ts";
+import { PROFILES, planCells, repoPolicy, snoopedCanary, trialTasks, buildTrialFixture, type RepoProfile } from "./repo-protocol.ts";
 import { capture } from "./benchmark/process.ts";
 import type { GuardConfig } from "./benchmark/guard.ts";
 import { connectRepo } from "../src/capabilities/repo/connector.ts";
@@ -48,8 +45,7 @@ for (const token of process.argv.slice(2)) {
     throw new Error(`Unknown option ${token} (old A/B/C/H letters were retired; use --profiles stock-pi,typed-quickjs,typed-bun)`);
 }
 type Profile = RepoProfile;
-const KNOWN_TASKS = ["T1", "T2", "T3",
-  ...REXPORT_TASKS.map((t) => t.id), ...RLOG_TASKS.map((t) => t.id), ...RLOC_TASKS.map((t) => t.id)];
+const KNOWN_TASKS = trialTasks.map((t) => t.id);
 // Default matrix is the six development instances (028 §3); T1–T3 stay as
 // opt-in diagnostics, held-out instances run only by explicit selection.
 const DEV_TASKS = ["R-EXPORT-1", "R-EXPORT-2", "R-LOG-1", "R-LOG-2", "R-LOC-1", "R-LOC-2"];
@@ -81,103 +77,6 @@ const stamp = new Date().toISOString().replace(/[:.]/g, "-");
 const outDir = OUT ?? `${root}.work/repo-pilot/${stamp}`;
 const key = process.env.OPENROUTER_API_KEY;
 
-interface Task {
-  id: string;
-  ask: string;
-  expected: unknown;
-}
-// Counterbalanced profile order within each task block across repeats.
-const cells = planCells(tasks, profiles as Profile[], REPEATS);
-
-const seedTasks: Task[] = [
-  {
-    id: "T1",
-    ask: 'Read package.json and report exactly {"name","version","testScript"} (scripts.test).',
-    expected: { name: "atlas", version: "2.4.1", testScript: "bun test" },
-  },
-  {
-    id: "T2",
-    ask: "Find the definition of the function named `greet`. Report exactly {\"path\" (repo-relative), \"line\" (1-based), \"signature\" (the full definition line, trimmed)}.",
-    expected: {
-      path: "src/main.ts",
-      line: 1,
-      signature: "export function greet(name: string) {",
-    },
-  },
-  {
-    id: "T3",
-    ask: "Report working-tree status exactly {\"branch\",\"staged\",\"unstaged\",\"untracked\"} with sorted arrays.",
-    expected: {
-      branch: "main",
-      staged: ["staged.txt"],
-      unstaged: ["src/main.ts"],
-      untracked: ["notes.txt"],
-    },
-  },
-];
-const seed = async (repo: string) => {
-  await mkdir(`${repo}/src`, { recursive: true });
-  await writeFile(
-    `${repo}/package.json`,
-    JSON.stringify(
-      { name: "atlas", version: "2.4.1", scripts: { test: "bun test" } },
-      null,
-      2,
-    ) + "\n",
-  );
-  await writeFile(
-    `${repo}/src/main.ts`,
-    "export function greet(name: string) {\n  return `hello ${name}`;\n}\n",
-  );
-  await writeFile(`${repo}/README.md`, "# atlas\n");
-  const git = (a: string[]) => {
-    const proc = Bun.spawnSync(["git", ...a], {
-      cwd: repo,
-      env: {
-        ...process.env,
-        GIT_AUTHOR_NAME: "t",
-        GIT_AUTHOR_EMAIL: "t@t",
-        GIT_COMMITTER_NAME: "t",
-        GIT_COMMITTER_EMAIL: "t@t",
-      },
-    });
-    if (proc.exitCode !== 0)
-      throw new Error(`git ${a.join(" ")}: ${proc.stderr.toString().slice(0, 200)}`);
-  };
-  git(["init", "-b", "main"]);
-  git(["add", "package.json", "src/main.ts", "README.md"]);
-  git(["commit", "-m", "initial"]);
-  await writeFile(`${repo}/staged.txt`, "staged\n");
-  git(["add", "staged.txt"]);
-  await writeFile(
-    `${repo}/src/main.ts`,
-    "export function greet(name: string) {\n  return `hello ${name}!`;\n}\n",
-  );
-  await writeFile(`${repo}/notes.txt`, "todo\n");
-  return repo;
-};
-
-interface TrialTask {
-  id: string;
-  ask: string;
-  expected: unknown;
-  build: (repo: string) => Promise<void>;
-}
-const trialTasks: TrialTask[] = [
-  ...seedTasks.map((t) => ({ ...t, build: async (repo: string) => { await seed(repo); } })),
-  ...REXPORT_TASKS.map((t) => ({
-    id: t.id, ask: t.ask, expected: t.expected,
-    build: async (repo: string) => void (await buildRexportFixture(repo, t.fixture)),
-  })),
-  ...RLOG_TASKS.map((t) => ({
-    id: t.id, ask: t.ask, expected: t.expected,
-    build: async (repo: string) => void (await buildRlogFixture(repo, t.fixture)),
-  })),
-  ...RLOC_TASKS.map((t) => ({
-    id: t.id, ask: t.ask, expected: t.expected,
-    build: async (repo: string) => void (await buildRlocFixture(repo, t.fixture)),
-  })),
-];
 
 const tooling: Record<Profile, string> = {
   "stock-pi": "Use the available file and shell tools (read, bash with cat/grep, git).",
@@ -188,6 +87,9 @@ const tooling: Record<Profile, string> = {
 };
 const engineOf = (profile: Profile) =>
   profile === "typed-bun" ? "bun" : profile === "typed-quickjs" ? "quickjs" : "n/a-stock";
+
+// Counterbalanced profile order within each task block across repeats.
+const cells = planCells(tasks, profiles as Profile[], REPEATS);
 
 if (!LIVE) {
   console.log(

@@ -107,3 +107,27 @@ test("repo cell planning counterbalances profiles and validates nothing silently
     "typed-quickjs,typed-bun,stock-pi,typed-bun,stock-pi,typed-quickjs",
   );
 });
+
+test("trial registry builds every task fixture offline", async () => {
+  const { buildTrialFixture, trialTasks } = await import("../../examples/repo-protocol.ts");
+  const { mkdtemp, rm } = await import("node:fs/promises");
+  const { tmpdir } = await import("node:os");
+  const { join } = await import("node:path");
+  expect(trialTasks.map((t) => t.id)).toEqual([
+    "T1", "T2", "T3",
+    "R-EXPORT-1", "R-EXPORT-2", "R-EXPORT-3", "R-EXPORT-4",
+    "R-LOG-1", "R-LOG-2", "R-LOG-3", "R-LOG-4",
+    "R-LOC-1", "R-LOC-2", "R-LOC-3", "R-LOC-4",
+  ]);
+  for (const task of trialTasks) {
+    const dir = await mkdtemp(join(tmpdir(), "strata-registry-"));
+    try {
+      const built = await buildTrialFixture(task.id, dir);
+      expect(built.ask.length).toBeGreaterThan(0);
+      expect(built.expected).toBeDefined();
+    } finally {
+      await rm(dir, { recursive: true, force: true });
+    }
+  }
+  await expect(buildTrialFixture("NOPE", tmpdir())).rejects.toThrow("Unknown trial task");
+});
