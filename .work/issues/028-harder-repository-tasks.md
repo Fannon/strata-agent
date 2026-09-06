@@ -1,6 +1,6 @@
 # 028 — Discriminating repository workflows with trustworthy evaluation
 
-Status: reviewed and revised 2026-09-06; ready for implementation selection
+Status: initial families selected by user 2026-09-06 (R-LOC, R-EXPORT, R-LOG); license inspection + runner fixes next, no paid runs
 Kind: evaluator preflight → task contracts → required API gaps → bounded pilot
 Source: user requested critical review and reusable benchmarks, including FrontierHarness.
 Dependencies: existing 011 read slice, 012 policy, 027 engines; reuse 009 runner components and 026 metrics. This review authorizes documentation/research, not a new paid run. Existing explicit implementation/spend authorization still takes precedence within its scope.
