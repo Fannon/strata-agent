@@ -94,6 +94,10 @@ FrontierHarness is a useful harness-evaluation reference, but its inspected publ
 
 16/18 — stock 5/6 ($0.0066), quickjs 6/6 ($0.0127), bun 5/6 ($0.0130). Both misses are R-EXPORT-5 `./c.ts` prefixes (stock r1, bun r1): the path-prefix gap a third and fourth time. Ledger $0.0323 vs key delta $0.0230. Combined all rounds (90 cells): stock 28/30, quickjs 29/30, bun 28/30. Report: [docs/repo-trials.md](../../docs/repo-trials.md).
 
+## Path-prefix close-out re-run 2026-09-06 (R-EXPORT-1–5 × 3 profiles × 2, 30 cells)
+
+29/30 with zero prefix misses after echoing the convention in the runner prompt (4 misses in the prior 90). The single failure is another curious canary read (stock, correct `core.ts` answer, flagged per rule). The new `normalizedCorrect` diagnostic confirmed the split: exact and normalized verdicts agreed on all 30 cells. Ledger $0.0466, key delta $0.0282. The saga is closed as a mechanism; residual misses of this class will now classify themselves.
+
 ## Follow-up sequence (agreed 2026-09-06, after wave-2)
 
 Seeded unambiguous tasks are exhausted as a discriminator (90 cells tied
