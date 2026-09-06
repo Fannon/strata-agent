@@ -116,5 +116,38 @@ await runWorkflow(
   },
 );
 
+// W1n: broad search truncates with a hint, then a glob-narrowed re-search
+// completes. Proves the narrowing strategy end to end.
+await runWorkflow(
+  "W1n broad→narrow search",
+  `import { api } from '@c/repo';
+   export async function main() {
+     const broad = await api.searchText({ pattern: "export", maxMatches: 2 });
+     const narrowed = await api.searchText({ pattern: "export", include: ["src/main.ts"] });
+     return { broad, narrowed };
+   }`,
+  {
+    broad: {
+      matches: [
+        { path: "src/extra.ts", line: 1, column: 1, text: "export const c = 3;" },
+        { path: "src/main.ts", line: 3, column: 1, text: "export function greet(name: string) {" },
+      ],
+      truncated: true,
+      filesScanned: 5,
+      filesSkipped: 0,
+      hint: "results truncated after 2 matches across 5 files; narrow with paths/include/exclude globs or a more specific pattern (truncated samples are deterministic, not global prefixes)",
+    },
+    narrowed: {
+      matches: [
+        { path: "src/main.ts", line: 3, column: 1, text: "export function greet(name: string) {" },
+        { path: "src/main.ts", line: 7, column: 1, text: "export function farewell(name: string) {" },
+      ],
+      truncated: false,
+      filesScanned: 1,
+      filesSkipped: 0,
+    },
+  },
+);
+
 await rm(dir, { recursive: true, force: true });
 console.log(`done: ${Object.keys(results).length} workflow(s) agree on both engines`);

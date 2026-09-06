@@ -57,7 +57,8 @@ const readTextOutput: JsonSchema = {
 };
 const searchTextInput: JsonSchema = {
   type: "object",
-  description: "Literal substring search over text files inside the root.",
+  description:
+    "Literal substring search over text files inside the root. Narrow with paths/include/exclude when truncated; empty untruncated results are definitive.",
   properties: {
     pattern: {
       type: "string",
@@ -70,6 +71,19 @@ const searchTextInput: JsonSchema = {
       description: "Root-relative directories to search; default is the root.",
       items: { type: "string", minLength: 1, maxLength: 1024 },
       maxItems: 32,
+    },
+    include: {
+      type: "array",
+      description:
+        "Glob patterns selecting file paths to search (Bun.Glob against root-relative paths; `*` stays in one directory, `**` crosses).",
+      items: { type: "string", minLength: 1, maxLength: 256 },
+      maxItems: 16,
+    },
+    exclude: {
+      type: "array",
+      description: "Glob patterns removing file paths from the search.",
+      items: { type: "string", minLength: 1, maxLength: 256 },
+      maxItems: 16,
     },
     maxMatches: {
       type: "integer",
@@ -99,6 +113,7 @@ const searchTextOutput: JsonSchema = {
     truncated: { type: "boolean" },
     filesScanned: { type: "integer" },
     filesSkipped: { type: "integer" },
+    hint: { type: "string" },
   },
   required: ["matches", "truncated", "filesScanned", "filesSkipped"],
   additionalProperties: false,
@@ -144,6 +159,7 @@ const listFilesOutput: JsonSchema = {
     truncated: { type: "boolean" },
     scanned: { type: "integer" },
     skipped: { type: "integer" },
+    hint: { type: "string" },
   },
   required: ["entries", "truncated", "scanned", "skipped"],
   additionalProperties: false,
@@ -183,6 +199,7 @@ const gitLogOutput: JsonSchema = {
   properties: {
     commits: { type: "array", items: logCommit },
     truncated: { type: "boolean" },
+    hint: { type: "string" },
   },
   required: ["commits", "truncated"],
   additionalProperties: false,
@@ -286,10 +303,12 @@ class RepoConnector implements CapabilityConnector {
         return { structured, untyped: structured, rawBytes: bytes(structured) };
       }
       case "searchText": {
-        const { pattern, paths, maxMatches } = input as {
+        const { pattern, paths, maxMatches, include, exclude } = input as {
           pattern: string;
           paths?: string[];
           maxMatches?: number;
+          include?: string[];
+          exclude?: string[];
         };
         const roots = [];
         for (const sub of paths ?? ["."]) {
@@ -303,7 +322,7 @@ class RepoConnector implements CapabilityConnector {
           this.policy,
           roots,
           pattern,
-          maxMatches,
+          { maxMatches, include, exclude },
           signal,
         );
         return { structured, untyped: structured, rawBytes: bytes(structured) };

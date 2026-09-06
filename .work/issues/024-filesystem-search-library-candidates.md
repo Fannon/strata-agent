@@ -1,6 +1,6 @@
 # 024 — Filesystem and search library candidates
 
-Status: backlog
+Status: decided for path discovery (Bun.Glob selected, no new dependency); content-search adapter still open
 Kind: backend selection
 Source: user suggested fast-glob and fs-extra.
 Dependencies: follows the reuse principle in 023; informs 011/012 and later 015. Evaluate within those slices, not as a blocking package survey.
@@ -16,7 +16,7 @@ These are candidates, not selected dependencies. Upstream summaries checked 2026
 
 ## Selection checklist
 
-- [ ] Start every operation with the relevant native Bun implementation, then standard-library facilities where needed. Record the unmet requirement or concrete benefit before adding an external dependency; skip unnecessary alternative spikes when the built-in satisfies the contract.
+- [x] Start every operation with the relevant native Bun implementation, then standard-library facilities where needed. Record the unmet requirement or concrete benefit before adding an external dependency; skip unnecessary alternative spikes when the built-in satisfies the contract. Decided 2026-09-06: `Bun.Glob` selected for `searchText` include/exclude filtering — verified semantics (`*` stays in-directory yet matches dotfiles, `**` crosses, invalid patterns match nothing without throwing, `../` patterns cannot match walked paths), deterministic ordering via existing sorted traversal, root policy enforced independently of filters (patterns only narrow the walked tree). No fast-glob/fs-extra needed: no demonstrated gap. Content search (native literal scan vs ripgrep adapter) remains open.
 - [ ] Implement only the current task's required operations; reuse suitable library APIs and types without exposing the whole package.
 - [ ] Compare glob syntax, dotfiles, ignore behavior, symlink traversal, errors and unusual filenames on shared fixtures. Do not assume ignore patterns implement Git ignore semantics. Explicit `.work` access must remain possible.
 - [ ] Verify cancellation, early termination, backpressure and entry/byte/depth/concurrency limits. Define deterministic ordering and incomplete-result semantics together: sorting a truncated arbitrary traversal does not produce a deterministic subset.

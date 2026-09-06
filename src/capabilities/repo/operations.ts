@@ -107,6 +107,27 @@ export interface SearchTextResult {
   truncated: boolean;
   filesScanned: number;
   filesSkipped: number;
+  /** Present when truncated: how to narrow (paths/include/exclude/pattern). */
+  hint?: string;
+}
+
+/**
+ * Glob scope check shared by discovery operations. Patterns match
+ * root-relative posix paths via Bun.Glob: `*` spans within a directory
+ * (including dotfiles), `**` crosses directories. Directories are always
+ * traversed; only file candidates are filtered, so a pattern can never
+ * widen access beyond the walked tree (`../` patterns match nothing).
+ * Invalid patterns match nothing. Filtered-out files touch no I/O and are
+ * invisible to scanned/skipped counts, which describe host reads only.
+ */
+export function matchGlobs(
+  rel: string,
+  include: readonly string[] | undefined,
+  exclude: readonly string[] | undefined,
+): boolean {
+  if (exclude?.some((pattern) => new Bun.Glob(pattern).match(rel))) return false;
+  if (!include?.length) return true;
+  return include.some((pattern) => new Bun.Glob(pattern).match(rel));
 }
 
 interface WalkEntry {
@@ -114,13 +135,16 @@ interface WalkEntry {
   rel: string;
 }
 
-/** Sorted recursive walk. Skips .git, all symlinks, and unreadable entries. */
+/** Sorted recursive walk. Skips .git, all symlinks, and unreadable entries.
+ * An optional accept filter scopes file candidates before counting or I/O:
+ * rejected files are invisible to scanned/skipped tallies. */
 async function walk(
   policy: ResolvedRepoPolicy,
   dirs: WalkEntry[],
   signal: AbortSignal,
   state: { filesScanned: number; filesSkipped: number; truncated: boolean },
   onFile: (entry: WalkEntry) => Promise<boolean>,
+  accept?: (rel: string) => boolean,
 ): Promise<void> {
   const stack: WalkEntry[][] = [dirs];
   while (stack.length) {
@@ -147,6 +171,7 @@ async function walk(
         if (entry.isDirectory()) {
           subdirs.push({ absolute, rel });
         } else if (entry.isFile()) {
+          if (accept && !accept(rel)) continue;
           if (state.filesScanned >= policy.maxFilesScanned) {
             state.truncated = true;
             return;
@@ -165,10 +190,18 @@ export async function searchText(
   policy: ResolvedRepoPolicy,
   roots: WalkEntry[],
   pattern: string,
-  maxMatches: number | undefined,
+  options:
+    | {
+        maxMatches?: number;
+        include?: string[];
+        exclude?: string[];
+      }
+    | undefined,
   signal: AbortSignal,
 ): Promise<SearchTextResult> {
-  const limit = Math.min(maxMatches ?? policy.maxMatches, policy.maxMatches);
+  const limit = Math.min(options?.maxMatches ?? policy.maxMatches, policy.maxMatches);
+  const include = options?.include;
+  const exclude = options?.exclude;
   const matches: TextMatch[] = [];
   const state = { filesScanned: 0, filesSkipped: 0, truncated: false };
   let stop = false;
@@ -231,7 +264,7 @@ export async function searchText(
       await handle.close();
     }
     return stop;
-  });
+  }, (rel) => matchGlobs(rel, include, exclude));
   matches.sort((a, b) =>
     a.path < b.path ? -1 : a.path > b.path ? 1 : a.line - b.line || a.column - b.column,
   );
@@ -240,6 +273,11 @@ export async function searchText(
     truncated: state.truncated,
     filesScanned: state.filesScanned,
     filesSkipped: state.filesSkipped,
+    ...(state.truncated
+      ? {
+          hint: `results truncated after ${matches.length} matches across ${state.filesScanned} files; narrow with paths/include/exclude globs or a more specific pattern (truncated samples are deterministic, not global prefixes)`,
+        }
+      : {}),
   };
 }
 
@@ -252,6 +290,8 @@ export interface ListFilesResult {
   truncated: boolean;
   scanned: number;
   skipped: number;
+  /** Present when truncated: how to narrow (dir/depth/limit). */
+  hint?: string;
 }
 
 /**
@@ -322,7 +362,17 @@ export async function listFiles(
     for (let i = subdirs.length - 1; i >= 0; i--) stack.push(subdirs[i]);
   }
   entries.sort((a, b) => (a.path < b.path ? -1 : a.path > b.path ? 1 : 0));
-  return { entries, truncated, scanned, skipped };
+  return {
+    entries,
+    truncated,
+    scanned,
+    skipped,
+    ...(truncated
+      ? {
+          hint: `listing truncated after ${entries.length} of at least ${scanned} entries; narrow with dir/depth or raise limit (truncated samples are deterministic, not global prefixes)`,
+        }
+      : {}),
+  };
 }
 
 export interface GitStatusResult {
@@ -395,6 +445,8 @@ export interface LogCommit {
 export interface GitLogResult {
   commits: LogCommit[];
   truncated: boolean;
+  /** Present when truncated: how to narrow (paths/limit). */
+  hint?: string;
 }
 
 /**
@@ -457,9 +509,13 @@ export async function gitLog(
         `git log failed: ${Buffer.from(err).toString("utf-8", 0, 300).trim() || `exit ${code}`}`,
       );
     const all = parseLog(Buffer.from(out).toString("utf-8"));
+    const truncated = all.length > count;
     return {
       commits: all.slice(0, count),
-      truncated: all.length > count,
+      truncated,
+      ...(truncated
+        ? { hint: `history truncated after ${count} commits; restrict with paths or raise limit` }
+        : {}),
     };
   } finally {
     clearTimeout(timeout);
