@@ -30,11 +30,11 @@ Tests need permission for localhost and subprocesses. Dry run is offline and wri
 
 ## Recommended next implementation
 
-**First select local issue 016: Pi cancellation forwarding.** The shared helper in `src/pi/extension.ts` accepts only ID/params, then calls `session.run(source, {})`; Pi's third execute argument is the abort signal. Direct runtime cancellation tests pass but don't cover this integration. Add registered-tool pre-aborted and mid-call tests, forward the signal if still absent, and verify a subsequent program succeeds. If already fixed in a newer checkout, prove it and close the issue. The benchmark's process timeout does not fix interactive cancellation.
+Cancellation forwarding and the initial scoped repository slice are delivered (814ffe2, 7dd1a9e); the tool profile and repository pilot followed in 529c5fd. Preserve those baselines rather than repeating the old cancellation → reads sequence.
 
-Then select **012A scoped reads**, followed by **011's smallest useful repository slice**. Start with bounded text reading, literal search and Git status on a seeded repository. Define allowed roots, file kinds, symlink behavior, ignored files, completeness and byte/concurrency caps. Native Bun calls live in trusted adapters behind the broker. Canonical path checks alone are not a hardened filesystem sandbox.
+Select **027: replaceable executor and direct Bun comparison**, with the minimal correlation/timings from **026**. Keep contracts, semantic checking, broker validation, adapter policy and fresh execution matched. Add an opt-in disposable Bun worker/process behind the smallest useful executor interface; retain QuickJS. A worker does not itself constrain filesystem/network access. Label cooperative API adherence separately from mechanically enforced exclusivity; disabling Pi tools alone is insufficient for the latter in Bun.
 
-Make the task match the API: package fields, named-symbol locations and staged/unstaged/untracked status fit that slice. Full trees/history additionally need listing/log operations. Compare stock Pi, typed-plus-stock-tools, and typed-only with every direct effect alternative mechanically removed. Hybrid versus strict tests shell removal; stock Pi is necessary to assess improvement over ordinary agent work. One run diagnoses wiring; seeded variants/repeats and held-out tasks are needed for claims.
+First measure deterministic startup, trivial calls, payload scaling and computation, including cancellation/recovery and error parity. Then compare the same seeded repository tasks with fixed model/settings and a selected spend cap. Include stock Pi with its scripting abilities and report differences in external restrictions. Full observability, a new sandbox and evidence that QuickJS is slow are not prerequisites. Broader engine/persistence/typechecking combinations remain separate experiments.
 
 ## Architectural guardrails and deferred ideas
 
