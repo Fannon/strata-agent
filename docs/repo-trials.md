@@ -34,8 +34,27 @@ Held-out (36 cells, ledger $0.0578, key delta $0.0455):
 | typed-quickjs | 12/12 | $0.0227 | 376,765 | 35 programs | 13s |
 | typed-bun | 11/12 | $0.0250 | 419,190 | 39 programs | 14s |
 
-Combined (72 cells): stock 23/24, quickjs 23/24, bun 23/24. No timeouts,
+Combined dev+held-out (72 cells): stock 23/24, quickjs 23/24, bun 23/24. No timeouts,
 no blocked attempts, no missing accounting; one canary touch (below).
+
+## Wave-2 round (2026-09-06T08-34-15, 18 cells, ledger $0.0323, key delta $0.0230)
+
+| profile | success | cost | tokens |
+| --- | --- | --- | --- |
+| stock-pi | 5/6 | $0.0066 | 96,758 |
+| typed-quickjs | 6/6 | $0.0127 | 211,408 |
+| typed-bun | 5/6 | $0.0130 | 225,945 |
+
+Both misses are R-EXPORT-5 answering `./c.ts` for `c.ts` (stock r1, bun r0)
+— the path-prefix gap a third and fourth time, on two more arms. The
+contract rule (stated in descriptions, pinned by test) is not yet sufficient:
+models add `./` themselves. All three wave-2 mechanics otherwise solved on
+all arms first try, including the 1,500-line aggregation and the forced
+narrowing loop.
+
+Combined 90 cells: stock 28/30, quickjs 29/30, bun 28/30. Efficiency split
+unchanged (~2.3× tokens, ~1.8× cost for typed; fewer trips). Correctness
+still tied; the only recurring discriminator is path-prefix formatting.
 
 ## Findings
 
@@ -97,5 +116,17 @@ no blocked attempts, no missing accounting; one canary touch (below).
 - Declaration tokens are the typed arms' main cost. If that persists,
   the fix is smaller surfaces (per-task operation subsets, terse
   descriptions), not a new engine.
-- Nothing in 72 cells justifies edits/checks, memory, sandboxing, or
+- Nothing in 90 cells justifies edits/checks, memory, sandboxing, or
   catalog growth. Keep those gated behind measured need.
+
+## Wave-2 addendum
+
+The harder mechanics (chain, large, over-cap) moved neither correctness nor
+the cost split: 16/18 with both misses being `./`-prefix formatting on the
+chain task. Two implications: (1) the formatting rule needs a stronger
+mechanism than description text — options are echoing the convention in the
+runner prompt, or a secondary normalized-correctness diagnostic alongside
+the exact verdict (never editing frozen oracles); (2) seeded unambiguous
+tasks appear exhausted as a discriminator — the next discrimination, if any,
+will come from genuine ambiguity (competing plausible answers), larger
+scale, or a second model, not from harder mechanics alone.

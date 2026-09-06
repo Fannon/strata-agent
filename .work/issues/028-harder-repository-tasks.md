@@ -88,3 +88,8 @@ Both failures analyzed, neither is task impossibility: stock R-EXPORT-2 r1 answe
 See [benchmark research](../../docs/research/repository-benchmarks.md). Prefer borrowing task packaging, isolation, verifier lifecycle and reporting practices before integrating a whole harness. Review exact task/fixture licenses, pin revisions, retain attribution and dependencies before copying. Public availability alone is not permission to redistribute all datasets/images. Modified prompts, task subsets or graders must be labeled adapted workloads, not official benchmark scores.
 
 FrontierHarness is a useful harness-evaluation reference, but its inspected public repository has no license declaration: do not copy its scripts/prompts without verifying permission. Use the separately licensed upstream task material where suitable. RepoQA is a closer read-oriented task source; Terminal-Bench’s `log-summary-date-ranges` is a concrete composition candidate. Broader terminal/patch suites are later coverage tests when Strata supports their actual actions. Keep this first implementation bounded; no new benchmark framework is required.
+
+
+## Wave-2 round 2026-09-06 (chain/large/over-cap, 18 cells)
+
+16/18 — stock 5/6 ($0.0066), quickjs 6/6 ($0.0127), bun 5/6 ($0.0130). Both misses are R-EXPORT-5 `./c.ts` prefixes (stock r1, bun r1): the path-prefix gap a third and fourth time. Ledger $0.0323 vs key delta $0.0230. Combined all rounds (90 cells): stock 28/30, quickjs 29/30, bun 28/30. Report: [docs/repo-trials.md](../../docs/repo-trials.md).
