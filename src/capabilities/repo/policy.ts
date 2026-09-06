@@ -14,6 +14,10 @@ export interface RepoPolicy {
   maxFilesScanned?: number;
   /** Files larger than this are skipped by searchText. Default 262144. */
   maxScanFileBytes?: number;
+  /** Max entries returned by one listFiles call. Default 500. */
+  maxListEntries?: number;
+  /** Max commits returned by one gitLog call. Default 50. */
+  maxLogCommits?: number;
 }
 
 export interface ResolvedRepoPolicy {
@@ -22,6 +26,8 @@ export interface ResolvedRepoPolicy {
   maxMatches: number;
   maxFilesScanned: number;
   maxScanFileBytes: number;
+  maxListEntries: number;
+  maxLogCommits: number;
 }
 
 export async function resolvePolicy(policy: RepoPolicy): Promise<ResolvedRepoPolicy> {
@@ -37,6 +43,8 @@ export async function resolvePolicy(policy: RepoPolicy): Promise<ResolvedRepoPol
     maxMatches: policy.maxMatches ?? 100,
     maxFilesScanned: policy.maxFilesScanned ?? 2000,
     maxScanFileBytes: policy.maxScanFileBytes ?? 262_144,
+    maxListEntries: policy.maxListEntries ?? 500,
+    maxLogCommits: policy.maxLogCommits ?? 50,
   };
 }
 

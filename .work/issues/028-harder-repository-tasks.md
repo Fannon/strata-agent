@@ -1,7 +1,6 @@
 # 028 — Harder repository tasks that can tell the approaches apart
 
-Status: proposed, awaiting review (user + second agent). No implementation
-authorized yet except what is explicitly selected below.
+Status: step 1 delivered; step 2 still awaiting review. No paid runs yet.
 Kind: task design first, small API addition second, paid trial last.
 Source: user request after the 2026-09-06 trial (27/27 pass on all setups).
 Dependencies: 011 (read slice), 012 (read policy), 027 (engines). Informs 009
@@ -14,7 +13,16 @@ typed Bun) × 3 repeats: all 27 solved, $0.0117 total. When every setup solves
 everything, the test cannot show differences anymore. The easy tasks stay as
 regression checks, but we need harder tasks to learn anything new.
 
-## Step 1 (proposed): two missing read operations
+## Step 1 (delivered 2026-09-06)
+
+`listFiles` (sorted bounded listing, default depth 1, skips .git/symlinks) and
+`gitLog` (newest-first history, path filter, surplus-request truncation
+ detection) are implemented in `src/capabilities/repo/` behind the existing
+permission checks, with policy caps `maxListEntries`/`maxLogCommits`.
+`test/integration/repo-reads.test.ts` (11 tests) covers exact listings,
+recursion, truncation, denials, option-injection guards and history parsing
+on both engines. Full suite 98 pass. The pilot allow-list does not include
+them yet — that comes with step 2.
 
 The current API can read a file, search text, and show git status. Harder
 tasks need two more basics:

@@ -8,7 +8,7 @@ import { lstat } from "node:fs/promises";
 import { bytes } from "../manifest.ts";
 import type { RepoPolicy } from "./policy.ts";
 import { resolvePolicy, resolveInRoot, DeniedError } from "./policy.ts";
-import { readText, searchText, gitStatus } from "./operations.ts";
+import { readText, searchText, gitStatus, listFiles, gitLog } from "./operations.ts";
 
 const readTextInput: JsonSchema = {
   type: "object",
@@ -89,6 +89,90 @@ const searchTextOutput: JsonSchema = {
   required: ["matches", "truncated", "filesScanned", "filesSkipped"],
   additionalProperties: false,
 };
+const listFilesInput: JsonSchema = {
+  type: "object",
+  description: "List directory entries inside the repository root.",
+  properties: {
+    dir: {
+      type: "string",
+      description: "Root-relative directory; default is the root.",
+      minLength: 1,
+      maxLength: 1024,
+    },
+    depth: {
+      type: "integer",
+      description: "Levels below dir to descend; default 1 lists children only.",
+      minimum: 1,
+      maximum: 10,
+    },
+    limit: {
+      type: "integer",
+      description: "Max entries to return.",
+      minimum: 1,
+      maximum: 2000,
+    },
+  },
+  additionalProperties: false,
+};
+const listEntry: JsonSchema = {
+  type: "object",
+  properties: {
+    path: { type: "string" },
+    kind: { type: "string", enum: ["file", "dir"] },
+  },
+  required: ["path", "kind"],
+  additionalProperties: false,
+};
+const listFilesOutput: JsonSchema = {
+  type: "object",
+  properties: {
+    entries: { type: "array", items: listEntry },
+    truncated: { type: "boolean" },
+    scanned: { type: "integer" },
+    skipped: { type: "integer" },
+  },
+  required: ["entries", "truncated", "scanned", "skipped"],
+  additionalProperties: false,
+};
+const gitLogInput: JsonSchema = {
+  type: "object",
+  description: "Recent commit history of the repository.",
+  properties: {
+    limit: {
+      type: "integer",
+      description: "Max commits to return, newest first.",
+      minimum: 1,
+      maximum: 100,
+    },
+    paths: {
+      type: "array",
+      description: "Optional root-relative paths to restrict history to.",
+      items: { type: "string", minLength: 1, maxLength: 1024 },
+      maxItems: 32,
+    },
+  },
+  additionalProperties: false,
+};
+const logCommit: JsonSchema = {
+  type: "object",
+  properties: {
+    hash: { type: "string" },
+    author: { type: "string" },
+    date: { type: "string" },
+    message: { type: "string" },
+  },
+  required: ["hash", "author", "date", "message"],
+  additionalProperties: false,
+};
+const gitLogOutput: JsonSchema = {
+  type: "object",
+  properties: {
+    commits: { type: "array", items: logCommit },
+    truncated: { type: "boolean" },
+  },
+  required: ["commits", "truncated"],
+  additionalProperties: false,
+};
 const gitStatusInput: JsonSchema = {
   type: "object",
   description: "Staged/unstaged/untracked status of the repository.",
@@ -111,7 +195,7 @@ function manifest(): CapabilityModule {
   return {
     id: "repo",
     description:
-      "Scoped read-only repository inspection: text reading, literal search, Git status.",
+      "Scoped read-only repository inspection: text reading, file listing, literal search, Git status and history.",
     operations: [
       {
         name: "readText",
@@ -135,6 +219,22 @@ function manifest(): CapabilityModule {
           "Staged, unstaged and untracked files plus the current branch, from fixed-argv git status. No shell, no caller-controlled flags.",
         inputSchema: gitStatusInput,
         outputSchema: gitStatusOutput,
+        metadata: { readOnly: true, idempotent: true },
+      },
+      {
+        name: "listFiles",
+        description:
+          "Sorted bounded listing of a directory inside the root. Skips .git, symlinks and unreadable entries. Files and subdirectories are reported; contents are not read.",
+        inputSchema: listFilesInput,
+        outputSchema: listFilesOutput,
+        metadata: { readOnly: true, idempotent: true },
+      },
+      {
+        name: "gitLog",
+        description:
+          "Newest-first commit history (hash, author, date, subject) from fixed-argv git log, optionally restricted to paths. No shell, no caller-controlled flags.",
+        inputSchema: gitLogInput,
+        outputSchema: gitLogOutput,
         metadata: { readOnly: true, idempotent: true },
       },
     ],
@@ -184,6 +284,40 @@ class RepoConnector implements CapabilityConnector {
           roots,
           pattern,
           maxMatches,
+          signal,
+        );
+        return { structured, untyped: structured, rawBytes: bytes(structured) };
+      }
+      case "gitLog": {
+        const { limit, paths } = input as { limit?: number; paths?: string[] };
+        const relPaths: string[] = [];
+        for (const sub of paths ?? []) {
+          // Option-injection guard precedes resolution: no path may become
+          // a Git flag, even a nonexistent one.
+          if (sub.startsWith("-") || sub.startsWith("/"))
+            throw new DeniedError(`not a loggable path: ${sub}`);
+          const resolved = await resolveInRoot(this.policy, sub);
+          relPaths.push(resolved.rel || ".");
+        }
+        const structured = await gitLog(this.policy.root, relPaths, limit, this.policy, signal);
+        return { structured, untyped: structured, rawBytes: bytes(structured) };
+      }
+      case "listFiles": {
+        const { dir, depth, limit } = input as {
+          dir?: string;
+          depth?: number;
+          limit?: number;
+        };
+        const resolved = await resolveInRoot(this.policy, dir ?? ".");
+        const st = await lstat(resolved.absolute);
+        if (!st.isDirectory())
+          throw new DeniedError(`not a listable directory: ${dir ?? "."}`);
+        const structured = await listFiles(
+          this.policy,
+          resolved.absolute,
+          resolved.rel,
+          depth,
+          limit,
           signal,
         );
         return { structured, untyped: structured, rawBytes: bytes(structured) };

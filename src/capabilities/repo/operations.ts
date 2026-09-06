@@ -196,6 +196,88 @@ export async function searchText(
   };
 }
 
+export interface ListEntry {
+  path: string;
+  kind: "file" | "dir";
+}
+export interface ListFilesResult {
+  entries: ListEntry[];
+  truncated: boolean;
+  scanned: number;
+  skipped: number;
+}
+
+/**
+ * Sorted bounded directory listing. Skips .git, all symlinks and unreadable
+ * entries (counted as skipped). Depth 1 lists direct children only.
+ */
+export async function listFiles(
+  policy: ResolvedRepoPolicy,
+  absolute: string,
+  rel: string,
+  depth: number | undefined,
+  limit: number | undefined,
+  signal: AbortSignal,
+): Promise<ListFilesResult> {
+  const maxDepth = Math.min(depth ?? 1, 10);
+  const maxEntries = Math.min(limit ?? policy.maxListEntries, policy.maxListEntries);
+  const entries: ListEntry[] = [];
+  let scanned = 0;
+  let skipped = 0;
+  let truncated = false;
+  const stack: Array<{ absolute: string; rel: string; depth: number }> = [
+    { absolute, rel: rel === "." ? "" : rel, depth: 1 },
+  ];
+  const push = (entry: ListEntry): boolean => {
+    scanned++;
+    if (entries.length >= maxEntries) {
+      truncated = true;
+      return true;
+    }
+    entries.push(entry);
+    return false;
+  };
+  while (stack.length && !truncated) {
+    const dir = stack.pop()!;
+    signal.throwIfAborted();
+    let names;
+    try {
+      names = await readdir(dir.absolute, { withFileTypes: true });
+    } catch {
+      skipped++;
+      continue;
+    }
+    names.sort((a, b) => (a.name < b.name ? -1 : a.name > b.name ? 1 : 0));
+    const subdirs: Array<{ absolute: string; rel: string; depth: number }> = [];
+    for (const entry of names) {
+      if (truncated) break;
+      if (entry.name === ".git") {
+        skipped++;
+        continue;
+      }
+      if (entry.isSymbolicLink()) {
+        skipped++;
+        continue;
+      }
+      const childRel = dir.rel ? `${dir.rel}/${entry.name}` : entry.name;
+      const childAbs = join(dir.absolute, entry.name);
+      if (entry.isDirectory()) {
+        if (push({ path: childRel, kind: "dir" })) break;
+        if (dir.depth < maxDepth) subdirs.push({ absolute: childAbs, rel: childRel, depth: dir.depth + 1 });
+      } else if (entry.isFile()) {
+        if (push({ path: childRel, kind: "file" })) break;
+      } else {
+        skipped++;
+      }
+    }
+    // Push in reverse so the next pop visits alphabetically first; final
+    // sort below makes output order independent of traversal anyway.
+    for (let i = subdirs.length - 1; i >= 0; i--) stack.push(subdirs[i]);
+  }
+  entries.sort((a, b) => (a.path < b.path ? -1 : a.path > b.path ? 1 : 0));
+  return { entries, truncated, scanned, skipped };
+}
+
 export interface GitStatusResult {
   branch: string;
   staged: string[];
@@ -255,6 +337,103 @@ export async function gitStatus(
     clearTimeout(timeout);
     signal.removeEventListener("abort", kill);
   }
+}
+
+export interface LogCommit {
+  hash: string;
+  author: string;
+  date: string;
+  message: string;
+}
+export interface GitLogResult {
+  commits: LogCommit[];
+  truncated: boolean;
+}
+
+/**
+ * Fixed-argv Git history (no shell, no caller-controlled flags). Requests
+ * one more commit than asked: a surplus means the history was truncated.
+ * Caller paths are root-relative, validated before dispatch; leading dashes
+ * are rejected so no path can become a Git option.
+ */
+export async function gitLog(
+  root: string,
+  relPaths: string[],
+  limit: number | undefined,
+  policy: ResolvedRepoPolicy,
+  signal: AbortSignal,
+): Promise<GitLogResult> {
+  if (signal.aborted) throw new Error("cancelled");
+  const count = Math.min(limit ?? 20, policy.maxLogCommits);
+  for (const p of relPaths) {
+    if (p.startsWith("-") || p.startsWith("/"))
+      throw new DeniedError(`not a loggable path: ${p}`);
+  }
+  const proc = Bun.spawn(
+    [
+      "git",
+      "-c",
+      "core.quotePath=false",
+      "log",
+      "--pretty=format:%H%x00%an%x00%aI%x00%s%x1e",
+      "--no-decorate",
+      "--no-color",
+      `--max-count=${count + 1}`,
+      "--",
+      ...relPaths,
+    ],
+    {
+      cwd: root,
+      env: { ...process.env, LC_ALL: "C", GIT_OPTIONAL_LOCKS: "0" },
+      stdout: "pipe",
+      stderr: "pipe",
+    },
+  );
+  const kill = () => {
+    try {
+      proc.kill();
+    } catch {
+      /* already exited */
+    }
+  };
+  signal.addEventListener("abort", kill, { once: true });
+  const timeout = setTimeout(kill, 30_000);
+  try {
+    const [out, err, code] = await Promise.all([
+      new Response(proc.stdout).arrayBuffer(),
+      new Response(proc.stderr).arrayBuffer(),
+      proc.exited,
+    ]);
+    if (signal.aborted) throw new Error("cancelled");
+    if (code !== 0)
+      throw new ResourceError(
+        `git log failed: ${Buffer.from(err).toString("utf-8", 0, 300).trim() || `exit ${code}`}`,
+      );
+    const all = parseLog(Buffer.from(out).toString("utf-8"));
+    return {
+      commits: all.slice(0, count),
+      truncated: all.length > count,
+    };
+  } finally {
+    clearTimeout(timeout);
+    signal.removeEventListener("abort", kill);
+  }
+}
+
+function parseLog(text: string): LogCommit[] {
+  const commits: LogCommit[] = [];
+  for (const record of text.split("\x1e")) {
+    if (!record.trim()) continue;
+    const [hash = "", author = "", date = "", message = ""] = record.replace(/^\n/, "").split("\x00");
+    if (!/^[0-9a-f]{40}$/.test(hash)) continue;
+    commits.push({
+      hash,
+      author: author.slice(0, 200),
+      date: date.slice(0, 100),
+      message: message.slice(0, 500),
+    });
+  }
+  return commits;
 }
 
 function parsePorcelain(text: string): GitStatusResult {
