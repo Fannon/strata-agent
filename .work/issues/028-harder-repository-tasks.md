@@ -67,6 +67,10 @@ Diagnostic fourth arm (added 2026-09-06, runs only after step-0 isolation lands)
 
 Acceptance: versioned representative tasks with independent oracles and a trustworthy runner; each arm has equivalent task information and documented enforcement differences; sanitized reproducibility report supports continue/narrow/pivot/inconclusive. No requirement that any arm fails or that Strata wins. If all succeed, report efficiency differences and uncertainty. Any later harder set is a new development version, not post-hoc editing of held-out tasks.
 
+## Held-out trial 2026-09-06 and full report
+
+Held-out round (frozen -3/-4 instances, same matrix): 35/36 — stock 12/12 ($0.0101), quickjs 12/12 ($0.0227), bun 11/12 ($0.0250); the single miss repeats the dev-round path-prefix gap (`./src/text.ts`). Combined 72 cells: 23/24 per profile. Ledger $0.0578 vs key delta $0.0455. Full write-up with findings, limits and improvement suggestions: [docs/repo-trials.md](../../docs/repo-trials.md). Standing recommendation: fix the path contract forward, then harder hypothesis-targeted instances; nothing yet justifies edits/checks/memory/sandboxing.
+
 ## Dev trial 2026-09-06 (6 instances × 3 profiles × 2 repeats = 36 cells, muse-spark, dual-ledger $5 cap)
 
 Artifacts local-only: `.work/repo-pilot/2026-09-06T07-19-51-608Z/`. Ledger $0.0513 charged; key credits 23.4450 → 23.4915 (delta $0.0465, account-global). Two earlier attempts invalid (flat-ledger starvation, zero-cost models.json) preserved as historical runs.
