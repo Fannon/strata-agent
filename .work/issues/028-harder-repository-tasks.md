@@ -67,6 +67,18 @@ Diagnostic fourth arm (added 2026-09-06, runs only after step-0 isolation lands)
 
 Acceptance: versioned representative tasks with independent oracles and a trustworthy runner; each arm has equivalent task information and documented enforcement differences; sanitized reproducibility report supports continue/narrow/pivot/inconclusive. No requirement that any arm fails or that Strata wins. If all succeed, report efficiency differences and uncertainty. Any later harder set is a new development version, not post-hoc editing of held-out tasks.
 
+## Dev trial 2026-09-06 (6 instances × 3 profiles × 2 repeats = 36 cells, muse-spark, dual-ledger $5 cap)
+
+Artifacts local-only: `.work/repo-pilot/2026-09-06T07-19-51-608Z/`. Ledger $0.0513 charged; key credits 23.4450 → 23.4915 (delta $0.0465, account-global). Two earlier attempts invalid (flat-ledger starvation, zero-cost models.json) preserved as historical runs.
+
+| profile | success | cost (12 cells) | tokens | tool calls | elapsed med/max |
+| --- | --- | --- | --- | --- | --- |
+| stock-pi | 11/12 | $0.0110 | 172,652 | 84 (bash+read) | 10s / 29s |
+| typed-quickjs | 11/12 | $0.0191 | 358,048 | 33 programs | 10s / 32s |
+| typed-bun | 12/12 | $0.0212 | 431,947 | 40 programs | 15s / 36s |
+
+Both failures analyzed, neither is task impossibility: stock R-EXPORT-2 r1 answered correctly but read the `.canary` dotfile out of curiosity (adherence fail per the stated rule; the canary held no oracle, so no contamination); typed-quickjs R-EXPORT-2 r1 returned `./core.ts` instead of `core.ts` (path-normalization miss, worth a contract note). Reading: typed arms make ~2.5× fewer tool trips at ~2.3× the tokens (declarations dominate) and ~1.8× the cost; correctness tied within noise. No snooping beyond the single curious canary read; no blocked-attempt or timeout cells. Held-out round (frozen -3/-4 instances) still requires explicit spend authorization.
+
 ## Existing benchmark reuse
 
 See [benchmark research](../../docs/research/repository-benchmarks.md). Prefer borrowing task packaging, isolation, verifier lifecycle and reporting practices before integrating a whole harness. Review exact task/fixture licenses, pin revisions, retain attribution and dependencies before copying. Public availability alone is not permission to redistribute all datasets/images. Modified prompts, task subsets or graders must be labeled adapted workloads, not official benchmark scores.
