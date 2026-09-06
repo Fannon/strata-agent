@@ -52,6 +52,10 @@ Current user request authorizes assessment/documentation. `ready` means actionab
 | [033 — Mine local agentsview sessions for coverage needs](033-agentsview-mining.md) | backlog, suggested (read-only inspection done 2026-09-06, no transcripts copied) |
 | [034 — Operator-configurable caps for result, logs, and tool text](034-configurable-caps.md) | deferred pending measured cap failures or operator requirement; follows 031 |
 
+## Enterprise-fit hypothesis
+
+[035 — Enterprise discovery and typed composition](035-enterprise-capability-scaling.md) captures a potentially different use case: large dynamic API catalogs with small discovered working sets. Research/concept only; it does not replace the active 004 work. Compare with equally lazy direct tools and test schema changes/revocation separately from task efficiency.
+
 ## Deferred experiments
 
 | Issue | Current status |
