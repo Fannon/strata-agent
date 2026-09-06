@@ -59,7 +59,7 @@ const TIMEOUT_MS = Number(opt("--timeout-ms", "150000") ?? "150000");
 const OUT = opt("--out", undefined);
 const MAX_REQUESTS = Number(opt("--max-requests", "8") ?? "8");
 const MAX_OUTPUT_TOKENS = Number(opt("--max-output-tokens", "4096") ?? "4096");
-const MAX_CELL_TOKENS = Number(opt("--max-cell-tokens", "2000000") ?? "2000000");
+const MAX_CELL_TOKENS = Number(opt("--max-cell-tokens", "10000000") ?? "10000000");
 const ISOLATION = "cooperative diagnostics: no sandbox; oracle in controller, canary-monitored tool args";
 
 for (const p of profiles)
@@ -152,7 +152,9 @@ try {
   await writeFile(join(profileDir, "settings.json"), JSON.stringify({ compaction: { enabled: false }, retry: { enabled: false, provider: { maxRetries: 0, timeoutMs: TIMEOUT_MS } } }));
   await writeFile(join(profileDir, "models.json"), JSON.stringify({ providers: { openrouter: {
     baseUrl: "https://openrouter.ai/api/v1", api: "openai-completions", apiKey: "OPENROUTER_API_KEY",
-    models: [{ id: MODEL, contextWindow, maxTokens: MAX_OUTPUT_TOKENS, reasoning: false, input: ["text"] }],
+    models: [{ id: MODEL, contextWindow, maxTokens: MAX_OUTPUT_TOKENS, reasoning: false, input: ["text"], cost: {
+      input: rates.input * 1e6, output: rates.output * 1e6, cacheRead: rates.cacheRead * 1e6, cacheWrite: rates.cacheWrite * 1e6,
+    } }],
   } } }));
   await save("run-manifest.json", { protocol, artifactVersion, gitCommit: await gitMeta(["rev-parse", "HEAD"]),
     gitStatus: await gitMeta(["status", "--porcelain"]), bunVersion: Bun.version, platform: process.platform,
