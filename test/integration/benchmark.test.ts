@@ -3,6 +3,7 @@ import { mkdtemp, readFile, rm } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { assessTrace, definitions, gradeAnswer, type TraceInput, type Task } from "../../examples/benchmark/protocol.ts";
+import { auditToolArgs } from "../../examples/benchmark/audit.ts";
 import { matrix, options, reserve } from "../../examples/benchmark/config.ts";
 import { capture } from "../../examples/benchmark/process.ts";
 
@@ -111,6 +112,31 @@ test("benchmark recovery requires error then successful call and exact final ans
   const typedGood = tool("typed_program", report({ count: 1 }), "good");
   expect(assess([start, ...typedBad, ...typedGood, final, end], { task: "T4", condition: "B" }).success).toBe(true);
   expect(assess([start, ...typedGood, final, end], { task: "T4", condition: "B" }).success).toBe(false);
+});
+
+test("benchmark auditor flags answer-file access and traversal, ignores spread syntax", () => {
+  const forbidden = { substrings: ["expected.json", "canary-7f3a"], forbidParentTraversal: true };
+  const call = (id: string, toolName: string, args: unknown) => ({ toolCallId: id, toolName, args });
+  // Clean: in-repo reads, grep, git, and typed programs with spread syntax.
+  expect(auditToolArgs([
+    call("a", "read", { path: "package.json" }),
+    call("b", "bash", { command: "grep -rn greet --include='*.ts' ." }),
+    call("c", "typed_program", { source: "const sort = (a: string[]) => [...a].sort(); return api.readText({ path: 'src/main.ts' });" }),
+  ], forbidden).clean).toBe(true);
+  // Direct answer read via stock tools.
+  const direct = auditToolArgs([call("a", "read", { path: "../expected.json" })], forbidden);
+  expect(direct.clean).toBe(false);
+  expect(direct.violations[0].reason).toContain("expected.json");
+  // Traversal without the filename still flagged.
+  const traversal = auditToolArgs([call("a", "bash", { command: "cat ../secret.txt" })], forbidden);
+  expect(traversal.clean).toBe(false);
+  expect(traversal.violations[0].reason).toContain("traversal");
+  // Canary content reference flagged even without path traversal.
+  const canary = auditToolArgs([call("a", "bash", { command: "grep -r canary-7f3a ." })], forbidden);
+  expect(canary.clean).toBe(false);
+  // Tilde expansion flagged; home-relative prose without separator is not.
+  expect(auditToolArgs([call("a", "bash", { command: "cat ~/answers.json" })], forbidden).clean).toBe(false);
+  expect(auditToolArgs([call("a", "bash", { command: "echo hello" })], forbidden).clean).toBe(true);
 });
 
 test("benchmark options reject silent cell/limit mistakes and counterbalance repeats", () => {

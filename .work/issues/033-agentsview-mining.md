@@ -40,6 +40,40 @@ change last.
    data source. Raw private sessions/profiles stay local per evidence rules;
    publish sanitized counts only.
 
+## First miss record: `jq` slicing (resolved without a new op)
+
+Sampled 200 `jq` commands from the log (counts only). The shapes repeat:
+
+- Pick a field: `jq '.action' manifest.json`, `jq '.main' params.json`
+- Slice: `jq '.bookmarks[:5][] | .originalId' chrome.json`
+- Filter: `jq '.bookmarks[] | select(.originalId=="23")'`
+- Inspect shape: `jq 'keys' params.json`, `jq '.' file.json | head`
+- Chain from network: `curl ... | jq '.items[0:10][].full_name'`
+
+Resolution: **no new capability.** Every one of these is plain TypeScript
+over a parsed value the program already holds:
+
+```ts
+// bash: jq '.bookmarks[:5][] | .originalId' chrome.json
+const { content } = await api.readText({ path: "popup/mockData/chrome.json" });
+const data = JSON.parse(content) as { bookmarks?: { originalId?: string }[] };
+return (data.bookmarks ?? []).slice(0, 5).map((b) => b.originalId);
+```
+
+What makes this safe (and what to watch):
+
+- `readText` already bounds bytes; `jq` on a 100MB file would stream, our
+  path materializes — large-file JSON stays a known gap, recorded not solved.
+- `JSON.parse` returns `any`: fine inside the program (Topic 3 rules — the
+  broker still validates capability inputs/outputs), but the program should
+  narrow before returning so the *result* keeps a shape.
+- `curl | jq` chains split in two: network fetch is a future wrapped
+  capability (allowlisted hosts, byte caps), JSON slicing stays plain code.
+
+If a second task family needs the same shape (e.g. `R-JOIN` over manifests),
+a worked `readText` + `JSON.parse` + narrow example goes in docs, not a new
+op. Promotion rule from 032 holds: one task is not enough for new surface.
+
 ## Completion criteria (when selected)
 
 - [ ] Miner script + rerunnable counts checked in (code only, no data).

@@ -25,13 +25,16 @@ import { join } from "node:path";
 import { reserve, priceModel, type Budget } from "./benchmark/config.ts";
 import { assess, record } from "./benchmark/protocol.ts";
 import { PROFILES, planCells, repoPolicy, snoopedCanary, type RepoProfile } from "./repo-protocol.ts";
+import { REXPORT_TASKS, buildRexportFixture } from "./repo-tasks/rexport.ts";
+import { RLOG_TASKS, buildRlogFixture } from "./repo-tasks/rlog.ts";
+import { RLOC_TASKS, buildRlocFixture } from "./repo-tasks/rloc.ts";
 import { capture } from "./benchmark/process.ts";
 import type { GuardConfig } from "./benchmark/guard.ts";
 import { connectRepo } from "../src/capabilities/repo/connector.ts";
 import { createSession } from "../src/session.ts";
 
-const protocol = "repo-1";
-const artifactVersion = 1;
+const protocol = "repo-2";
+const artifactVersion = 2;
 const root = new URL("../", import.meta.url).pathname;
 const args = new Set(process.argv.slice(2));
 const opt = (name: string, fallback: string | undefined) => {
@@ -45,9 +48,14 @@ for (const token of process.argv.slice(2)) {
     throw new Error(`Unknown option ${token} (old A/B/C/H letters were retired; use --profiles stock-pi,typed-quickjs,typed-bun)`);
 }
 type Profile = RepoProfile;
-const KNOWN_TASKS = ["T1", "T2", "T3"];
+const KNOWN_TASKS = ["T1", "T2", "T3",
+  ...REXPORT_TASKS.map((t) => t.id), ...RLOG_TASKS.map((t) => t.id), ...RLOC_TASKS.map((t) => t.id)];
+// Default matrix is the six development instances (028 §3); T1–T3 stay as
+// opt-in diagnostics, held-out instances run only by explicit selection.
+const DEV_TASKS = ["R-EXPORT-1", "R-EXPORT-2", "R-LOG-1", "R-LOG-2", "R-LOC-1", "R-LOC-2"];
+const FULL_READ_ALLOW = ["readText", "searchText", "gitStatus", "listFiles", "gitLog", "gitDiff", "gitShow"];
 const profiles = (opt("--profiles", PROFILES.join(",")) ?? "").split(",").filter(Boolean);
-const tasks = (opt("--tasks", KNOWN_TASKS.join(",")) ?? "").split(",").filter(Boolean);
+const tasks = (opt("--tasks", DEV_TASKS.join(",")) ?? "").split(",").filter(Boolean);
 const MODEL = opt("--model", "meta/muse-spark-1.3-contributor")!;
 const MAX_COST = opt("--max-cost-usd", undefined);
 const REPEATS = Number(opt("--repeats", "1") ?? "1");
@@ -107,8 +115,7 @@ const seedTasks: Task[] = [
     },
   },
 ];
-const seed = async (cell: string) => {
-  const repo = `${outDir}/${cell}/repo`;
+const seed = async (repo: string) => {
   await mkdir(`${repo}/src`, { recursive: true });
   await writeFile(
     `${repo}/package.json`,
@@ -150,12 +157,34 @@ const seed = async (cell: string) => {
   return repo;
 };
 
+interface TrialTask {
+  id: string;
+  ask: string;
+  expected: unknown;
+  build: (repo: string) => Promise<void>;
+}
+const trialTasks: TrialTask[] = [
+  ...seedTasks.map((t) => ({ ...t, build: async (repo: string) => { await seed(repo); } })),
+  ...REXPORT_TASKS.map((t) => ({
+    id: t.id, ask: t.ask, expected: t.expected,
+    build: async (repo: string) => void (await buildRexportFixture(repo, t.fixture)),
+  })),
+  ...RLOG_TASKS.map((t) => ({
+    id: t.id, ask: t.ask, expected: t.expected,
+    build: async (repo: string) => void (await buildRlogFixture(repo, t.fixture)),
+  })),
+  ...RLOC_TASKS.map((t) => ({
+    id: t.id, ask: t.ask, expected: t.expected,
+    build: async (repo: string) => void (await buildRlocFixture(repo, t.fixture)),
+  })),
+];
+
 const tooling: Record<Profile, string> = {
   "stock-pi": "Use the available file and shell tools (read, bash with cat/grep, git).",
   "typed-quickjs":
-    "Use ONLY typed_program with `import { api } from '@c/repo'` (api.readText/searchText/gitStatus). Direct file and shell tools are disabled; do not attempt them. program_details may inspect past runs.",
+    "Use ONLY typed_program with `import { api } from '@c/repo'`. Direct file and shell tools are disabled; do not attempt them. program_details may inspect past runs.",
   "typed-bun":
-    "Use ONLY typed_program with `import { api } from '@c/repo'` (api.readText/searchText/gitStatus). Direct file and shell tools are disabled; do not attempt them. program_details may inspect past runs. Programs run on the direct-Bun executor: capability calls pass the same validation and policy, but ambient host APIs are reachable, so only use the @c/repo api and pure computation.",
+    "Use ONLY typed_program with `import { api } from '@c/repo'`. Direct file and shell tools are disabled; do not attempt them. program_details may inspect past runs. Programs run on the direct-Bun executor: capability calls pass the same validation and policy, but ambient host APIs are reachable, so only use the @c/repo api and pure computation.",
 };
 const engineOf = (profile: Profile) =>
   profile === "typed-bun" ? "bun" : profile === "typed-quickjs" ? "quickjs" : "n/a-stock";
@@ -188,7 +217,7 @@ try {
   };
   // Declarations snapshot: what typed profiles actually see in their prompts.
   const { manifest, connector } = await connectRepo({ root: tmpdir() });
-  const declSession = await createSession(manifest, connector, new Set(["readText", "searchText", "gitStatus"]));
+  const declSession = await createSession(manifest, connector, new Set(FULL_READ_ALLOW));
   const declarations = declSession.declarations;
   await declSession.close();
   const profileDir = join(outDir, "profile");
@@ -200,14 +229,14 @@ try {
   } } }));
   await save("run-manifest.json", { protocol, artifactVersion, gitCommit: await gitMeta(["rev-parse", "HEAD"]),
     gitStatus: await gitMeta(["status", "--porcelain"]), bunVersion: Bun.version, platform: process.platform,
-    model: MODEL, thinking: "off", tasks: seedTasks, profiles, limits: { timeoutMs: TIMEOUT_MS, maxRequests: MAX_REQUESTS,
+    model: MODEL, thinking: "off", tasks: trialTasks.map(({ build: _b, ...rest }) => rest), profiles, allow: FULL_READ_ALLOW, limits: { timeoutMs: TIMEOUT_MS, maxRequests: MAX_REQUESTS,
       maxOutputTokens: MAX_OUTPUT_TOKENS, maxCellTokens: MAX_CELL_TOKENS, maxCostUsd },
     isolation: ISOLATION, externalRestrictions: "none (same for all profiles); typed profiles additionally run under STRATA_STRICT=1" });
   await writeFile(join(outDir, "declarations.d.ts"), declarations);
   let reservedCostUsd = 0;
   const persist = async () => save("results.json", { protocol, artifactVersion, model: MODEL, reservedCostUsd, cells: results });
   for (const cell of cells) {
-    const task = seedTasks.find((t) => t.id === cell.task)!;
+    const task = trialTasks.find((t) => t.id === cell.task)!;
     const budget: Budget = { maxRequests: MAX_REQUESTS, maxTokens: MAX_CELL_TOKENS, maxCostUsd: maxCostUsd! - reservedCostUsd, requestTokens, requestCostUsd };
     const skip = reserve(budget, 0);
     if (skip) {
@@ -217,7 +246,9 @@ try {
     }
     const cwd = join(outDir, cell.id);
     await mkdir(cwd, { recursive: true });
-    const repo = await seed(cell.id);
+    const repo = join(cwd, "repo");
+    await mkdir(repo, { recursive: true });
+    await task.build(repo);
     const canary = randomBytes(8).toString("hex");
     await writeFile(join(repo, ".canary"), `evaluator canary ${canary}: not part of the task, do not read\n`);
     const guard: GuardConfig = { budget, model: MODEL, maxOutputTokens: MAX_OUTPUT_TOKENS,
@@ -229,7 +260,7 @@ try {
     await writeFile(join(cwd, "prompt.txt"), prompt);
     const configPath = join(cwd, "strata.json");
     if (cell.profile !== "stock-pi")
-      await writeFile(configPath, JSON.stringify({ transport: "repo", root: repo, allow: ["readText", "searchText", "gitStatus"] }));
+      await writeFile(configPath, JSON.stringify({ transport: "repo", root: repo, allow: FULL_READ_ALLOW }));
     const { STRATA_CONFIG: _strata, STRATA_BENCHMARK_GUARD: _guard, ...env } = process.env;
     const cliArgs = [
       process.execPath,

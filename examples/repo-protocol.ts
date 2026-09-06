@@ -3,6 +3,7 @@
 // offline suite can pin them; examples/repo-pilot.ts owns execution.
 import { isDeepStrictEqual } from "node:util";
 import { record, type AssessPolicy } from "./benchmark/protocol.ts";
+import { auditToolArgs } from "./benchmark/audit.ts";
 
 export const PROFILES = ["stock-pi", "typed-quickjs", "typed-bun"] as const;
 export type RepoProfile = (typeof PROFILES)[number];
@@ -60,8 +61,11 @@ export function repoPolicy(profile: RepoProfile, expected: unknown): AssessPolic
 }
 
 /** Detect evaluator-material access: any tool-call argument referencing the
- * per-cell canary token. Reading the canary is never needed for the task. */
+ * per-cell canary token, or any parent-tilde traversal (which no task needs).
+ * Reading the canary is never needed for the task. Shares the mechanism with
+ * the benchmark auditor; malformed lines are skipped, never counted. */
 export function snoopedCanary(stdout: string, token: string): boolean {
+  const calls: { toolCallId: string; toolName: string; args: unknown }[] = [];
   for (const line of stdout.split("\n")) {
     if (!line.trim()) continue;
     let event: unknown;
@@ -70,8 +74,13 @@ export function snoopedCanary(stdout: string, token: string): boolean {
     } catch {
       continue;
     }
-    if (record(event) && event.type === "tool_execution_start" && JSON.stringify(event.args ?? null).includes(token))
-      return true;
+    if (
+      record(event) &&
+      event.type === "tool_execution_start" &&
+      typeof event.toolCallId === "string" &&
+      typeof event.toolName === "string"
+    )
+      calls.push({ toolCallId: event.toolCallId, toolName: event.toolName, args: event.args });
   }
-  return false;
+  return !auditToolArgs(calls, { substrings: [token], forbidParentTraversal: true }).clean;
 }

@@ -12,7 +12,7 @@ Why this could matter: purpose-built functions carry meaning that flags and text
 
 We keep one honest footnote: bash composes well, models know it, and type declarations cost tokens too. So we measure rather than assert — see [Benchmarking](#benchmarking) and the [evaluation plan](docs/evaluation.md).
 
-How it looks in practice: Strata is an extension for [Pi](https://github.com/earendil-works/pi), a coding agent. It adds one main tool, `typed_program`, plus two helpers to find and load more functions (`search_capabilities`, `load_capability`). Pi's normal tools stay available. Bun runs the checker and the workers; by default programs run inside a fresh QuickJS interpreter with no `fs`, `fetch`, or `process`.
+How it looks in practice: Strata is an extension for [Pi](https://github.com/earendil-works/pi), a coding agent. It adds one main tool, `typed_program`, plus helpers to find, load, and inspect more functions (`search_capabilities`, `load_capability`, `program_details`). Pi's normal tools stay available. Bun runs the checker and the workers; by default programs run inside a fresh QuickJS interpreter with no `fs`, `fetch`, or `process`.
 
 What works today: a deterministic test fixture, the same data as a plain CLI for fair comparison, a tiny two-entry catalog, and read-only repository helpers (`readText`, literal `searchText`, `gitStatus`). What does not exist yet: write support, real discovery at scale, hosted sandboxing, or any claim of production safety. See [Project map and scope](#project-map-and-scope) and [What we measure](#what-we-measure).
 
