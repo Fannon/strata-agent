@@ -9,8 +9,9 @@ import {
   searchCatalog,
   type CatalogEntry,
 } from "../capabilities/catalog.ts";
-import { createSession } from "../session.ts";
+import { parseDeclarationStyle, type DeclarationStyle } from "../capabilities/schemas.ts";
 import { parseExecutor, type ExecutorKind } from "../runtime/executor.ts";
+import { createSession } from "../session.ts";
 import { connectRepo } from "../capabilities/repo/connector.ts";
 import { fixtureSession, fixtureAllowed } from "../../examples/fixture.ts";
 import { cliTwinConnection } from "../../examples/cli-twin.ts";
@@ -86,6 +87,7 @@ export async function sessionFromConfig(
   config: unknown,
   index?: CatalogEntry[],
   executor: ExecutorKind = "quickjs",
+  declarations: DeclarationStyle = "full",
 ): Promise<{ session: Session; allowFor: AllowFor; initialIds: string[] }> {
   if (!config || typeof config !== "object")
     throw new Error("STRATA_CONFIG must contain an object");
@@ -129,7 +131,7 @@ export async function sessionFromConfig(
       const built = await buildEntryConnector(entry);
       try {
         if (!session) {
-          session = await createSession(built.manifest, built.connector, allowed!, { executor });
+          session = await createSession(built.manifest, built.connector, allowed!, { executor, declarations });
         } else {
           await session.load(built.manifest, built.connector, allowed!);
         }
@@ -153,7 +155,7 @@ export async function sessionFromConfig(
         manifest,
         connector,
         new Set(record.allow),
-        { executor },
+        { executor, declarations },
       );
       return {
         session,
@@ -187,7 +189,7 @@ export async function sessionFromConfig(
         manifest,
         connector,
         new Set(allow as string[]),
-        { executor },
+        { executor, declarations },
       );
       return {
         session,
@@ -213,7 +215,7 @@ export async function sessionFromConfig(
     );
   const { manifest, connector } = await connectMcp(id, { command, args });
   try {
-    const session = await createSession(manifest, connector, new Set(allow), { executor });
+    const session = await createSession(manifest, connector, new Set(allow), { executor, declarations });
     return {
       session,
       allowFor: () => new Set(allow as string[]),
@@ -230,14 +232,16 @@ export async function sessionFromConfig(
 async function configuredSession(index: CatalogEntry[]) {
   // Opt-in engine selection; an invalid value fails session startup loudly.
   const executor = parseExecutor(process.env.STRATA_EXECUTOR);
+  // Opt-in declaration presentation for the 004 experiment; same loud failure.
+  const declarations = parseDeclarationStyle(process.env.STRATA_DECLARATIONS);
   const raw = (process.env.STRATA_CONFIG ?? "").trim();
   if (!raw)
     return {
-      session: await fixtureSession(executor),
+      session: await fixtureSession(executor, declarations),
       allowFor: () => fixtureAllowed,
       initialIds: ["fixture"],
     };
-  return sessionFromConfig(JSON.parse(await readFile(raw, "utf8")), index, executor);
+  return sessionFromConfig(JSON.parse(await readFile(raw, "utf8")), index, executor, declarations);
 }
 
 export default function strata(pi: ExtensionAPI) {

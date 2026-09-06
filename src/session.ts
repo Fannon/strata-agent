@@ -1,6 +1,6 @@
 import { Workspace } from "./compiler/workspace.ts";
 import { CapabilityBroker, type Metrics } from "./capabilities/broker.ts";
-import { declarations, declarationsPreamble } from "./capabilities/schemas.ts";
+import { declarations, declarationsPreamble, parseDeclarationStyle, type DeclarationStyle } from "./capabilities/schemas.ts";
 import {
   type CapabilityModule,
   type CapabilityConnector,
@@ -19,6 +19,8 @@ export interface SessionOptions {
   traceFile?: string;
   /** Execution engine. Default "quickjs"; "bun" is opt-in (see docs/executors.md). */
   executor?: ExecutorKind;
+  /** Declaration presentation. Default "full"; "compact" is opt-in for the 004 experiment. */
+  declarations?: DeclarationStyle;
 }
 
 export async function createSession(
@@ -27,7 +29,8 @@ export async function createSession(
   allowed: ReadonlySet<string>,
   options: SessionOptions = {},
 ) {
-  const texts = [await declarations(manifest)];
+  const style = parseDeclarationStyle(options.declarations);
+  const texts = [await declarations(manifest, style)];
   const joined = () => `${declarationsPreamble}\n${texts.join("\n")}`;
   const workspace = new Workspace(joined());
   const broker = new CapabilityBroker(manifest, connector, allowed);
@@ -94,7 +97,7 @@ export async function createSession(
       try {
         // Declarations first: they can throw, and the broker must never gain
         // a module whose types failed. The caller closes moduleConnector on error.
-        const text = await declarations(module);
+        const text = await declarations(module, style);
         broker.addModule(module, moduleConnector, moduleAllowed);
         connectors.push(moduleConnector);
         texts.push(text);

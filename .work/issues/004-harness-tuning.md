@@ -1,6 +1,6 @@
 # 004 — Attribute and reduce typed-context cost
 
-Status: ready for selection; recommended next slice (2026-09-06)
+Status: slice A delivered 2026-09-06 (offline); slice B matrix+budget proposed below, awaiting spend selection
 Dependencies: delivered 026/031 instrumentation and 028 repo-2 artifacts; no new tool or executor required.
 
 ## Evidence and hypothesis
@@ -9,12 +9,22 @@ Dev+held-out: typed profiles made fewer tool calls but cost about 2–2.2× stoc
 
 Hypothesis: a concise presentation of the same capability contract reduces total cost without worsening task success or repair burden. Goal is a fair test, not making Strata win.
 
-## Slice A — offline attribution
+## Slice A — offline attribution (delivered)
 
-- [ ] Summarize exact effective request components: declarations, fixed instructions, generated programs, prior results/errors and model-response counts. Record bytes separately from estimated tokens; retain actual input/output/cache usage. Repeated context is not necessarily uncached billing.
-- [ ] Inspect why stock uses fewer tokens: classify composition and output selection from a bounded sanitized sample. Count Pi tool calls separately from model responses and broker calls.
-- [ ] Account for declaration generation and prompt injection in one place; distinguish source schemas, compiler declarations and model-facing docs. Propose one compact model-facing presentation retaining every operation, input/output type, enum and critical semantic constraint.
-- [ ] Produce an offline size report and declaration/type-contract parity checks. Preserve grants, runtime schemas, task access and error behavior. Do not select operations using hidden answers. Per-task subsets or on-demand loading change a different factor and require a separate labeled experiment.
+Attribution tool: `examples/attribute-context.ts` (run dirs → per-profile byte/token tables from request receipts, the ground truth — note `effective-prompt.json` misses declarations through hook ordering). Close-out run (R-EXPORT family, 10 cells/arm):
+
+- stock: 46 requests, in-tok 83.5k, cacheR 77k, $0.0121; system-base 113KB, tool schemas 136KB, task/results 224+107KB, programs n/a, results 107KB.
+- typed-quickjs: 41 requests, in-tok 147k, cacheR 160k, $0.0176; declarations 714KB (~17.4KB/req), system-base 157KB, tool schemas 207KB, programs 10KB, results 20KB.
+- typed-bun: 49 requests, cacheR 246k (repetition mostly cache-discounted), declarations 853KB.
+
+So: declarations are ~45–50% of typed input bytes but heavily cache-discounted; programs are tiny (~250B/req); typed results (~0.6KB/req) are far smaller than stock raw reads (~2.3KB/req); typed tool-schema listings run ~5KB/req vs stock ~3KB/req (extra tools). Cache behavior, repairs and outputs all contribute — declarations correlate, not proven alone.
+
+Compact presentation: `declarations(module, "compact")` — alias module by re-export plus array caps as prose (`Max N items.`), runtime schemas untouched. Repo 17,408→5,810 B (67% off), fixture 3,296→1,733 B (47% off). Session option + `STRATA_DECLARATIONS` env (default full; loud failure on invalid). Parity: compile/no-compile agreement corpus incl. git ops, alias prefixes, suppression/import/main rules; the one documented move is over-cap arrays (static tuple rejection becomes pre-effect input rejection, zero calls). Reference workflows pass unchanged on baseline. `test/integration/declarations-compact.test.ts`, 153 green.
+
+- [x] Summarize exact effective request components: declarations, fixed instructions, generated programs, prior results/errors and model-response counts. Record bytes separately from estimated tokens; retain actual input/output/cache usage. Repeated context is not necessarily uncached billing.
+- [x] Inspect why stock uses fewer tokens: classify composition and output selection from a bounded sanitized sample. Count Pi tool calls separately from model responses and broker calls.
+- [x] Account for declaration generation and prompt injection in one place; distinguish source schemas, compiler declarations and model-facing docs. Propose one compact model-facing presentation retaining every operation, input/output type, enum and critical semantic constraint.
+- [x] Produce an offline size report and declaration/type-contract parity checks. Preserve grants, runtime schemas, task access and error behavior. Do not select operations using hidden answers. Per-task subsets or on-demand loading change a different factor and require a separate labeled experiment.
 
 ## Slice B — bounded paired development trial
 
