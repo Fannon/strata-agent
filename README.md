@@ -156,7 +156,7 @@ The ordinary test suite uses a loopback fake provider and never calls a paid mod
 
 ### Discovery: search and load further capabilities
 
-The extension always registers `search_capabilities` (lexical search over the local `catalog/`) and `load_capability` (adds an entry to the live session and returns its `@cap/` import block). Loading never grants invocation: every call still passes the configured allowlist and schema validation. The first catalog holds the twin split for benchmarking: always-loaded core (`customers`, `invoices`) with bulk `records` discovered on demand.
+The extension always registers `search_capabilities` (lexical search over the local `catalog/`) and `load_capability` (adds an entry to the live session and returns its `@cap/` import block). Loading never grants invocation: every call still passes the configured allowlist and schema validation. Search is policy-aware: it hides catalog entries with no usable grants (missing or empty `allow` entry, or names matching no declared operation) before ranking, so denied hits cannot crowd out allowed ones under `limit`, and it matches/displays only granted operations — module id/description stay discoverable when some declared operation is granted. Filtering is discovery UX only, not schema secrecy: `load_capability` returns full module declarations alongside a grant-filtered operation list, validates grants before serving cached declarations, and refuses denied ids (including grants naming no declared operation) the same way. Search requires a live session and fails closed after shutdown. The first catalog holds the twin split for benchmarking: always-loaded core (`customers`, `invoices`) with bulk `records` discovered on demand.
 
 ```json
 {

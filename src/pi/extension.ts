@@ -125,8 +125,15 @@ export async function sessionFromConfig(
       const entry = byId.get(id);
       if (!entry) throw new Error(`Unknown catalog entry \"${id}\"`);
       const allowed = allowFor(id);
-      if (!allowed) {
+      if (!allowed || allowed.size === 0) {
         refuse(id);
+      }
+      // Grants naming no declared operation fail fast like absent ones:
+      // loading would grant nothing callable.
+      if (!entry.meta.operations.some((op) => allowed.has(op.name))) {
+        throw new Error(
+          `Capability "${id}" grants no known operations under the configured allowlist.`,
+        );
       }
       const built = await buildEntryConnector(entry);
       try {
@@ -379,10 +386,28 @@ export default function strata(pi: ExtensionAPI) {
     async (params) => {
       if (!index.length && !startupError)
         throw new Error("Capability catalog is not initialized");
-      if (startupError && !session)
-        throw new Error(`Typed runtime unavailable: ${startupError}`);
+      const current = session;
+      const resolver = allowFor;
+      // Fail closed without a live session/resolver (e.g. after shutdown).
+      if (!current || !resolver)
+        throw new Error(
+          `Typed runtime unavailable: ${startupError ?? "session not started"}`,
+        );
+      // Discovery filtering is UX only; broker policy + schema validation
+      // still gate every call. Filtered before ranking/limit so denied hits
+      // cannot crowd out allowed ones. Static meta only: never imports modules.
+      const scoped: CatalogEntry[] = [];
+      for (const entry of index) {
+        const granted = resolver(entry.meta.id);
+        if (!granted || granted.size === 0) continue;
+        const operations = entry.meta.operations.filter((op) =>
+          granted.has(op.name),
+        );
+        if (operations.length === 0) continue;
+        scoped.push({ file: entry.file, meta: { ...entry.meta, operations } });
+      }
       const hits = searchCatalog(
-        index,
+        scoped,
         params.query as string,
         Math.min(10, Math.max(1, (params.limit as number | undefined) ?? 5)),
       ).map((hit) => ({
@@ -422,6 +447,20 @@ export default function strata(pi: ExtensionAPI) {
         throw new Error(
           `Unknown capability \"${id}\". Use search_capabilities to discover available capabilities.`,
         );
+      const allowed = resolver(id);
+      // Empty grant sets are refused exactly like absent ones: loading would
+      // grant nothing, so the module stays hidden from search and fails here.
+      if (!allowed || allowed.size === 0) refuse(id);
+      // Grants naming no declared operation refuse the same way. The
+      // operations list is display-only: declarations carry full module
+      // types and every call still passes broker policy + schema validation.
+      const granted = entry.meta.operations
+        .filter((op) => allowed.has(op.name))
+        .map((op) => op.name);
+      if (granted.length === 0)
+        throw new Error(
+          `Capability "${id}" grants no known operations under the configured allowlist.`,
+        );
       const cached = loadedTexts.get(id);
       if (cached)
         return {
@@ -430,21 +469,19 @@ export default function strata(pi: ExtensionAPI) {
               type: "text" as const,
               text: JSON.stringify({
                 module: `@c/${id}`,
-                operations: entry.meta.operations.map((op) => op.name),
+                operations: granted,
                 declarations: cached.slice(0, 4000),
               }),
             },
           ],
           details: {},
         };
-      const allowed = resolver(id);
-      if (!allowed) refuse(id);
       signal?.throwIfAborted();
       const built = await buildEntryConnector(entry);
       let text: string;
       try {
         signal?.throwIfAborted();
-        text = await current.load(built.manifest, built.connector, allowed!, signal ? { signal } : undefined);
+        text = await current.load(built.manifest, built.connector, allowed, signal ? { signal } : undefined);
       } catch (error) {
         await built.connector.close();
         throw error;
@@ -465,7 +502,7 @@ export default function strata(pi: ExtensionAPI) {
             type: "text" as const,
             text: JSON.stringify({
               module: `@c/${id}`,
-              operations: entry.meta.operations.map((op) => op.name),
+              operations: granted,
               declarations: text.slice(0, 4000),
             }),
           },

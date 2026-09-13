@@ -1,6 +1,6 @@
 # 029 — Policy-aware capability search
 
-Status: backlog, ready (small slice)
+Status: implemented with review corrections (2026-09-13, per supervisor clarification in `.work/pi-agent/029-prompt.md` plus `.work/pi-agent/029-review.md`)
 Kind: UX / discovery follow-up to 003
 Source: user discussion 2026-09-06 — search offers capabilities that load then refuses.
 
@@ -35,14 +35,42 @@ everything in the fixture, so nothing is hidden there. Catalog config with
 per-id `allow` is where filtering matters. `preload` ids that are not allowed
 already fail fast at startup via `refuse()` — keep that.
 
+## Decision (supervisor clarification, implemented as-is)
+
+- Hide-by-default (Option A without the count): search omits modules whose
+  `allowFor` is `undefined`, whose grant set is empty, or whose grants name
+  no declared operation. Search requires a live session/resolver and fails
+  closed otherwise (e.g. after shutdown).
+- Filter the catalog **before** search ranking/`limit`, so denied hits cannot
+  crowd out allowed hits.
+- Filter operation metadata to allowed operation names before
+  matching/output; module id/description stay discoverable when some
+  declared operation is granted.
+- **No `hiddenByPolicy` count** — explicit choice: the count is not needed
+  for agent actions and would expose denied catalog size.
+- Search remains static (extracted `meta` only, never imports/invokes
+  modules); `load_capability` and catalog `preload` reject empty grant sets
+  exactly like absent ones, and reject grants naming no declared operation
+  as granting no known operations. Grants are validated before cached load
+  responses. Discovery filtering is UX only: load returns full module
+  declarations alongside a grant-filtered operation list; broker enforcement
+  unchanged.
+
 ## Completion criteria
 
-- [ ] Search results exclude or clearly mark capabilities the current config
-  would refuse to load.
-- [ ] Unit test: catalog config allowing only `cli` — search for `records`
-  either omits `cli-records` (with hidden count) or marks it not-allowed;
-  load still refuses as today.
-- [ ] Docs: one-line note in `README.md` discovery section.
+- [x] Search results exclude capabilities the current config would refuse to
+  load (hide-by-default; no count, per decision above), including grants
+  naming no declared operation. Search fails closed without a live
+  session/resolver.
+- [x] Integration tests through actual registered Pi tool handlers
+  (`test/integration/pi-search-policy.test.ts`): absent/empty/unknown-op
+  grants, limit crowding (`"customers records"` limit 1 returns `cli`
+  when `cli-records` is denied — denied hit genuinely outranks allowed
+  unfiltered), search/load refusal after shutdown, and load refusal with
+  preload fail-fast for grants naming no declared operation; partial load
+  output lists only granted operations alongside full declarations, and the
+  denied call still fails at broker policy.
+- [x] Docs: note in `README.md` discovery section.
 
 Not on the critical path for 028 tasks or matched trials. Small, independent,
 no paid model run needed.
