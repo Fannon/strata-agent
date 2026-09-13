@@ -42,3 +42,7 @@ Acceptance: evidence identifying whether benefits come from lazy discovery, comp
 ## Current implementation gap
 
 Strata has a small static local catalog and additive loading, operation allowlists and repository-specific resource checks. It has no complete dynamic enterprise catalog subscription, contract replacement/unload lifecycle, per-principal policy cache, live business-resource authorization or cross-service approval/recovery system. Existing MCP connectivity is a starting adapter, not proof these features exist. 025/029 become relevant if dynamic discovery is selected; 017 dependencies/supersession remain demand-driven.
+
+## Benchmark reuse follow-up
+
+[037](037-enterprise-benchmark-reuse.md) proposes AppWorld for cross-app state-graded composition and BFCL for invocation/relevance diagnostics. Reuse existing APIs and graders before inventing a custom suite; catalog-size and live-permission tests remain separate controlled extensions.

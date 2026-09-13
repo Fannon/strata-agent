@@ -29,7 +29,7 @@ Overall success includes policy and harness requirements. Tool calls are Pi tool
 
 - **No demonstrated typed advantage on these repository tasks.** In dev+held-out, all profiles had 23/24 overall successes, but exact correctness was stock 24/24, QuickJS 23/24 and Bun 23/24. Typed profiles used 68/79 tool calls versus stock's 144; their aggregate token totals were 2.35×/2.72× stock and estimated costs 1.98×/2.19× stock. Fewer tool calls did not translate into a clear latency win.
 - **Efficiency is informative even at high success.** Wave-2 (chain, 1,500-line aggregation, narrowing) retained the cost disadvantage. This tests those particular mechanics; it does not exhaust structured repository tasks or establish model equivalence.
-- **Context footprint is a candidate explanation, not a causal result.** Typed prompts included 17,072 declaration bytes in dev/held-out and 17,468 in later rounds. Generated programs, error recovery, other instructions and cache behavior also affect cost. Declarations are appended to the system prompt; repeated context processing is not necessarily repeated uncached billing. No matched compact-declaration ablation has run.
+- **Context footprint is a candidate explanation, not a causal result.** Typed prompts included 17,072 declaration bytes in dev/held-out and 17,468 in later rounds. Generated programs, error recovery, other instructions and cache behavior also affect cost. Declarations are appended to the system prompt; repeated context processing is not necessarily repeated uncached billing. This describes the four original rounds; a subsequent matched development ablation is recorded below.
 - **Executor choice is not the next priority.** Both support the same tested contracts. Local model-free timings favor Bun by tens of milliseconds on selected probes; paid runs contain model variability and do not show a stable end-to-end engine advantage. Keep QuickJS default and Bun opt-in; do not call the comparison universally settled.
 
 ## Failures and interpretive corrections
@@ -50,8 +50,14 @@ Earlier flat-reservation/zero-price attempts remain excluded as invalid infrastr
 
 ## Recommended trajectory
 
-1. **004: measure and reduce context cost.** Inventory effective prompts and request usage offline; then compare a compact declaration presentation with the same operations, schemas, checker, policy and one fixed executor. No task-specific answer-informed pruning. Preserve critical semantics and repair feedback; 031 quiet success is already delivered.
+1. **004 development ablation delivered.** Attribution and a full-surface compact declaration presentation are implemented. Keep compact opt-in pending independent confirmation; do not repeat the completed development slice.
 2. **Confirm usefulness on independent work.** Use a small session-informed or licensed repository task set with plausible distractors but objectively resolvable answers. Existing -3/-4 instances have been inspected and rerun; reserve genuinely new families/repos for confirmation. Add a second model after an affordable development signal, not a large engine×model×task campaign.
 3. **Decide continue, narrow or stop.** A read-only hybrid remains plausible, but aggregation superiority is not yet demonstrated. If bounded tuning does not improve task-level economics, keep Strata as a learning/tooling project or a narrowly justified integration. Edits/checks can be a separately selected product-coverage experiment, not a remedy assumed to rescue these numbers.
 
 Keep engines, memory, caps, a new sandbox and broad catalogs out of the next context-cost ablation. 032/013/033 can supply coverage evidence without new adapters. See [handoff](handoff.md), [evaluation](evaluation.md) and the [issue board](../.work/issues/index.md).
+
+## Subsequent compact development trial (2026-09-06)
+
+Issue [004](../.work/issues/004-harness-tuning.md), delivered at `4b8e39a`, records a separate 36-cell paired run: stock 11/12 successes, full QuickJS 12/12, compact QuickJS 12/12. Estimated costs were $0.0092/$0.0212/$0.0156 respectively; compact cost per success fell 28% against full, exceeding the predeclared 15% development retention bar. Tokens fell from 437,030 to 304,406. Ledger $0.0461 versus key delta $0.0385 remains an accounting discrepancy, not a verified invoice.
+
+This result is additional development evidence, not part of the historical 120-cell export or independent confirmation. Compact remains opt-in; full declarations remain default. Fresh uninspected task families are the next confirmation step. The supervisor reconciled this delivery record on 2026-09-13; this update does not claim a fresh raw-artifact audit or new model run.

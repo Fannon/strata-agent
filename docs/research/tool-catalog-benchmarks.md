@@ -1,0 +1,24 @@
+# Reusing tool benchmarks for enterprise capability experiments
+
+Research date: 2026-09-13. Proposal only; no benchmark integration or paid run authorized by this note. Complements [enterprise capability scaling](../enterprise-capabilities.md).
+
+## Recommended candidates
+
+**Start with an AppWorld compatibility spike.** Its nine simulated apps and 457 APIs offer cross-app tasks, OpenAPI documentation and database-state grading independent of programming language. It supports both stdio and streamable HTTP MCP. External clients must explicitly save task state; concurrent runs need separate API servers. Its Python/IPython reference approach is a useful later comparison for composition without TypeScript checking. [AppWorld documentation](https://github.com/StonyBrookNLP/appworld#information_source-about).
+
+This is a realistic composition candidate, not evidence of enterprise-scale discovery or production access control. Public scaffolding is Apache-2.0; protected bundles, including API documentation, carry an additional encrypted-public-redistribution requirement. Keep downloaded tasks and generated API bindings local; verify pinned release terms before publishing derivatives. [License distinction](https://github.com/StonyBrookNLP/appworld#lock_with_ink_pen-license).
+
+**BFCL is a complementary diagnostic suite.** Reuse a pinned subset covering function selection, argument accuracy, irrelevance and missing-function/parameter cases. Its AST-oriented and multi-turn evaluations answer narrower questions than cross-app state success. A function-choice task is not automatically retrieval across thousands of tools; adding distractors changes the experiment. [BFCL live categories](https://gorilla.cs.berkeley.edu/blogs/12_bfcl_v2_live.html), [multi-turn methodology](https://gorilla.cs.berkeley.edu/blogs/13_bfcl_v3_multi_turn.html).
+
+**StableToolBench is a later catalog/stability candidate.** It replaces unreliable live APIs with virtual responses, using GPT-backed caching or newer MirrorAPI simulation, and model-based evaluation. Those choices introduce cache coverage, simulator and judge confounders; a simulated response is not a deterministic business-state oracle. Pin the backend, cache, simulator and judge; report misses and include their cost. Prefer it after a deterministic integration works. [Upstream implementation and evaluation](https://github.com/THUNLP-MT/StableToolBench).
+
+**The tau benchmark family suits policy and dialogue.** Domains combine tools, policies, tasks and a user simulator. The `tau2-bench` repository now presents tau3, including voice/knowledge additions and grading changes. Select a pinned text-only domain; account separately for user-model variability and spend. This tests conversational policy adherence better than catalog-size scaling. [Current upstream scope and version caveats](https://github.com/sierra-research/tau2-bench).
+
+## Proposed first experiment
+
+1. **Offline compatibility spike, no agent spend:** pin AppWorld code/data versions; choose two train/dev tasks and replay controller-authored calls against fresh local worlds through Strata's existing stdio connector. Check schema conversion (`$ref`, unions, nullable/optional inputs), actual MCP output schemas versus text envelopes, authentication, errors, save/reset and grading. Never silently replace unsupported output types with `any`. Record adapter gaps and setup time. Stop if trustworthy grading requires rewriting the benchmark.
+2. **Matched pilot:** preselect roughly 6–10 additional dev tasks with joins/filtering, dependent calls and simple one-call controls. Compare lazy direct tool calling with typed programs using the same model, reasoning, backend, discovery results, visible documentation, grants, budgets and state grader. Keep one execution engine fixed initially. Separate legitimate composition savings from retrieval, output truncation and interpreter differences.
+3. **Measure:** task success and unintended state changes first; then discovery recall, schema/argument errors, retries, model turns, tool calls, total input/output tokens, monetary cost and wall time. Include declaration/checker/broker time and adapter engineering effort. Publish task IDs, versions and sanitized aggregate results within upstream terms. Reserve untouched tasks for confirmation.
+4. **Separate synthetic extensions:** vary metadata catalogs across 100/1,000/10,000 operations using plausible distractors; test permission revocation and schema changes between discovery and execution. These measure our added hypotheses, not official AppWorld behavior.
+
+Report adaptations as **Strata experiments using benchmark tasks**, not official leaderboard scores. A positive pilot justifies expansion; equal success at higher total cost, or integration dominated by handwritten schema repair, is useful negative evidence.

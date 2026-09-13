@@ -1,6 +1,6 @@
 # 004 — Attribute and reduce typed-context cost
 
-Status: slice A delivered 2026-09-06 (offline); slice B matrix+budget proposed below, awaiting spend selection
+Status: slices A and B delivered 2026-09-06; compact retained opt-in, independent confirmation remains open
 Dependencies: delivered 026/031 instrumentation and 028 repo-2 artifacts; no new tool or executor required.
 
 ## Evidence and hypothesis
@@ -40,7 +40,7 @@ Compact cost-per-success is 28% below full ($0.0013 vs $0.0018) with identical s
 
 Verdict: **retain (do not revert)** — compact stays opt-in pending confirmation on fresh uninspected families (the -3/-4 instances are now regression material; R-CALL/R-JOIN or new repos are the confirmation set). The default stays `full` until confirmation lands. No second revision spent; no behavior change to grants, schemas, checker or policy. A second model tests portability only after confirmation.
 
-Runner support landed offline (`typed-quickjs-compact` profile: quickjs engine + `STRATA_DECLARATIONS=compact`; both declaration snapshots pinned per run; dry-run validated). No model calls made.
+Runner support first landed offline (`typed-quickjs-compact` profile: quickjs engine + `STRATA_DECLARATIONS=compact`; both declaration snapshots pinned per run; dry-run validated). The subsequent paid development run is reported above.
 
 - Matrix: 6 dev R- tasks × stock-pi / typed-quickjs / typed-quickjs-compact × 2 repeats = 36 cells, counterbalanced, fixed model/settings/caps/policy/guard/ledger. Bun arm excluded (executor fixed for this ablation).
 - Command: `bun examples/repo-pilot.ts --run --max-cost-usd 5 --repeats 2 --profiles stock-pi,typed-quickjs,typed-quickjs-compact --tasks R-EXPORT-1,R-EXPORT-2,R-LOG-1,R-LOG-2,R-LOC-1,R-LOC-2`.

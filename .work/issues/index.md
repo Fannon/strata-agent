@@ -1,20 +1,20 @@
 # Strata issue board
 
-Reviewed 2026-09-06 against `807562a`, current source and four repo-2 artifact sets. This board owns next-work ordering; [handoff](../../docs/handoff.md) owns the concise implementation handoff, [trial report](../../docs/repo-trials.md) owns evidence, [ACD](../../ACD.md) owns architectural direction. Issue Markdown is tracked; raw `.work/` artifacts and local notes remain ignored.
+Reviewed 2026-09-13 from `1b6df35`, including the compact development trial and the selected implementation batch. This board owns next-work ordering; [handoff](../../docs/handoff.md) owns the concise implementation handoff, [trial report](../../docs/repo-trials.md) owns evidence, [ACD](../../ACD.md) owns architectural direction. Issue Markdown is tracked; raw `.work/` artifacts and local notes remain ignored.
 
 ## Decision and verification
 
-The typed capability layer is enduring; both engines and the useful read-only API are implemented. Four trial stages show no demonstrated task-level advantage: typed profiles use fewer Pi calls but more context/cost. Next: **004 context-cost attribution and compact declarations**, then bounded confirmation on independent work under 009. Path-prefix close-out and 026/027/031 are delivered; do not repeat them. Engine equivalence, declaration causality and aggregation superiority are not established.
+The typed capability layer is enduring; both engines and the useful read-only API are implemented. Four trial stages show no demonstrated task-level advantage: typed profiles use fewer Pi calls but more context/cost. 004 attribution and compact development testing are delivered: compact reduced cost/success 28% against full declarations at 12/12 success in both arms. Keep it opt-in pending independent confirmation under 009. The current implementation batch addresses 025 shutdown ownership and 029 policy-aware discovery. Path-prefix close-out and 026/027/031 are delivered; do not repeat them. Engine equivalence, declaration causality and aggregation superiority are not established.
 
-Verified this review: `bun run check` passed; `bun test` passed **148 tests / 0 failures / 1169 assertions** with local subprocess/loopback access. The restricted first run failed fixture/server startup; the permitted rerun passed. No new model calls. Historical test counts in delivery records refer to their revisions.
+Historical verification at `807562a`: `bun run check` passed; `bun test` passed **148 tests / 0 failures / 1169 assertions** with local subprocess/loopback access. The restricted first run failed fixture/server startup; the permitted rerun passed. No new model calls. Historical test counts in delivery records refer to their revisions.
 
-Current user request authorizes assessment/documentation. `ready` means actionable, not blanket authorization for code or spend. Existing explicit authorization carries forward within its scope; reconcile remaining budget before paid work. Record assumptions and results without erasing historical artifacts. Do not turn policy flags into answer failures or claim a clean heuristic audit proves containment.
+Current user request authorizes supervised implementation using Pi with `meta/muse-spark-1.3-contributor`, medium reasoning, for a few bounded issues. The supervisor selects requirements, reviews code and tests, and commits each completed step. This does not select a new comparative benchmark campaign. `ready` means actionable, not blanket authorization for code or spend. Existing explicit authorization carries forward within its scope; reconcile remaining budget before paid work. Record assumptions and results without erasing historical artifacts. Do not turn policy flags into answer failures or claim a clean heuristic audit proves containment.
 
 ## Recommended next work
 
 | Issue | Current status |
 | --- | --- |
-| [004 — Attribute and reduce typed-context cost](004-harness-tuning.md) | ready for selection; recommended next slice (2026-09-06) |
+| [004 — Attribute and reduce typed-context cost](004-harness-tuning.md) | A/B delivered; compact retained opt-in, independent confirmation next |
 | [009 — Baseline hardening: variance, warm sessions, wider tasks](009-baseline-hardening.md) | fixture hardening and initial repo-2 trials delivered; independent confirmation remains open |
 
 ## Completed mechanisms and trial slices
@@ -46,8 +46,8 @@ Current user request authorizes assessment/documentation. `ready` means actionab
 | [013 — Learn composable operations from local agent sessions](013-session-capability-study.md) | optional bounded study ready; preliminary counts recorded in 033, reproducible workflow study not delivered |
 | [023 — Reuse TypeScript libraries behind capabilities](023-library-backed-capabilities.md) | backlog |
 | [024 — Filesystem and search library candidates](024-filesystem-search-library-candidates.md) | decided for path discovery (Bun.Glob selected, no new dependency); content-search adapter still open |
-| [025 — Catalog load vs session shutdown race](025-load-shutdown-race.md) | backlog |
-| [029 — Policy-aware capability search](029-policy-aware-search.md) | backlog, ready (small slice) |
+| [025 — Catalog load vs session shutdown race](025-load-shutdown-race.md) | selected for this implementation batch |
+| [029 — Policy-aware capability search](029-policy-aware-search.md) | selected for this implementation batch |
 | [032 — From task-first slices to solid coverage](032-coverage-track.md) | backlog, plan only (no implementation authorized) |
 | [033 — Mine local agentsview sessions for coverage needs](033-agentsview-mining.md) | backlog, suggested (read-only inspection done 2026-09-06, no transcripts copied) |
 | [034 — Operator-configurable caps for result, logs, and tool text](034-configurable-caps.md) | deferred pending measured cap failures or operator requirement; follows 031 |
@@ -55,7 +55,7 @@ Current user request authorizes assessment/documentation. `ready` means actionab
 
 ## Enterprise-fit hypothesis
 
-[035 — Enterprise discovery and typed composition](035-enterprise-capability-scaling.md) captures a potentially different use case: large dynamic API catalogs with small discovered working sets. Research/concept only; it does not replace the active 004 work. Compare with equally lazy direct tools and test schema changes/revocation separately from task efficiency.
+[035 — Enterprise discovery and typed composition](035-enterprise-capability-scaling.md) captures a potentially different use case: large dynamic API catalogs with small discovered working sets. Research/concept only; it does not replace independent confirmation of 004. [037 — Reuse enterprise tool benchmarks](037-enterprise-benchmark-reuse.md) selects an AppWorld offline compatibility spike as the next enterprise experiment, with BFCL as a complementary diagnostic. Compare with equally lazy direct tools and test schema changes/revocation separately from task efficiency.
 
 ## Deferred experiments
 
