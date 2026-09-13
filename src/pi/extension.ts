@@ -405,8 +405,14 @@ export default function strata(pi: ExtensionAPI) {
     Type.Object({
       id: Type.String({ description: "Catalog capability id", maxLength: 128 }),
     }),
-    async (params) => {
-      if (!session || !allowFor)
+    async (params, signal) => {
+      // Capture the live session: shutdown may clear the outer binding while
+      // buildEntryConnector awaits. Using the captured session lets load()
+      // reject with its shutdown guard so the caller still closes the built
+      // connector instead of leaking it on a discarded session.
+      const current = session;
+      const resolver = allowFor;
+      if (!current || !resolver)
         throw new Error(
           `Typed runtime unavailable: ${startupError ?? "session not started"}`,
         );
@@ -431,16 +437,26 @@ export default function strata(pi: ExtensionAPI) {
           ],
           details: {},
         };
-      const allowed = allowFor(id);
+      const allowed = resolver(id);
       if (!allowed) refuse(id);
+      signal?.throwIfAborted();
       const built = await buildEntryConnector(entry);
       let text: string;
       try {
-        text = await session.load(built.manifest, built.connector, allowed!);
+        signal?.throwIfAborted();
+        text = await current.load(built.manifest, built.connector, allowed!, signal ? { signal } : undefined);
       } catch (error) {
         await built.connector.close();
         throw error;
       }
+      // Ownership transferred to the captured session on success, so the
+      // built connector must not be closed here. Skip stale bookkeeping when
+      // shutdown/replacement cleared the outer binding mid-load: the text
+      // belongs to the discarded session, not the live one.
+      if (session !== current)
+        throw new Error(
+          `Session shut down or replaced during load of "${id}"; load discarded.`,
+        );
       loaded.add(id);
       loadedTexts.set(id, text);
       return {

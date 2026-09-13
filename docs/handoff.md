@@ -7,7 +7,7 @@ Reviewed 2026-09-13 from `1b6df35`. Read [AGENTS.md](../AGENTS.md), [README](../
 - Pi extension: `typed_program`, capability search/load, `program_details`; schema-derived declarations, static checking, runtime broker validation and operation grants.
 - Repository reads: `readText` line ranges, `searchText` include/exclude globs and narrowing hints, `listFiles`, `gitStatus`, `gitLog` per-commit paths, `gitDiff`, `gitShow`. Best-effort root checks and bounded outputs; no mutation approvals or edits/checks capability.
 - Default QuickJS and opt-in Bun (`STRATA_EXECUTOR=bun`) share contracts, checking and fresh execution. Bun has ambient host authority. Disabling direct Pi tools does not make Bun API-exclusive.
-- Correlated local tracing and quiet success/on-demand details (026/031) are implemented. Full reports live outside model-facing success content. Policy-aware catalog search (029), load/shutdown race (025), memory (030) and configurable caps (034) remain open.
+- Correlated local tracing and quiet success/on-demand details (026/031) are implemented. Full reports live outside model-facing success content. 025 load/shutdown guards, explicit connector ownership and idempotent cleanup are delivered. Policy-aware catalog search (029), memory (030) and configurable caps (034) remain open.
 - Hardened fixture and repo-2 runners, original seeded R-EXPORT/R-LOG/R-LOC families, four reference repository workflows and model-free executor probes are implemented.
 
 ## Latest evidence and decision

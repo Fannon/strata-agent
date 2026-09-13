@@ -46,7 +46,7 @@ Current user request authorizes supervised implementation using Pi with `meta/mu
 | [013 — Learn composable operations from local agent sessions](013-session-capability-study.md) | optional bounded study ready; preliminary counts recorded in 033, reproducible workflow study not delivered |
 | [023 — Reuse TypeScript libraries behind capabilities](023-library-backed-capabilities.md) | backlog |
 | [024 — Filesystem and search library candidates](024-filesystem-search-library-candidates.md) | decided for path discovery (Bun.Glob selected, no new dependency); content-search adapter still open |
-| [025 — Catalog load vs session shutdown race](025-load-shutdown-race.md) | selected for this implementation batch |
+| [025 — Catalog load vs session shutdown race](025-load-shutdown-race.md) | done 2026-09-13; shutdown/cancellation guards, explicit ownership, idempotent cleanup |
 | [029 — Policy-aware capability search](029-policy-aware-search.md) | selected for this implementation batch |
 | [032 — From task-first slices to solid coverage](032-coverage-track.md) | backlog, plan only (no implementation authorized) |
 | [033 — Mine local agentsview sessions for coverage needs](033-agentsview-mining.md) | backlog, suggested (read-only inspection done 2026-09-06, no transcripts copied) |

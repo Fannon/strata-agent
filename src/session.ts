@@ -36,6 +36,8 @@ export async function createSession(
   const broker = new CapabilityBroker(manifest, connector, allowed);
   const connectors = [connector];
   const shutdown = new AbortController();
+  let closed = false;
+  let closePromise: Promise<void> | undefined;
   const active = new Set<Promise<unknown>>();
   const sessionId =
     options.sessionId ?? crypto.randomUUID().slice(0, 8);
@@ -77,57 +79,79 @@ export async function createSession(
     /** Register another capability module in this live session (discovery load).
      * Returns the new module's declarations so the caller can hand the model
      * its import block without a prompt reload. Loading never grants
-     * invocation: the given allowlist gates every call through the broker. */
+     * invocation: the given allowlist gates every call through the broker.
+     * Ownership: on success the session owns moduleConnector (closed by
+     * close()); on any throw — shutdown, abort, or declaration/broker error —
+     * ownership stays with the caller, which must close moduleConnector. */
     async load(
       module: CapabilityModule,
       moduleConnector: CapabilityConnector,
       moduleAllowed: ReadonlySet<string>,
+      options: { signal?: AbortSignal } = {},
     ) {
-      const loadId = `${sessionId}:load${++loadSeq}`;
-      const started = performance.now();
-      sink?.event({
-        v: TRACE_VERSION,
-        kind: "load",
-        phase: "start",
-        session: sessionId,
-        program: loadId,
-        capability: module.id,
-        wallMs: Date.now(),
-      });
+      if (closed) throw new Error("Session is closed; load aborted.");
+      options.signal?.throwIfAborted();
+      shutdown.signal.throwIfAborted();
+      const runLoad = async (): Promise<string> => {
+        const loadId = `${sessionId}:load${++loadSeq}`;
+        const started = performance.now();
+        sink?.event({
+          v: TRACE_VERSION,
+          kind: "load",
+          phase: "start",
+          session: sessionId,
+          program: loadId,
+          capability: module.id,
+          wallMs: Date.now(),
+        });
+        try {
+          // Declarations first: they can throw, and the broker must never gain
+          // a module whose types failed. Re-check shutdown/abort after the
+          // await: close() may have interleaved, and registration below must
+          // not run on a discarded session (connector leak). The caller closes
+          // moduleConnector on any throw.
+          const text = await declarations(module, style);
+          if (closed) throw new Error("Session is closed; load aborted.");
+          options.signal?.throwIfAborted();
+          shutdown.signal.throwIfAborted();
+          broker.addModule(module, moduleConnector, moduleAllowed);
+          connectors.push(moduleConnector);
+          texts.push(text);
+          workspace.setDeclarations(joined());
+          sink?.event({
+            v: TRACE_VERSION,
+            kind: "load",
+            phase: "outcome",
+            session: sessionId,
+            program: loadId,
+            capability: module.id,
+            wallMs: Date.now(),
+            durationMs: performance.now() - started,
+            outcome: "ok",
+          });
+          return text;
+        } catch (error) {
+          sink?.event({
+            v: TRACE_VERSION,
+            kind: "load",
+            phase: "outcome",
+            session: sessionId,
+            program: loadId,
+            capability: module.id,
+            wallMs: Date.now(),
+            durationMs: performance.now() - started,
+            outcome: "error",
+            detail: (error instanceof Error ? error.message : String(error)).slice(0, 300),
+          });
+          throw error;
+        }
+      };
+      const task = runLoad();
+      active.add(task);
       try {
-        // Declarations first: they can throw, and the broker must never gain
-        // a module whose types failed. The caller closes moduleConnector on error.
-        const text = await declarations(module, style);
-        broker.addModule(module, moduleConnector, moduleAllowed);
-        connectors.push(moduleConnector);
-        texts.push(text);
-        workspace.setDeclarations(joined());
-        sink?.event({
-          v: TRACE_VERSION,
-          kind: "load",
-          phase: "outcome",
-          session: sessionId,
-          program: loadId,
-          capability: module.id,
-          wallMs: Date.now(),
-          durationMs: performance.now() - started,
-          outcome: "ok",
-        });
-        return text;
-      } catch (error) {
-        sink?.event({
-          v: TRACE_VERSION,
-          kind: "load",
-          phase: "outcome",
-          session: sessionId,
-          program: loadId,
-          capability: module.id,
-          wallMs: Date.now(),
-          durationMs: performance.now() - started,
-          outcome: "error",
-          detail: (error instanceof Error ? error.message : String(error)).slice(0, 300),
-        });
-        throw error;
+        return await task;
+      } finally {
+        active.delete(task);
       }
     },
     run(
@@ -328,12 +352,43 @@ export async function createSession(
       void task.finally(() => active.delete(task));
       return task;
     },
+    // Idempotent and concurrent-safe: concurrent callers share one close
+    // pass, so every owned connector is closed exactly once. All connectors
+    // and the sink are attempted even when one close rejects; the first
+    // error (or an AggregateError for several) is rethrown to preserve
+    // error reporting.
     async close() {
-      shutdown.abort();
-      await Promise.allSettled(active);
-      workspace.close();
-      for (const connector of connectors) await connector.close();
-      await sink?.close();
+      closePromise ??= (async () => {
+        closed = true;
+        shutdown.abort();
+        await Promise.allSettled(active);
+        let workspaceError: unknown;
+        let hasWorkspaceError = false;
+        try {
+          workspace.close();
+        } catch (error) {
+          workspaceError = error;
+          hasWorkspaceError = true;
+        }
+        const results = await Promise.allSettled([
+          ...connectors.map((connector) =>
+            Promise.resolve().then(() => connector.close()),
+          ),
+          ...(sink
+            ? [Promise.resolve().then(() => (sink as TraceSink).close())]
+            : []),
+        ]);
+        const errors: unknown[] = [
+          ...(hasWorkspaceError ? [workspaceError] : []),
+          ...results.flatMap((result) =>
+            result.status === "rejected" ? [result.reason] : [],
+          ),
+        ];
+        if (errors.length === 1) throw errors[0];
+        if (errors.length > 1)
+          throw new AggregateError(errors, `${errors.length} errors during session close`);
+      })();
+      return closePromise;
     },
   };
 }
