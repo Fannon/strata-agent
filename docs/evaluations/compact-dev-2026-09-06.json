@@ -1,0 +1,996 @@
+{
+  "protocol": "repo-2",
+  "artifactVersion": 2,
+  "model": "meta/muse-spark-1.3-contributor",
+  "spentLedger": 0.04608151199999999,
+  "reservedTotal": 16.802611199999998,
+  "source": ".work/repo-pilot/2026-09-06T09-53-30-646Z/results.json",
+  "review": "Arithmetic and verdict inventory only; no regrading. Development tasks, one model, two repetitions per cell. Costs are estimates, not invoices.",
+  "keyUsageDelta": 0.03853717000000145,
+  "cells": [
+    {
+      "id": "cell-R-EXPORT-1-stock-pi-r0",
+      "task": "R-EXPORT-1",
+      "profile": "stock-pi",
+      "repeat": 0,
+      "status": "attempted",
+      "engine": "n/a-stock",
+      "declarations": "full",
+      "success": true,
+      "estimatedCostUsd": 0.00049332,
+      "usage": {
+        "input": 2723,
+        "output": 1067,
+        "cacheRead": 3810,
+        "cacheWrite": 0,
+        "totalTokens": 7600,
+        "cost": 0.00049332
+      },
+      "toolCounts": {
+        "bash": 1,
+        "read": 6
+      },
+      "modelResponses": 3,
+      "snoopedCanary": false,
+      "normalizedCorrect": true,
+      "promptBytes": 470,
+      "declarationBytes": 0
+    },
+    {
+      "id": "cell-R-EXPORT-1-typed-quickjs-r0",
+      "task": "R-EXPORT-1",
+      "profile": "typed-quickjs",
+      "repeat": 0,
+      "status": "attempted",
+      "engine": "quickjs",
+      "declarations": "full",
+      "success": true,
+      "estimatedCostUsd": 0.0011389299999999998,
+      "usage": {
+        "input": 8307,
+        "output": 1324,
+        "cacheRead": 21715,
+        "cacheWrite": 0,
+        "totalTokens": 31346,
+        "cost": 0.0011389299999999998
+      },
+      "toolCounts": {
+        "typed_program": 3
+      },
+      "modelResponses": 4,
+      "snoopedCanary": false,
+      "normalizedCorrect": true,
+      "promptBytes": 561,
+      "declarationBytes": 17468
+    },
+    {
+      "id": "cell-R-EXPORT-1-typed-quickjs-compact-r0",
+      "task": "R-EXPORT-1",
+      "profile": "typed-quickjs-compact",
+      "repeat": 0,
+      "status": "attempted",
+      "engine": "quickjs",
+      "declarations": "compact",
+      "success": true,
+      "estimatedCostUsd": 0.0007458219999999999,
+      "usage": {
+        "input": 5354,
+        "output": 922,
+        "cacheRead": 13011,
+        "cacheWrite": 0,
+        "totalTokens": 19287,
+        "cost": 0.0007458219999999999
+      },
+      "toolCounts": {
+        "typed_program": 3
+      },
+      "modelResponses": 4,
+      "snoopedCanary": false,
+      "normalizedCorrect": true,
+      "promptBytes": 561,
+      "declarationBytes": 17468
+    },
+    {
+      "id": "cell-R-EXPORT-2-typed-quickjs-r0",
+      "task": "R-EXPORT-2",
+      "profile": "typed-quickjs",
+      "repeat": 0,
+      "status": "attempted",
+      "engine": "quickjs",
+      "declarations": "full",
+      "success": true,
+      "estimatedCostUsd": 0.00112703,
+      "usage": {
+        "input": 8156,
+        "output": 1340,
+        "cacheRead": 21715,
+        "cacheWrite": 0,
+        "totalTokens": 31211,
+        "cost": 0.00112703
+      },
+      "toolCounts": {
+        "typed_program": 3
+      },
+      "modelResponses": 4,
+      "snoopedCanary": false,
+      "normalizedCorrect": true,
+      "promptBytes": 468,
+      "declarationBytes": 17468
+    },
+    {
+      "id": "cell-R-EXPORT-2-typed-quickjs-compact-r0",
+      "task": "R-EXPORT-2",
+      "profile": "typed-quickjs-compact",
+      "repeat": 0,
+      "status": "attempted",
+      "engine": "quickjs",
+      "declarations": "compact",
+      "success": true,
+      "estimatedCostUsd": 0.000946076,
+      "usage": {
+        "input": 5725,
+        "output": 1688,
+        "cacheRead": 17988,
+        "cacheWrite": 0,
+        "totalTokens": 25401,
+        "cost": 0.000946076
+      },
+      "toolCounts": {
+        "typed_program": 4
+      },
+      "modelResponses": 5,
+      "snoopedCanary": false,
+      "normalizedCorrect": true,
+      "promptBytes": 468,
+      "declarationBytes": 17468
+    },
+    {
+      "id": "cell-R-EXPORT-2-stock-pi-r0",
+      "task": "R-EXPORT-2",
+      "profile": "stock-pi",
+      "repeat": 0,
+      "status": "attempted",
+      "engine": "n/a-stock",
+      "declarations": "full",
+      "success": true,
+      "estimatedCostUsd": 0.000850622,
+      "usage": {
+        "input": 3780,
+        "output": 2297,
+        "cacheRead": 6611,
+        "cacheWrite": 0,
+        "totalTokens": 12688,
+        "cost": 0.000850622
+      },
+      "toolCounts": {
+        "bash": 2,
+        "read": 7
+      },
+      "modelResponses": 4,
+      "snoopedCanary": false,
+      "normalizedCorrect": true,
+      "promptBytes": 377,
+      "declarationBytes": 0
+    },
+    {
+      "id": "cell-R-LOG-1-typed-quickjs-compact-r0",
+      "task": "R-LOG-1",
+      "profile": "typed-quickjs-compact",
+      "repeat": 0,
+      "status": "attempted",
+      "engine": "quickjs",
+      "declarations": "compact",
+      "success": true,
+      "estimatedCostUsd": 0.001467374,
+      "usage": {
+        "input": 10040,
+        "output": 2229,
+        "cacheRead": 8787,
+        "cacheWrite": 0,
+        "totalTokens": 21056,
+        "cost": 0.001467374
+      },
+      "toolCounts": {
+        "typed_program": 3
+      },
+      "modelResponses": 4,
+      "snoopedCanary": false,
+      "normalizedCorrect": true,
+      "promptBytes": 678,
+      "declarationBytes": 17468
+    },
+    {
+      "id": "cell-R-LOG-1-stock-pi-r0",
+      "task": "R-LOG-1",
+      "profile": "stock-pi",
+      "repeat": 0,
+      "status": "attempted",
+      "engine": "n/a-stock",
+      "declarations": "full",
+      "success": true,
+      "estimatedCostUsd": 0.00087372,
+      "usage": {
+        "input": 5499,
+        "output": 1581,
+        "cacheRead": 3810,
+        "cacheWrite": 0,
+        "totalTokens": 10890,
+        "cost": 0.00087372
+      },
+      "toolCounts": {
+        "bash": 2,
+        "read": 3
+      },
+      "modelResponses": 4,
+      "snoopedCanary": false,
+      "normalizedCorrect": true,
+      "promptBytes": 587,
+      "declarationBytes": 0
+    },
+    {
+      "id": "cell-R-LOG-1-typed-quickjs-r0",
+      "task": "R-LOG-1",
+      "profile": "typed-quickjs",
+      "repeat": 0,
+      "status": "attempted",
+      "engine": "quickjs",
+      "declarations": "full",
+      "success": true,
+      "estimatedCostUsd": 0.00116883,
+      "usage": {
+        "input": 8270,
+        "output": 1492,
+        "cacheRead": 21715,
+        "cacheWrite": 0,
+        "totalTokens": 31477,
+        "cost": 0.00116883
+      },
+      "toolCounts": {
+        "typed_program": 3
+      },
+      "modelResponses": 4,
+      "snoopedCanary": false,
+      "normalizedCorrect": true,
+      "promptBytes": 678,
+      "declarationBytes": 17468
+    },
+    {
+      "id": "cell-R-LOG-2-stock-pi-r0",
+      "task": "R-LOG-2",
+      "profile": "stock-pi",
+      "repeat": 0,
+      "status": "attempted",
+      "engine": "n/a-stock",
+      "declarations": "full",
+      "success": true,
+      "estimatedCostUsd": 0.0010353119999999998,
+      "usage": {
+        "input": 5407,
+        "output": 2426,
+        "cacheRead": 4706,
+        "cacheWrite": 0,
+        "totalTokens": 12539,
+        "cost": 0.0010353119999999998
+      },
+      "toolCounts": {
+        "bash": 2,
+        "read": 4
+      },
+      "modelResponses": 4,
+      "snoopedCanary": false,
+      "normalizedCorrect": true,
+      "promptBytes": 655,
+      "declarationBytes": 0
+    },
+    {
+      "id": "cell-R-LOG-2-typed-quickjs-r0",
+      "task": "R-LOG-2",
+      "profile": "typed-quickjs",
+      "repeat": 0,
+      "status": "attempted",
+      "engine": "quickjs",
+      "declarations": "full",
+      "success": true,
+      "estimatedCostUsd": 0.0034960020000000002,
+      "usage": {
+        "input": 21128,
+        "output": 6511,
+        "cacheRead": 40501,
+        "cacheWrite": 0,
+        "totalTokens": 68140,
+        "cost": 0.0034960020000000002
+      },
+      "toolCounts": {
+        "typed_program": 6
+      },
+      "modelResponses": 7,
+      "snoopedCanary": false,
+      "normalizedCorrect": true,
+      "promptBytes": 746,
+      "declarationBytes": 17468
+    },
+    {
+      "id": "cell-R-LOG-2-typed-quickjs-compact-r0",
+      "task": "R-LOG-2",
+      "profile": "typed-quickjs-compact",
+      "repeat": 0,
+      "status": "attempted",
+      "engine": "quickjs",
+      "declarations": "compact",
+      "success": true,
+      "estimatedCostUsd": 0.002559678,
+      "usage": {
+        "input": 13777,
+        "output": 5638,
+        "cacheRead": 27189,
+        "cacheWrite": 0,
+        "totalTokens": 46604,
+        "cost": 0.002559678
+      },
+      "toolCounts": {
+        "typed_program": 6
+      },
+      "modelResponses": 7,
+      "snoopedCanary": false,
+      "normalizedCorrect": true,
+      "promptBytes": 746,
+      "declarationBytes": 17468
+    },
+    {
+      "id": "cell-R-LOC-1-typed-quickjs-r0",
+      "task": "R-LOC-1",
+      "profile": "typed-quickjs",
+      "repeat": 0,
+      "status": "attempted",
+      "engine": "quickjs",
+      "declarations": "full",
+      "success": true,
+      "estimatedCostUsd": 0.001033786,
+      "usage": {
+        "input": 8423,
+        "output": 739,
+        "cacheRead": 21843,
+        "cacheWrite": 0,
+        "totalTokens": 31005,
+        "cost": 0.001033786
+      },
+      "toolCounts": {
+        "typed_program": 3
+      },
+      "modelResponses": 4,
+      "snoopedCanary": false,
+      "normalizedCorrect": true,
+      "promptBytes": 593,
+      "declarationBytes": 17468
+    },
+    {
+      "id": "cell-R-LOC-1-typed-quickjs-compact-r0",
+      "task": "R-LOC-1",
+      "profile": "typed-quickjs-compact",
+      "repeat": 0,
+      "status": "attempted",
+      "engine": "quickjs",
+      "declarations": "compact",
+      "success": true,
+      "estimatedCostUsd": 0.001206064,
+      "usage": {
+        "input": 9184,
+        "output": 1293,
+        "cacheRead": 14532,
+        "cacheWrite": 0,
+        "totalTokens": 25009,
+        "cost": 0.001206064
+      },
+      "toolCounts": {
+        "typed_program": 4
+      },
+      "modelResponses": 5,
+      "snoopedCanary": false,
+      "normalizedCorrect": true,
+      "promptBytes": 593,
+      "declarationBytes": 17468
+    },
+    {
+      "id": "cell-R-LOC-1-stock-pi-r0",
+      "task": "R-LOC-1",
+      "profile": "stock-pi",
+      "repeat": 0,
+      "status": "attempted",
+      "engine": "n/a-stock",
+      "declarations": "full",
+      "success": true,
+      "estimatedCostUsd": 0.000562298,
+      "usage": {
+        "input": 3263,
+        "output": 1119,
+        "cacheRead": 6099,
+        "cacheWrite": 0,
+        "totalTokens": 10481,
+        "cost": 0.000562298
+      },
+      "toolCounts": {
+        "bash": 2,
+        "read": 5
+      },
+      "modelResponses": 4,
+      "snoopedCanary": false,
+      "normalizedCorrect": true,
+      "promptBytes": 502,
+      "declarationBytes": 0
+    },
+    {
+      "id": "cell-R-LOC-2-typed-quickjs-compact-r0",
+      "task": "R-LOC-2",
+      "profile": "typed-quickjs-compact",
+      "repeat": 0,
+      "status": "attempted",
+      "engine": "quickjs",
+      "declarations": "compact",
+      "success": true,
+      "estimatedCostUsd": 0.000843908,
+      "usage": {
+        "input": 5675,
+        "output": 1206,
+        "cacheRead": 17604,
+        "cacheWrite": 0,
+        "totalTokens": 24485,
+        "cost": 0.000843908
+      },
+      "toolCounts": {
+        "typed_program": 4
+      },
+      "modelResponses": 5,
+      "snoopedCanary": false,
+      "normalizedCorrect": true,
+      "promptBytes": 599,
+      "declarationBytes": 17468
+    },
+    {
+      "id": "cell-R-LOC-2-stock-pi-r0",
+      "task": "R-LOC-2",
+      "profile": "stock-pi",
+      "repeat": 0,
+      "status": "attempted",
+      "engine": "n/a-stock",
+      "declarations": "full",
+      "success": true,
+      "estimatedCostUsd": 0.000535298,
+      "usage": {
+        "input": 3069,
+        "output": 1081,
+        "cacheRead": 6099,
+        "cacheWrite": 0,
+        "totalTokens": 10249,
+        "cost": 0.000535298
+      },
+      "toolCounts": {
+        "bash": 2,
+        "read": 4
+      },
+      "modelResponses": 4,
+      "snoopedCanary": false,
+      "normalizedCorrect": true,
+      "promptBytes": 508,
+      "declarationBytes": 0
+    },
+    {
+      "id": "cell-R-LOC-2-typed-quickjs-r0",
+      "task": "R-LOC-2",
+      "profile": "typed-quickjs",
+      "repeat": 0,
+      "status": "attempted",
+      "engine": "quickjs",
+      "declarations": "full",
+      "success": true,
+      "estimatedCostUsd": 0.001019612,
+      "usage": {
+        "input": 7853,
+        "output": 952,
+        "cacheRead": 21956,
+        "cacheWrite": 0,
+        "totalTokens": 30761,
+        "cost": 0.001019612
+      },
+      "toolCounts": {
+        "typed_program": 3
+      },
+      "modelResponses": 4,
+      "snoopedCanary": false,
+      "normalizedCorrect": true,
+      "promptBytes": 599,
+      "declarationBytes": 17468
+    },
+    {
+      "id": "cell-R-EXPORT-1-typed-quickjs-r1",
+      "task": "R-EXPORT-1",
+      "profile": "typed-quickjs",
+      "repeat": 1,
+      "status": "attempted",
+      "engine": "quickjs",
+      "declarations": "full",
+      "success": true,
+      "estimatedCostUsd": 0.0017256799999999998,
+      "usage": {
+        "input": 15001,
+        "output": 981,
+        "cacheRead": 14690,
+        "cacheWrite": 0,
+        "totalTokens": 30672,
+        "cost": 0.0017256799999999998
+      },
+      "toolCounts": {
+        "typed_program": 3
+      },
+      "modelResponses": 4,
+      "snoopedCanary": false,
+      "normalizedCorrect": true,
+      "promptBytes": 561,
+      "declarationBytes": 17468
+    },
+    {
+      "id": "cell-R-EXPORT-1-typed-quickjs-compact-r1",
+      "task": "R-EXPORT-1",
+      "profile": "typed-quickjs-compact",
+      "repeat": 1,
+      "status": "attempted",
+      "engine": "quickjs",
+      "declarations": "compact",
+      "success": true,
+      "estimatedCostUsd": 0.001256436,
+      "usage": {
+        "input": 9946,
+        "output": 1225,
+        "cacheRead": 8418,
+        "cacheWrite": 0,
+        "totalTokens": 19589,
+        "cost": 0.001256436
+      },
+      "toolCounts": {
+        "typed_program": 3
+      },
+      "modelResponses": 4,
+      "snoopedCanary": false,
+      "normalizedCorrect": true,
+      "promptBytes": 561,
+      "declarationBytes": 17468
+    },
+    {
+      "id": "cell-R-EXPORT-1-stock-pi-r1",
+      "task": "R-EXPORT-1",
+      "profile": "stock-pi",
+      "repeat": 1,
+      "status": "attempted",
+      "engine": "n/a-stock",
+      "declarations": "full",
+      "success": true,
+      "estimatedCostUsd": 0.00047972,
+      "usage": {
+        "input": 2633,
+        "output": 1044,
+        "cacheRead": 3810,
+        "cacheWrite": 0,
+        "totalTokens": 7487,
+        "cost": 0.00047972
+      },
+      "toolCounts": {
+        "bash": 1,
+        "read": 6
+      },
+      "modelResponses": 3,
+      "snoopedCanary": false,
+      "normalizedCorrect": true,
+      "promptBytes": 470,
+      "declarationBytes": 0
+    },
+    {
+      "id": "cell-R-EXPORT-2-typed-quickjs-compact-r1",
+      "task": "R-EXPORT-2",
+      "profile": "typed-quickjs-compact",
+      "repeat": 1,
+      "status": "attempted",
+      "engine": "quickjs",
+      "declarations": "compact",
+      "success": true,
+      "estimatedCostUsd": 0.001363114,
+      "usage": {
+        "input": 9709,
+        "output": 1822,
+        "cacheRead": 13907,
+        "cacheWrite": 0,
+        "totalTokens": 25438,
+        "cost": 0.001363114
+      },
+      "toolCounts": {
+        "typed_program": 4
+      },
+      "modelResponses": 5,
+      "snoopedCanary": false,
+      "normalizedCorrect": true,
+      "promptBytes": 468,
+      "declarationBytes": 17468
+    },
+    {
+      "id": "cell-R-EXPORT-2-stock-pi-r1",
+      "task": "R-EXPORT-2",
+      "profile": "stock-pi",
+      "repeat": 1,
+      "status": "attempted",
+      "engine": "n/a-stock",
+      "declarations": "full",
+      "success": false,
+      "estimatedCostUsd": 0.0009204759999999999,
+      "usage": {
+        "input": 5736,
+        "output": 1695,
+        "cacheRead": 3938,
+        "cacheWrite": 0,
+        "totalTokens": 11369,
+        "cost": 0.0009204759999999999
+      },
+      "toolCounts": {
+        "bash": 1,
+        "read": 7
+      },
+      "modelResponses": 4,
+      "snoopedCanary": false,
+      "normalizedCorrect": false,
+      "promptBytes": 377,
+      "declarationBytes": 0
+    },
+    {
+      "id": "cell-R-EXPORT-2-typed-quickjs-r1",
+      "task": "R-EXPORT-2",
+      "profile": "typed-quickjs",
+      "repeat": 1,
+      "status": "attempted",
+      "engine": "quickjs",
+      "declarations": "full",
+      "success": true,
+      "estimatedCostUsd": 0.00174175,
+      "usage": {
+        "input": 14654,
+        "output": 1235,
+        "cacheRead": 14675,
+        "cacheWrite": 0,
+        "totalTokens": 30564,
+        "cost": 0.00174175
+      },
+      "toolCounts": {
+        "typed_program": 3
+      },
+      "modelResponses": 4,
+      "snoopedCanary": false,
+      "normalizedCorrect": true,
+      "promptBytes": 468,
+      "declarationBytes": 17468
+    },
+    {
+      "id": "cell-R-LOG-1-stock-pi-r1",
+      "task": "R-LOG-1",
+      "profile": "stock-pi",
+      "repeat": 1,
+      "status": "attempted",
+      "engine": "n/a-stock",
+      "declarations": "full",
+      "success": true,
+      "estimatedCostUsd": 0.000692854,
+      "usage": {
+        "input": 4745,
+        "output": 1074,
+        "cacheRead": 1777,
+        "cacheWrite": 0,
+        "totalTokens": 7596,
+        "cost": 0.000692854
+      },
+      "toolCounts": {
+        "bash": 1,
+        "read": 3
+      },
+      "modelResponses": 3,
+      "snoopedCanary": false,
+      "normalizedCorrect": true,
+      "promptBytes": 587,
+      "declarationBytes": 0
+    },
+    {
+      "id": "cell-R-LOG-1-typed-quickjs-r1",
+      "task": "R-LOG-1",
+      "profile": "typed-quickjs",
+      "repeat": 1,
+      "status": "attempted",
+      "engine": "quickjs",
+      "declarations": "full",
+      "success": true,
+      "estimatedCostUsd": 0.00249189,
+      "usage": {
+        "input": 17749,
+        "output": 3355,
+        "cacheRead": 22995,
+        "cacheWrite": 0,
+        "totalTokens": 44099,
+        "cost": 0.00249189
+      },
+      "toolCounts": {
+        "typed_program": 4
+      },
+      "modelResponses": 5,
+      "snoopedCanary": false,
+      "normalizedCorrect": true,
+      "promptBytes": 678,
+      "declarationBytes": 17468
+    },
+    {
+      "id": "cell-R-LOG-1-typed-quickjs-compact-r1",
+      "task": "R-LOG-1",
+      "profile": "typed-quickjs-compact",
+      "repeat": 1,
+      "status": "attempted",
+      "engine": "quickjs",
+      "declarations": "compact",
+      "success": true,
+      "estimatedCostUsd": 0.0013967039999999997,
+      "usage": {
+        "input": 10039,
+        "output": 1876,
+        "cacheRead": 8802,
+        "cacheWrite": 0,
+        "totalTokens": 20717,
+        "cost": 0.0013967039999999997
+      },
+      "toolCounts": {
+        "typed_program": 3
+      },
+      "modelResponses": 4,
+      "snoopedCanary": false,
+      "normalizedCorrect": true,
+      "promptBytes": 678,
+      "declarationBytes": 17468
+    },
+    {
+      "id": "cell-R-LOG-2-typed-quickjs-r1",
+      "task": "R-LOG-2",
+      "profile": "typed-quickjs",
+      "repeat": 1,
+      "status": "attempted",
+      "engine": "quickjs",
+      "declarations": "full",
+      "success": true,
+      "estimatedCostUsd": 0.0026765919999999998,
+      "usage": {
+        "input": 18712,
+        "output": 3801,
+        "cacheRead": 22596,
+        "cacheWrite": 0,
+        "totalTokens": 45109,
+        "cost": 0.0026765919999999998
+      },
+      "toolCounts": {
+        "typed_program": 4
+      },
+      "modelResponses": 5,
+      "snoopedCanary": false,
+      "normalizedCorrect": true,
+      "promptBytes": 746,
+      "declarationBytes": 17468
+    },
+    {
+      "id": "cell-R-LOG-2-typed-quickjs-compact-r1",
+      "task": "R-LOG-2",
+      "profile": "typed-quickjs-compact",
+      "repeat": 1,
+      "status": "attempted",
+      "engine": "quickjs",
+      "declarations": "compact",
+      "success": true,
+      "estimatedCostUsd": 0.0017009479999999999,
+      "usage": {
+        "input": 7389,
+        "output": 4615,
+        "cacheRead": 19524,
+        "cacheWrite": 0,
+        "totalTokens": 31528,
+        "cost": 0.0017009479999999999
+      },
+      "toolCounts": {
+        "typed_program": 4
+      },
+      "modelResponses": 5,
+      "snoopedCanary": false,
+      "normalizedCorrect": true,
+      "promptBytes": 746,
+      "declarationBytes": 17468
+    },
+    {
+      "id": "cell-R-LOG-2-stock-pi-r1",
+      "task": "R-LOG-2",
+      "profile": "stock-pi",
+      "repeat": 1,
+      "status": "attempted",
+      "engine": "n/a-stock",
+      "declarations": "full",
+      "success": true,
+      "estimatedCostUsd": 0.000987324,
+      "usage": {
+        "input": 5514,
+        "output": 2130,
+        "cacheRead": 4962,
+        "cacheWrite": 0,
+        "totalTokens": 12606,
+        "cost": 0.000987324
+      },
+      "toolCounts": {
+        "bash": 2,
+        "read": 4
+      },
+      "modelResponses": 4,
+      "snoopedCanary": false,
+      "normalizedCorrect": true,
+      "promptBytes": 655,
+      "declarationBytes": 0
+    },
+    {
+      "id": "cell-R-LOC-1-typed-quickjs-compact-r1",
+      "task": "R-LOC-1",
+      "profile": "typed-quickjs-compact",
+      "repeat": 1,
+      "status": "attempted",
+      "engine": "quickjs",
+      "declarations": "compact",
+      "success": true,
+      "estimatedCostUsd": 0.001326622,
+      "usage": {
+        "input": 10642,
+        "output": 1182,
+        "cacheRead": 13011,
+        "cacheWrite": 0,
+        "totalTokens": 24835,
+        "cost": 0.001326622
+      },
+      "toolCounts": {
+        "typed_program": 4
+      },
+      "modelResponses": 5,
+      "snoopedCanary": false,
+      "normalizedCorrect": true,
+      "promptBytes": 593,
+      "declarationBytes": 17468
+    },
+    {
+      "id": "cell-R-LOC-1-stock-pi-r1",
+      "task": "R-LOC-1",
+      "profile": "stock-pi",
+      "repeat": 1,
+      "status": "attempted",
+      "engine": "n/a-stock",
+      "declarations": "full",
+      "success": true,
+      "estimatedCostUsd": 0.0008436140000000001,
+      "usage": {
+        "input": 3608,
+        "output": 2250,
+        "cacheRead": 16407,
+        "cacheWrite": 0,
+        "totalTokens": 22265,
+        "cost": 0.0008436140000000001
+      },
+      "toolCounts": {
+        "bash": 5,
+        "read": 5
+      },
+      "modelResponses": 7,
+      "snoopedCanary": false,
+      "normalizedCorrect": true,
+      "promptBytes": 502,
+      "declarationBytes": 0
+    },
+    {
+      "id": "cell-R-LOC-1-typed-quickjs-r1",
+      "task": "R-LOC-1",
+      "profile": "typed-quickjs",
+      "repeat": 1,
+      "status": "attempted",
+      "engine": "quickjs",
+      "declarations": "full",
+      "success": true,
+      "estimatedCostUsd": 0.001730194,
+      "usage": {
+        "input": 15271,
+        "output": 870,
+        "cacheRead": 14547,
+        "cacheWrite": 0,
+        "totalTokens": 30688,
+        "cost": 0.001730194
+      },
+      "toolCounts": {
+        "typed_program": 3
+      },
+      "modelResponses": 4,
+      "snoopedCanary": false,
+      "normalizedCorrect": true,
+      "promptBytes": 593,
+      "declarationBytes": 17468
+    },
+    {
+      "id": "cell-R-LOC-2-stock-pi-r1",
+      "task": "R-LOC-2",
+      "profile": "stock-pi",
+      "repeat": 1,
+      "status": "attempted",
+      "engine": "n/a-stock",
+      "declarations": "full",
+      "success": true,
+      "estimatedCostUsd": 0.0009416979999999999,
+      "usage": {
+        "input": 6047,
+        "output": 1624,
+        "cacheRead": 6099,
+        "cacheWrite": 0,
+        "totalTokens": 13770,
+        "cost": 0.0009416979999999999
+      },
+      "toolCounts": {
+        "bash": 3,
+        "read": 4
+      },
+      "modelResponses": 5,
+      "snoopedCanary": false,
+      "normalizedCorrect": true,
+      "promptBytes": 508,
+      "declarationBytes": 0
+    },
+    {
+      "id": "cell-R-LOC-2-typed-quickjs-r1",
+      "task": "R-LOC-2",
+      "profile": "typed-quickjs",
+      "repeat": 1,
+      "status": "attempted",
+      "engine": "quickjs",
+      "declarations": "full",
+      "success": true,
+      "estimatedCostUsd": 0.001888912,
+      "usage": {
+        "input": 16701,
+        "output": 951,
+        "cacheRead": 14306,
+        "cacheWrite": 0,
+        "totalTokens": 31958,
+        "cost": 0.001888912
+      },
+      "toolCounts": {
+        "typed_program": 3
+      },
+      "modelResponses": 4,
+      "snoopedCanary": false,
+      "normalizedCorrect": true,
+      "promptBytes": 599,
+      "declarationBytes": 17468
+    },
+    {
+      "id": "cell-R-LOC-2-typed-quickjs-compact-r1",
+      "task": "R-LOC-2",
+      "profile": "typed-quickjs-compact",
+      "repeat": 1,
+      "status": "attempted",
+      "engine": "quickjs",
+      "declarations": "compact",
+      "success": true,
+      "estimatedCostUsd": 0.000813302,
+      "usage": {
+        "input": 5752,
+        "output": 1054,
+        "cacheRead": 13651,
+        "cacheWrite": 0,
+        "totalTokens": 20457,
+        "cost": 0.000813302
+      },
+      "toolCounts": {
+        "typed_program": 3
+      },
+      "modelResponses": 4,
+      "snoopedCanary": false,
+      "normalizedCorrect": true,
+      "promptBytes": 599,
+      "declarationBytes": 17468
+    }
+  ]
+}

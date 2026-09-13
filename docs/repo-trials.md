@@ -58,6 +58,8 @@ Keep engines, memory, caps, a new sandbox and broad catalogs out of the next con
 
 ## Subsequent compact development trial (2026-09-06)
 
-Issue [004](../.work/issues/004-harness-tuning.md), delivered at `4b8e39a`, records a separate 36-cell paired run: stock 11/12 successes, full QuickJS 12/12, compact QuickJS 12/12. Estimated costs were $0.0092/$0.0212/$0.0156 respectively; compact cost per success fell 28% against full, exceeding the predeclared 15% development retention bar. Tokens fell from 437,030 to 304,406. Ledger $0.0461 versus key delta $0.0385 remains an accounting discrepancy, not a verified invoice.
+Issue [004](../.work/issues/004-harness-tuning.md), delivered at `4b8e39a`, records a separate 36-cell paired run: stock 11/12 successes, full QuickJS 12/12, compact QuickJS 12/12. Estimated costs were $0.0092/$0.0212/$0.0156 respectively; compact cost per success fell 26.4% against full, exceeding the predeclared 15% development retention bar. Tokens fell from 437,030 to 304,406. Ledger $0.0461 versus key delta $0.0385 remains an accounting discrepancy, not a verified invoice.
 
-This result is additional development evidence, not part of the historical 120-cell export or independent confirmation. Compact remains opt-in; full declarations remain default. Fresh uninspected task families are the next confirmation step. The supervisor reconciled this delivery record on 2026-09-13; this update does not claim a fresh raw-artifact audit or new model run.
+This result is additional development evidence, not part of the historical 120-cell export or independent confirmation. Compact remains opt-in; full declarations remain default. Fresh uninspected task families are the next confirmation step. The supervisor checked raw cell totals on 2026-09-13: full $0.021239208 versus compact $0.015626048, each with 12 successes, gives 26.4% improvement. The former 28% claim used rounded per-success values. This is an arithmetic/accounting review, not a regrade or new model run.
+
+[Sanitized compact trial totals](evaluations/compact-dev-2026-09-06.json) retain cell identities and quantitative verdicts without model text or raw transcripts.

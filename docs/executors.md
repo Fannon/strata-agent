@@ -90,4 +90,4 @@ none was required as a prerequisite.
 
 Retain both engines: QuickJS default, Bun opt-in. Repository model trials subsequently ran across both engines and stock Pi; see [reviewed results](repo-trials.md). Those trials show no stable end-to-end executor advantage and do not establish equivalence in general. Listing, history, diffs and ranged reads are now delivered.
 
-The next selected experiment should target context cost (004) with one fixed engine and unchanged semantic capability surface. No new engine implementation or paid engine-only campaign is required. The measurements above are historical model-free probes; later task trials have separate manifests and budgets.
+004 compact development testing is delivered; independent confirmation should keep one fixed engine and unchanged semantic capability surface. No new engine implementation or paid engine-only campaign is required. The measurements above are historical model-free probes; later task trials have separate manifests and budgets.

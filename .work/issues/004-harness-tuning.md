@@ -36,7 +36,7 @@ Compact presentation: `declarations(module, "compact")` — alias module by re-e
 | typed-quickjs (full) | 12/12 | $0.0212 | $0.0018 | 437,030 | 41 |
 | typed-quickjs-compact | 12/12 | $0.0156 | $0.0013 | 304,406 | 45 |
 
-Compact cost-per-success is 28% below full ($0.0013 vs $0.0018) with identical success (12/12, within the 1-cell bar) — the predeclared retain bar (≥15%, no regression) is met on development evidence. Tokens −30%. The single stock miss is a novel variant (`core.js` unmapped, not a prefix).
+Compact cost-per-success is 26.4% below full ($0.0013 vs $0.0018) with identical success (12/12, within the 1-cell bar) — the predeclared retain bar (≥15%, no regression) is met on development evidence. Tokens −30%. The single stock miss is a novel variant (`core.js` unmapped, not a prefix).
 
 Verdict: **retain (do not revert)** — compact stays opt-in pending confirmation on fresh uninspected families (the -3/-4 instances are now regression material; R-CALL/R-JOIN or new repos are the confirmation set). The default stays `full` until confirmation lands. No second revision spent; no behavior change to grants, schemas, checker or policy. A second model tests portability only after confirmation.
 
