@@ -14,7 +14,7 @@ Current user request authorizes supervised implementation using Pi with `meta/mu
 
 | Issue | Current status |
 | --- | --- |
-| [004 — Attribute and reduce typed-context cost](004-harness-tuning.md) | A/B delivered; compact retained opt-in, independent confirmation next |
+| [004 — Attribute and reduce typed-context cost](004-harness-tuning.md) | A/B delivered; slice C confirmation on fresh R-CALL family ran 2026-09-13: negative/inconclusive (compact 2/4 vs full 3/4, $0.0037 vs $0.0032/success) — compact stays opt-in, no change |
 | [009 — Baseline hardening: variance, warm sessions, wider tasks](009-baseline-hardening.md) | fixture hardening and initial repo-2 trials delivered; independent confirmation remains open |
 
 ## Completed mechanisms and trial slices
@@ -47,7 +47,7 @@ Current user request authorizes supervised implementation using Pi with `meta/mu
 | [023 — Reuse TypeScript libraries behind capabilities](023-library-backed-capabilities.md) | backlog |
 | [024 — Filesystem and search library candidates](024-filesystem-search-library-candidates.md) | decided for path discovery (Bun.Glob selected, no new dependency); content-search adapter still open |
 | [025 — Catalog load vs session shutdown race](025-load-shutdown-race.md) | done 2026-09-13; shutdown/cancellation guards, explicit ownership, idempotent cleanup |
-| [029 — Policy-aware capability search](029-policy-aware-search.md) | selected for this implementation batch |
+| [029 — Policy-aware capability search](029-policy-aware-search.md) | done 2026-09-13 (policy-scoped search/load, fail-closed, integration tests) |
 | [032 — From task-first slices to solid coverage](032-coverage-track.md) | backlog, plan only (no implementation authorized) |
 | [033 — Mine local agentsview sessions for coverage needs](033-agentsview-mining.md) | backlog, suggested (read-only inspection done 2026-09-06, no transcripts copied) |
 | [034 — Operator-configurable caps for result, logs, and tool text](034-configurable-caps.md) | deferred pending measured cap failures or operator requirement; follows 031 |

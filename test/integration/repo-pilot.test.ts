@@ -118,6 +118,7 @@ test("trial registry builds every task fixture offline", async () => {
     "R-EXPORT-1", "R-EXPORT-2", "R-EXPORT-3", "R-EXPORT-4", "R-EXPORT-5",
     "R-LOG-1", "R-LOG-2", "R-LOG-3", "R-LOG-4", "R-LOG-5",
     "R-LOC-1", "R-LOC-2", "R-LOC-3", "R-LOC-4", "R-LOC-5",
+    "R-CALL-1", "R-CALL-2",
   ]);
   for (const task of trialTasks) {
     const dir = await mkdtemp(join(tmpdir(), "strata-registry-"));

@@ -58,3 +58,23 @@ Runner support first landed offline (`typed-quickjs-compact` profile: quickjs en
 If full-surface compact presentation helps, retain it and test independent work. If it does not, do not keep shrinking semantics or inventing harder tasks until a win appears. Consider a separately measured hybrid/structured-service niche or keep the project as a learning harness. Aggregation superiority is unproven. No new engines, persistence, configurable caps or arbitrary Bun access in this ablation.
 
 Acceptance: reproducible attribution and a versioned, bounded retain/revert/narrow decision, with complete API semantics preserved. An inconclusive or negative result completes the experiment honestly.
+
+## Slice C — confirmation on a fresh family (frozen 2026-09-13, no model calls against it yet)
+
+New `R-CALL` family (`examples/repo-tasks/rcall.ts`): original fixtures, import-alias call-site disambiguation with comment/string/dynamic-call/other-path-import/test-scope traps — a new reasoning structure, not a renamed R-LOC. Two instances (R-CALL-1 `format`, R-CALL-2 `load`), hand-derived oracles recomputed independently from plain reads (`test/integration/repo-tasks.test.ts`), human-written reference compositions proven on both engines offline (`bun examples/repo-tasks/rcall.ts`: engines agree, oracle matched). Wired into `trialTasks`/registry only; default matrix and all existing tasks untouched.
+
+- Predeclared confirmation matrix: 2 fresh tasks × stock-pi / typed-quickjs / typed-quickjs-compact × 2 repeats = 12 cells, counterbalanced, fixed model/settings/caps/policy/guard/ledger, Bun arm excluded (executor stays frozen).
+- Command: `bun examples/repo-pilot.ts --run --max-cost-usd 5 --repeats 2 --profiles stock-pi,typed-quickjs,typed-quickjs-compact --tasks R-CALL-1,R-CALL-2`.
+- Predeclared bar: the slice-B retain verdict stands confirmed on independent work iff compact cost-per-success is ≥15% below full-quickjs with success within 1 cell; otherwise the confirmation is negative/inconclusive and compact stays opt-in regardless. Report correctness, cost/success, responses, latency and regressions either way. One run only: no prompt/API/oracle edits from results, no second revision in this slice.
+
+## Slice C — confirmation result (ran once 2026-09-13, author-paid, frozen matrix above)
+
+12 cells, model meta/muse-spark-1.3-contributor. Ledger $0.0206 of $5 cap (key credits $0.0192 — same direction as the known ledger/key gap). Raw artifacts local-only: `.work/repo-pilot/2026-09-13T14-52-01-660Z/`.
+
+| arm | success | charged | cost/success | tokens |
+| --- | --- | --- | --- | --- |
+| stock-pi | 4/4 | $0.0035 | $0.0009 | 46,745 |
+| typed-quickjs (full) | 3/4 | $0.0095 | $0.0032 | 137,781 |
+| typed-quickjs-compact | 2/4 | $0.0075 | $0.0037 | 88,713 |
+
+Success is within 1 cell (2/4 vs 3/4) but compact cost-per-success is ~16% *above* full, not ≥15% below — the cost bar fails. **Verdict: negative/inconclusive; compact stays opt-in, no change.** Notably all three typed misses had correct answers: full's R-CALL-1-r1 miss is a canary read (policy, correct answer — same stock-typed snoop pattern as wave-2/path-closeout); both compact misses are R-CALL-2 harness errors (`Missing structured typed_program report`) with correct answers and compliant policy. Tokens still favor compact (−36% vs full) but at n=4/arm failures dominate cost/success. No task/prompt/API edits were made from these results; the freeze held. Follow-ups belong to new slices: second model portability only after a positive confirmation, and the repeated compact+R-CALL-2 harness error is worth a look before reusing this family.

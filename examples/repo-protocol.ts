@@ -6,6 +6,7 @@ import { mkdir, writeFile } from "node:fs/promises";
 import { REXPORT_TASKS, buildRexportFixture } from "./repo-tasks/rexport.ts";
 import { RLOG_TASKS, buildRlogFixture } from "./repo-tasks/rlog.ts";
 import { RLOC_TASKS, buildRlocFixture } from "./repo-tasks/rloc.ts";
+import { RCALL_TASKS, buildRcallFixture } from "./repo-tasks/rcall.ts";
 import type { Usage } from "./benchmark/protocol.ts";
 import { record, type AssessPolicy } from "./benchmark/protocol.ts";
 import { auditToolArgs } from "./benchmark/audit.ts";
@@ -213,6 +214,10 @@ export const trialTasks: TrialTask[] = [
   ...RLOC_TASKS.map((t) => ({
     id: t.id, ask: t.ask, expected: t.expected,
     build: async (repo: string) => void (await buildRlocFixture(repo, t.fixture)),
+  })),
+  ...RCALL_TASKS.map((t) => ({
+    id: t.id, ask: t.ask, expected: t.expected,
+    build: async (repo: string) => void (await buildRcallFixture(repo, t.fixture)),
   })),
 ];
 
