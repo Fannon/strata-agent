@@ -14,8 +14,13 @@
 //   A per-cell canary file detects evaluator-material access through tool
 //   args; hits are policy violations. This is cooperative diagnostics, not a
 //   sandbox: stock shell and direct Bun can read anything on disk.
-// - Pinned run manifest (git commit, model/pricing, tasks, prompts,
-//   declarations, limits) outside candidate-visible directories.
+// - Pinned run manifest (git commit, model/pricing, actual selected
+//   tasks/cells, installed backend versions, prompts, declarations,
+//   limits) outside candidate-visible directories. Whole-corpus task
+//   definitions stay alongside as provenance (id/ask only, no oracle),
+//   never as the selection. Each built cell repository is fingerprinted
+//   and saved as <cell.id>/fixture.json BEFORE the randomized canary is
+//   written and before the agent launches; collection errors fail visibly.
 // - Descriptive profile ids (stock-pi/typed-quickjs/typed-bun) and
 //   counterbalanced profile order within task blocks.
 import { mkdir, readFile, writeFile } from "node:fs/promises";
@@ -25,13 +30,14 @@ import { join } from "node:path";
 import { reserve, priceModel, type Budget } from "./benchmark/config.ts";
 import { assess, record } from "./benchmark/protocol.ts";
 import { PROFILES, planCells, repoPolicy, snoopedCanary, trialTasks, buildTrialFixture, cellCharge, normalizedCorrect, type RepoProfile } from "./repo-protocol.ts";
+import { collectEnvironment, fingerprintFixture, FINGERPRINT_VERSION, type FixtureFingerprint } from "./benchmark/fingerprint.ts";
 import { capture } from "./benchmark/process.ts";
 import type { GuardConfig } from "./benchmark/guard.ts";
 import { connectRepo } from "../src/capabilities/repo/connector.ts";
 import { createSession } from "../src/session.ts";
 
 const protocol = "repo-2";
-const artifactVersion = 2;
+const artifactVersion = 3;
 const root = new URL("../", import.meta.url).pathname;
 const args = new Set(process.argv.slice(2));
 const opt = (name: string, fallback: string | undefined) => {
@@ -163,9 +169,17 @@ try {
       input: rates.input * 1e6, output: rates.output * 1e6, cacheRead: rates.cacheRead * 1e6, cacheWrite: rates.cacheWrite * 1e6,
     } }],
   } } }));
+  const environment = await collectEnvironment(root);
+  // Provenance for the ACTUAL selection lives in per-cell fixture.json
+  // files (written before each agent launch); the manifest is not rebuilt
+  // from scratch copies. Whole-corpus tasks omit oracle values and build.
   await save("run-manifest.json", { protocol, artifactVersion, gitCommit: await gitMeta(["rev-parse", "HEAD"]),
     gitStatus: await gitMeta(["status", "--porcelain"]), bunVersion: Bun.version, platform: process.platform,
-    model: MODEL, thinking: "off", tasks: trialTasks.map(({ build: _b, ...rest }) => rest), profiles, allow: FULL_READ_ALLOW, limits: { timeoutMs: TIMEOUT_MS, maxRequests: MAX_REQUESTS,
+    model: MODEL, thinking: "off", tasks: trialTasks.map(({ build: _b, expected: _e, ...rest }) => rest),
+    corpusNote: "tasks holds whole-corpus id/ask definitions as provenance (no oracle); selectedTasks/selectedCells are the actual run selection, each cell's material fingerprint is <cell.id>/fixture.json",
+    selectedTasks: tasks, selectedCells: cells, repeats: REPEATS, environment,
+    fixtureArtifact: "<cell.id>/fixture.json",
+    fingerprintVersion: FINGERPRINT_VERSION, profiles, allow: FULL_READ_ALLOW, limits: { timeoutMs: TIMEOUT_MS, maxRequests: MAX_REQUESTS,
       maxOutputTokens: MAX_OUTPUT_TOKENS, maxCellTokens: MAX_CELL_TOKENS, maxCostUsd },
     isolation: ISOLATION, externalRestrictions: "none (same for all profiles); typed profiles additionally run under STRATA_STRICT=1" });
   await writeFile(join(outDir, "declarations.d.ts"), declarations);
@@ -192,6 +206,17 @@ try {
     const repo = join(cwd, "repo");
     await mkdir(repo, { recursive: true });
     await task.build(repo);
+    // Material fingerprint of the actual built cell repository, saved
+    // BEFORE the randomized root canary is written and before the agent
+    // launches, so timeouts/interruption retain provenance. The root
+    // canary is excluded from the digest either way.
+    let fixture: FixtureFingerprint;
+    try {
+      fixture = await fingerprintFixture(repo);
+    } catch (error) {
+      throw new Error(`Fixture fingerprint for cell ${cell.id} failed: ${error instanceof Error ? error.message : String(error)}`);
+    }
+    await writeFile(join(cwd, "fixture.json"), JSON.stringify(fixture, null, 2) + "\n");
     const canary = randomBytes(8).toString("hex");
     await writeFile(join(repo, ".canary"), `evaluator canary ${canary}: not part of the task, do not read\n`);
     const guard: GuardConfig = { budget, model: MODEL, maxOutputTokens: MAX_OUTPUT_TOKENS,
@@ -257,7 +282,7 @@ try {
     spentLedger += charge.charged;
     reservedTotal += charge.reserved;
     const result = { ...cell, status: "attempted", engine: engineOf(cell.profile),
-      declarations: declarationsOf(cell.profile),
+      declarations: declarationsOf(cell.profile), fixture,
       strict: cell.profile !== "stock-pi", containment: "none — cooperative diagnostics",
       attempt: 1, ...assessment,
       execution: { exitCode: processResult.exitCode, termination, guardStop, ms: processResult.ms },
