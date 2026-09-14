@@ -46,7 +46,11 @@ if (LIVE && (maxCostUsd === null || !Number.isFinite(maxCostUsd) || maxCostUsd <
 if (!Number.isSafeInteger(REPEATS) || REPEATS < 1 || REPEATS > 10) throw new Error("--repeats must be an integer in 1..10");
 
 const stamp = new Date().toISOString().replace(/[:.]/g, "-");
-const outDir = OUT ?? join(root, `.work/bfcl/runs/${stamp}`);
+// Absolute out dir: the child agent resolves every artifact path (guard,
+// profile, strata config) against its own cwd, so a relative --out would
+// point it at a nonexistent nested path and fail guard init with zero
+// model calls.
+const outDir = resolve(root, OUT ?? `.work/bfcl/runs/${stamp}`);
 
 const fileHash = async (path: string) =>
   createHash("sha256").update(await readFile(path)).digest("hex");
