@@ -166,3 +166,16 @@ Notes:
   task families where the answer computation is more scaffolded. No framework
   change is indicated by this run; do not tune prompts against `82e2fac_1`
   (development-only) — any prompt revision must prove out on uninspected tasks.
+- Root cause found on trajectory review (2026-09-14, local artifacts only):
+  the agent's strategy was largely correct — login succeeded, then the very
+  data it needed arrived (3,958 bytes from `show_playlist_library`) and OUR
+  broker's output validation threw it away: AppWorld emits datetimes as
+  `"2019-01-01T00:00:00"` (no timezone; see upstream API docstrings) while
+  our schemas enforce strict RFC 3339 `date-time`. Same failure on
+  `show_song_library`/`show_liked_songs` (`added_at`, `liked_at`). The
+  "wandering" above was mostly fallback attempts after data-bearing calls
+  kept erroring. This is a harness gap, not an agent gap: date-time format
+  semantics are the first confirmed unsupported-schema-construct instance
+  for 037. Fix direction (supervisor decision, not implemented): relax or
+  extend `date-time` handling in validation versus documenting the
+  construct as unsupported. No prompt tuning implication.
