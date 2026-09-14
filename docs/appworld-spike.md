@@ -100,13 +100,40 @@ Notes:
   AND zero grader failures; inspect-mode exit 0 requires only replay/schema
   success. Timeouts, spawn failures and nonzero exits are distinct artifacts.
 
-## Status: not yet executed
+## Status: replay completed, graded, not a benchmark
 
-- `bun run check`, `--inspect`, and the typed replay have NOT been run by this
-  author; the commands above are written but unverified. No benchmark score,
-  no many-tool gain, and no task success has been demonstrated.
-- Open before any graded replay: confirm inspect `summary.json`
-  (operation count/names, missing output schemas, declaration bytes), then
-  re-verify `.work/appworld/dev-smoke.ts` argument shapes against it.
-- Go/no-go for a matched lazy-direct versus typed pilot: **pending** — due
-  only after one typed replay is completed and independently graded.
+- Inspect (free, no model): 98 operations (92 spotify + 6 supervisor),
+  0 missing output schemas, 215 KB declarations, exit 0.
+  Artifacts: `.work/appworld/inspect-20260914T071502Z/`.
+- Typed replay (free, handwritten dev program, no model): outcome `ok`,
+  2 capability calls through default QuickJS (~0.3 s compile, ~0.1 s exec),
+  749 raw bytes reduced to 128 exposed. Returned real data: instruction
+  present, 10 genres (`EDM`, `R&B`, `indie`, ...).
+  Artifacts: `.work/appworld/run-20260914T074208Z/`.
+- Independent grading: upstream `evaluate()` ran on the replayed world and
+  correctly reports the task incomplete (the smoke program answers nothing).
+  Aggregates only; no expected answers serialized anywhere.
+- Output-envelope lesson: call payloads nest under a `response` key
+  (success/failure `anyOf` envelope). Programs must unwrap it; the dev
+  program's first version read top-level fields and got empty results with
+  outcome `ok`. Fixed in the local program — no framework change needed.
+- Unsupported schema constructs encountered: none (all 98 ops generated
+  declarations without `any` fallbacks or errors).
+- Lifecycle gaps found and fixed during the spike (setup, not framework):
+  the venv needed `appworld install` to unpack its test bundle before
+  servers start, and the controller must not resolve the venv-python
+  symlink (a resolved path boots a bare interpreter and kills the MCP
+  child instantly).
+
+## Go / no-go for a matched lazy-direct versus typed pilot
+
+- Technical readiness: **GO**. The full path (fresh world → stdio MCP →
+  typed program → save → upstream grade) is proven end-to-end with
+  artifacts a supervisor can re-inspect.
+- Conditions before any pilot spend: use uninspected tasks only
+  (`82e2fac_1` is development-only — its database was inspected by an
+  earlier author, so it can never be evidence); build the lazy direct-tool
+  reference arm first with identical discovery, backend and policy;
+  predeclare matrix, budget, repetitions, model, executor and declarations.
+- No benchmark score and no many-tool gain has been demonstrated. Nothing
+  in this spike compares typed programs against anything.
