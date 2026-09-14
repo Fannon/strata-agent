@@ -1,6 +1,6 @@
 # 037 — Reuse an enterprise tool benchmark before building our own
 
-Status: selected/in progress (2026-09-14); offline spike delegated to Pi, comparative matrix not yet frozen
+Status: selected; setup feasibility completed, controller/replay implementation still open (2026-09-14)
 Dependencies: 035 enterprise hypothesis; 025 lifecycle and 029 discovery fixes; 009 evidence protocol
 
 ## Decision
