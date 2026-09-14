@@ -137,3 +137,32 @@ Notes:
   predeclare matrix, budget, repetitions, model, executor and declarations.
 - No benchmark score and no many-tool gain has been demonstrated. Nothing
   in this spike compares typed programs against anything.
+
+## Paid development run (author-paid, dev-only, not evidence)
+
+- Command pattern: `.work/appworld/paid-driver/driver.py` (local-only scaffold,
+  uncommitted) holds servers + world open, points a typed-only
+  (`STRATA_STRICT=1`) Pi agent at the live world via Strata's MCP extension
+  path with the inspected 98-name allowlist, then saves and grades upstream.
+  Model `meta/muse-spark-1.3-contributor`, medium reasoning, 40-request / $5
+  guard cap. Artifacts: `.work/appworld/paid-20260914T080724Z/`.
+- Cost: 40/40 requests used, guard stopped cleanly at the cap; ~361 K in-tokens
+  + ~39 K out-tokens ≈ **$0.044 actual** (key-delta reconciliation pending).
+- Outcome: task NOT solved (0 passes / 2 failures, grader correctly
+  incomplete). The agent never called `supervisor__complete_task`.
+- Harness signal (the point of the spend): the typed path worked throughout —
+  38 programs, 33 `ok`, 83 broker calls, zero direct-tool attempts. Agent
+  strategy failed, not the harness: correct setup (active task → profile →
+  passwords → `spotify__login`, which it then repeated defensively in most
+  programs) followed by wandering — `search_songs` ×11, queue/play/add calls,
+  `show_*_privates` ×15 looking at likes — without ever converging on the
+  most-liked computation or submitting.
+- Side effect note: the agent issued state-changing calls (`add_song_to_playlist`
+  ×4, queue/play calls) it was never asked to make. No task authorized
+  modification; future pilots should track unauthorized effects as 037
+  requires ( today: observed, not fenced).
+- Reading: at 40 requests the agent explored rather than exploited; success
+  needs tighter prompting (submit-what-you-have rules), a longer budget, or
+  task families where the answer computation is more scaffolded. No framework
+  change is indicated by this run; do not tune prompts against `82e2fac_1`
+  (development-only) — any prompt revision must prove out on uninspected tasks.
