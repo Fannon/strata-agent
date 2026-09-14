@@ -118,6 +118,21 @@ test("grader applies tolerance, alternatives, and abstention", async () => {
   ).toBe(false);
 });
 
+test("grader tolerates nested option lists and genuine list values", async () => {
+  // Paid-run shapes, verified against upstream ground truth 2026-09-14:
+  // nested per-field options must match (both were false negatives before).
+  const m8call = { name: "realestate.find_properties", arguments: { location: "San Diego, CA", propertyType: "villa", bedrooms: 3, budget: { min: 300000, max: 400000 } } };
+  const m8truth = { id: "multiple_8", alternatives: [{ "realestate.find_properties": { location: ["SD", "San Diego", "San Diego, CA", "CA"], propertyType: ["villa"], bedrooms: [3], budget: [{ min: [300000], max: [400000] }] } }] };
+  expect(gradeCase([m8call], m8truth).pass).toBe(true);
+  const m9call = { name: "calculate_average", arguments: { gradeDict: { math: 90, science: 75, history: 82, music: 89 } } };
+  const m9truth = { id: "multiple_9", alternatives: [{ "calculate_average": { gradeDict: [{ math: [90], science: [75], history: [82], music: [89] }] } }] };
+  expect(gradeCase([m9call], m9truth).pass).toBe(true);
+  // A genuine list value ([3, 4] as the only option) still matches exactly.
+  const pok = { id: "x", alternatives: [{ "f": { pointA: [[[3, 4]]] } }] };
+  expect(gradeCase([{ name: "f", arguments: { pointA: [3, 4] } }], pok).pass).toBe(true);
+  expect(gradeCase([{ name: "f", arguments: { pointA: [3, 5] } }], pok).pass).toBe(false);
+});
+
 test("record-all server round-trip: tools served, calls recorded, canned reply", async () => {
   const dir = await mkdtemp(join(tmpdir(), "strata-bfcl-"));
   try {

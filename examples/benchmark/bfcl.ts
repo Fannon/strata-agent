@@ -174,6 +174,9 @@ async function main(): Promise<void> {
         try { event = JSON.parse(line); } catch { continue; }
         if (!record(event) || event.type !== "message_end") continue;
         const message = record(event.message) ? event.message as Record<string, unknown> : null;
+        // Assistant turns carry usage; user/system echoes have none and must
+        // not poison completeness (that bug once nulled every cell's cost).
+        if (!message || message.role !== "assistant") continue;
         const u = message && record(message.usage) ? message.usage as Record<string, unknown> : null;
         if (!u || typeof u.input !== "number" || typeof u.output !== "number") { complete = false; continue; }
         inTok += u.input as number;

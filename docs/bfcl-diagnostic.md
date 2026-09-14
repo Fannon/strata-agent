@@ -50,3 +50,32 @@ retrieval across thousands of tools.
 30 single-shot cells, ~1-2 requests each at small contexts: expected actual
 roughly $0.02-0.05 under a $5 reservation cap (dual ledger, same discipline
 as repo-pilot). No paid run has happened under this plan yet.
+
+## Paid pilot result (ran 2026-09-14, author-paid, dev-only diagnostic)
+
+30 cells (10 simple + 10 multiple + 10 irrelevance) × 1 repeat, muse-spark
+medium, typed-only, max 4 requests/cell. Artifacts local in
+`.work/bfcl/runs/20260914T095843Z/` (plan, pricing, per-cell prompts,
+requests, recorded calls, verdicts, results).
+
+- True cost **$0.0093** (75 K in-tokens + 9 K out-tokens). The run ledger read
+  $3.16 because a summation bug counted only reservation fallback; fixed in
+  the runner (usage now sums assistant turns only) with no extra spend.
+- As-graded 28/30; **corrected 30/30** after fixing grader strictness on the
+  same recorded calls (no rerun): simple 10/10, multiple 10/10, irrelevance
+  10/10. Both initial "failures" were verified correct model answers — the
+  grader ignored nested per-field option lists. Regression tests added.
+- Sizing lesson: `--max-cell-tokens` 2 M admits only one 1.05 M-token
+  reservation, so 20 cells were guard-stopped on their reply turn (exit 78).
+  Harmless here (calls were already recorded; grading needs only the record
+  file), but future runs should raise the cell token budget. The `healthy`
+  flag consequently understates single-shot cells; verdicts are unaffected.
+- Interpretation: on single-shot invocation/selection/abstention through
+  typed programs, the model was near-perfect (including genuine abstention
+  on all 10 irrelevance cases after model inference, and correct nested
+  arguments). This diagnoses the AppWorld contrast precisely: the model
+  drives typed tools well; the paid AppWorld failure was data starvation
+  from our date-time validation, not tool-use inability.
+- Limits: one repeat, one model, ≤4 requests/cell, no repairs needed; no
+  distractor scaling (leaderboard comparability would break); not official
+  BFCL scores — labeled diagnostic only.

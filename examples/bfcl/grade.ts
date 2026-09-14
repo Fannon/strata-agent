@@ -14,16 +14,34 @@ export interface RecordedCall {
   arguments: Record<string, unknown>;
 }
 
-function valuesEqual(actual: unknown, expected: unknown): boolean {
-  if (typeof actual === "number" && typeof expected === "number") {
-    // Tolerate int/float spelling of the same value (e.g. 10 vs 10.0).
-    return actual === expected;
-  }
+function structuralEqual(actual: unknown, expected: unknown): boolean {
+  if (typeof actual === "number" && typeof expected === "number") return actual === expected;
   if (Array.isArray(actual) || Array.isArray(expected)) {
     if (!Array.isArray(actual) || !Array.isArray(expected)) return false;
     if (actual.length !== expected.length) return false;
-    return actual.every((item, i) => valuesEqual(item, expected[i]));
+    return actual.every((item, i) => structuralEqual(item, expected[i]));
   }
+  if (typeof actual === "object" && actual !== null && typeof expected === "object" && expected !== null) {
+    const a = actual as Record<string, unknown>;
+    const b = expected as Record<string, unknown>;
+    const keys = new Set([...Object.keys(a), ...Object.keys(b)]);
+    for (const key of keys) {
+      if (!(key in a) || !(key in b)) return false;
+      if (!structuralEqual(a[key], b[key])) return false;
+    }
+    return true;
+  }
+  return actual === expected;
+}
+
+// Recursive tolerance: at every level, an expected array first tries exact
+// shape (a genuine list value such as a point [3, 4]), then each element as
+// an acceptable alternative. Dicts require the same keys with tolerant
+// values. This mirrors upstream's possible-values-at-every-level semantics
+// for the subset's nesting shapes (verified max depth 2 in our 30 cases).
+function valuesEqual(actual: unknown, expected: unknown): boolean {
+  if (structuralEqual(actual, expected)) return true;
+  if (Array.isArray(expected)) return expected.some((option) => valuesEqual(actual, option));
   if (typeof actual === "object" && actual !== null && typeof expected === "object" && expected !== null) {
     const a = actual as Record<string, unknown>;
     const b = expected as Record<string, unknown>;
@@ -34,7 +52,7 @@ function valuesEqual(actual: unknown, expected: unknown): boolean {
     }
     return true;
   }
-  return actual === expected;
+  return false;
 }
 
 function alternativeMatches(
