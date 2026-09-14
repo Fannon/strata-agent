@@ -140,8 +140,8 @@ Notes:
 
 ## Paid development run (author-paid, dev-only, not evidence)
 
-- Command pattern: `.work/appworld/paid-driver/driver.py` (local-only scaffold,
-  uncommitted) holds servers + world open, points a typed-only
+- Command: `examples/appworld/paid_driver.py` (committed generic scaffold;
+  per-run outputs stay local) holds servers + world open, points a typed-only
   (`STRATA_STRICT=1`) Pi agent at the live world via Strata's MCP extension
   path with the inspected 98-name allowlist, then saves and grades upstream.
   Model `meta/muse-spark-1.3-contributor`, medium reasoning, 40-request / $5
