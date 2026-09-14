@@ -1,21 +1,23 @@
 # Strata issue board
 
-Reviewed 2026-09-13 from `1b6df35`, including the compact development trial and the selected implementation batch. This board owns next-work ordering; [handoff](../../docs/handoff.md) owns the concise implementation handoff, [trial report](../../docs/repo-trials.md) owns evidence, [ACD](../../ACD.md) owns architectural direction. Issue Markdown is tracked; raw `.work/` artifacts and local notes remain ignored.
+Reviewed 2026-09-14 from `4e04e94`, including the September 13 confirmation and newly selected AppWorld sequence. This board owns next-work ordering; [handoff](../../docs/handoff.md) owns the concise implementation handoff, [trial report](../../docs/repo-trials.md) owns evidence, [ACD](../../ACD.md) owns architectural direction. Issue Markdown is tracked; raw `.work/` artifacts and local notes remain ignored.
 
 ## Decision and verification
 
-The typed capability layer is enduring; both engines and the useful read-only API are implemented. Four trial stages show no demonstrated task-level advantage: typed profiles use fewer Pi calls but more context/cost. 004 attribution and compact development testing are delivered: compact reduced cost/success 26.4% against full declarations at 12/12 success in both arms. Keep it opt-in pending independent confirmation under 009. The current implementation batch addresses 025 shutdown ownership and 029 policy-aware discovery. Path-prefix close-out and 026/027/031 are delivered; do not repeat them. Engine equivalence, declaration causality and aggregation superiority are not established.
+The typed capability layer is enduring; both engines and the useful read-only API are implemented. Four trial stages show no demonstrated task-level advantage: typed profiles use fewer Pi calls but more context/cost. 004 attribution and compact development testing are delivered: compact reduced cost/success 26.4% against full declarations at 12/12 success in both arms. The September 13 R-CALL confirmation failed its cost threshold (compact 2/4 overall successes, full 3/4, stock 4/4); compact stays opt-in. Typed final answers were correct, with one policy failure and two harness failures. 025 shutdown ownership, 029 policy-aware discovery and 009 fixture fingerprints are delivered. Path-prefix close-out and 026/027/031 are delivered; do not repeat them. Engine equivalence, declaration causality and aggregation superiority are not established.
 
 Historical verification at `807562a`: `bun run check` passed; `bun test` passed **148 tests / 0 failures / 1169 assertions** with local subprocess/loopback access. The restricted first run failed fixture/server startup; the permitted rerun passed. No new model calls. Historical test counts in delivery records refer to their revisions.
 
-Current user request authorizes supervised implementation using Pi with `meta/muse-spark-1.3-contributor`, medium reasoning, for a few bounded issues. The supervisor selects requirements, reviews code and tests, and commits each completed step. This does not select a new comparative benchmark campaign. `ready` means actionable, not blanket authorization for code or spend. Existing explicit authorization carries forward within its scope; reconcile remaining budget before paid work. Record assumptions and results without erasing historical artifacts. Do not turn policy flags into answer failures or claim a clean heuristic audit proves containment.
+On September 14 the user selected documentation reconciliation and the recommended enterprise sequence: AppWorld offline compatibility, matched lazy-direct versus typed pilot, separate catalog scaling, then confirmation only after a positive signal. Most work is delegated to Pi through OpenRouter with `meta/muse-spark-1.3-contributor`, medium reasoning; the supervisor scopes tasks, reviews changes and verifies results. The user explicitly permits sending this repository's contents to OpenRouter and allowing Pi to modify project files. Keep credentials and unrelated private material out of model context. Initial coding sessions each have 40-request/$5 conservative reservation limits; benchmark calls require a frozen matrix and spend cap after feasibility review. Record assumptions and results without erasing historical artifacts. Do not turn policy flags into answer failures or claim a clean heuristic audit proves containment.
 
 ## Recommended next work
 
 | Issue | Current status |
 | --- | --- |
+| [037 — Reuse enterprise tool benchmarks](037-enterprise-benchmark-reuse.md) | selected/in progress: Pi implementing offline AppWorld compatibility; matched pilot and catalog scaling follow feasibility review |
+| [038 — Diagnose missing typed-program reports](038-missing-typed-program-reports.md) | recorded prerequisite before reusing affected repository evaluation path; no regrading or new model runs |
 | [004 — Attribute and reduce typed-context cost](004-harness-tuning.md) | A/B delivered; slice C confirmation on fresh R-CALL family ran 2026-09-13: negative/inconclusive (compact 2/4 vs full 3/4, $0.0037 vs $0.0032/success) — compact stays opt-in, no change |
-| [009 — Baseline hardening: variance, warm sessions, wider tasks](009-baseline-hardening.md) | fixture hardening and initial repo-2 trials delivered; independent confirmation remains open |
+| [009 — Baseline hardening: variance, warm sessions, wider tasks](009-baseline-hardening.md) | fixture hardening, repo-2 trials and reproducibility fingerprints delivered; evidence-quality follow-ups remain open; 004 confirmation ran and was negative/inconclusive |
 
 ## Completed mechanisms and trial slices
 
@@ -55,7 +57,7 @@ Current user request authorizes supervised implementation using Pi with `meta/mu
 
 ## Enterprise-fit hypothesis
 
-[035 — Enterprise discovery and typed composition](035-enterprise-capability-scaling.md) captures a potentially different use case: large dynamic API catalogs with small discovered working sets. Research/concept only; it does not replace independent confirmation of 004. [037 — Reuse enterprise tool benchmarks](037-enterprise-benchmark-reuse.md) selects an AppWorld offline compatibility spike as the next enterprise experiment, with BFCL as a complementary diagnostic. Compare with equally lazy direct tools and test schema changes/revocation separately from task efficiency.
+[035 — Enterprise discovery and typed composition](035-enterprise-capability-scaling.md) captures a potentially different use case: large dynamic API catalogs with small discovered working sets. It remains an unproven hypothesis and does not overturn 004's negative/inconclusive confirmation. [037 — Reuse enterprise tool benchmarks](037-enterprise-benchmark-reuse.md) is now selected for implementation, starting with an AppWorld offline compatibility spike, with BFCL as a complementary diagnostic. Compare with equally lazy direct tools and test schema changes/revocation separately from task efficiency.
 
 ## Deferred experiments
 

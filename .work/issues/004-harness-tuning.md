@@ -1,6 +1,6 @@
 # 004 — Attribute and reduce typed-context cost
 
-Status: slices A and B delivered 2026-09-06; compact retained opt-in, independent confirmation remains open
+Status: slices A/B delivered 2026-09-06; slice C ran 2026-09-13, negative/inconclusive; compact remains opt-in
 Dependencies: delivered 026/031 instrumentation and 028 repo-2 artifacts; no new tool or executor required.
 
 ## Evidence and hypothesis
@@ -77,4 +77,4 @@ New `R-CALL` family (`examples/repo-tasks/rcall.ts`): original fixtures, import-
 | typed-quickjs (full) | 3/4 | $0.0095 | $0.0032 | 137,781 |
 | typed-quickjs-compact | 2/4 | $0.0075 | $0.0037 | 88,713 |
 
-Success is within 1 cell (2/4 vs 3/4) but compact cost-per-success is ~16% *above* full, not ≥15% below — the cost bar fails. **Verdict: negative/inconclusive; compact stays opt-in, no change.** Notably all three typed misses had correct answers: full's R-CALL-1-r1 miss is a canary read (policy, correct answer — same stock-typed snoop pattern as wave-2/path-closeout); both compact misses are R-CALL-2 harness errors (`Missing structured typed_program report`) with correct answers and compliant policy. Tokens still favor compact (−36% vs full) but at n=4/arm failures dominate cost/success. No task/prompt/API edits were made from these results; the freeze held. Follow-ups belong to new slices: second model portability only after a positive confirmation, and the repeated compact+R-CALL-2 harness error is worth a look before reusing this family.
+Success is within 1 cell (2/4 vs 3/4) but compact cost-per-success is ~16% *above* full, not ≥15% below — the cost bar fails. **Verdict: negative/inconclusive; compact stays opt-in, no change.** Notably all three typed misses had correct answers: full's R-CALL-1-r1 miss is a canary read (policy, correct answer — same stock-typed snoop pattern as wave-2/path-closeout); both compact misses are R-CALL-2 harness errors (`Missing structured typed_program report`) with correct answers and compliant policy. Tokens still favor compact (−36% vs full) but at n=4/arm failures dominate cost/success. No task/prompt/API edits were made from these results; the freeze held. Follow-ups belong to new slices: second model portability only after a positive confirmation, and the repeated compact+R-CALL-2 harness error is tracked in [038](038-missing-typed-program-reports.md) before evaluator reuse.

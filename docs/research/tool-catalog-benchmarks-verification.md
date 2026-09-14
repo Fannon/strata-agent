@@ -1,0 +1,15 @@
+# Benchmark reuse: primary-source verification
+
+Checked 2026-09-14. Supplements [the original comparison](tool-catalog-benchmarks.md) and [issue 037](../../.work/issues/037-enterprise-benchmark-reuse.md). Documentation review only; no integration or benchmark runs performed.
+
+| Candidate | Verified facts | Implication for Strata |
+| --- | --- | --- |
+| AppWorld | Nine apps, 457 APIs, OpenAPI descriptions, stdio/HTTP MCP, and execution/state grading. External MCP clients must explicitly save the world; concurrent tasks need separate API servers. [Upstream README](https://github.com/StonyBrookNLP/appworld#information_source-about) | Best first reuse for cross-app composition with independent grading. Existing stdio support offers a bounded integration path. Hundreds of APIs do not demonstrate thousands-tool scaling. |
+| BFCL | V2 Live averages **3 function choices per entry, maximum 37**; includes relevance/irrelevance and argument checking. [V2 methodology](https://gorilla.cs.berkeley.edu/blogs/12_bfcl_v2_live.html) V3 includes missing-function/parameter scenarios and combines state evaluation with required execution-path checks. [V3 methodology](https://gorilla.cs.berkeley.edu/blogs/13_bfcl_v3_multi_turn.html) | Useful invocation and abstention diagnostics. Do not describe its usual task setup as a large-catalog benchmark or its multi-turn grading as AST-only. |
+| StableToolBench | Upstream offers GPT/cache simulation and MirrorAPI, claiming more than 7,000 mirrored APIs. Evaluation includes GPT judging or a trained final-answer evaluator. [Upstream implementation](https://github.com/THUNLP-MT/StableToolBench#features) | More directly relevant catalog breadth, but simulator, cache and judge variation complicate attribution. Pin those dependencies and report their costs. A simulator is not a deterministic business-state oracle. |
+
+The live BFCL page is V4, so any V2/V3 reuse should name its pinned subset rather than claim current overall leaderboard comparability. [Current leaderboard](https://gorilla.cs.berkeley.edu/leaderboard.html)
+
+Recommendation: keep issue 037's AppWorld-first order. Prove one handwritten typed workflow can execute, save and pass the upstream grader; then compare typed composition against lazy direct calls with identical discovery, model, backend and task budgets. Hold back confirmation tasks. Separately vary catalog descriptors at 100/1,000/10,000 while keeping executable operations fixed. That separates retrieval/context savings from composition savings; metadata-only distractors must be identified as such. These are proposed Strata experiments, not observed gains or official benchmark scores.
+
+AppWorld's protected bundles have redistribution restrictions beyond its public scaffolding; keep downloaded artifacts and generated derivatives local until pinned terms are checked. Its docs prefer HTTP for throughput, but that does not justify adding a transport before the stdio feasibility check. [Release and MCP guidance](https://github.com/StonyBrookNLP/appworld#release-disclaimer)

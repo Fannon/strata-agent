@@ -1,6 +1,6 @@
 # Repository trials: evidence review and next decision
 
-Reviewed 2026-09-06 against code at `807562a` and the four local repo-2 result files. This report supersedes earlier narrative summaries; historical result files and verdicts are unchanged. No new paid run or regrading occurred during this review.
+Reviewed 2026-09-14 against code at `4e04e94`, including the 36-cell compact development trial and the 12-cell R-CALL confirmation. The 120-cell table below is unchanged historical evidence from the 2026-09-06 review (code `807562a`); later runs are recorded in separate sections, not merged into the pooled counts. No new paid run or regrading occurred during this review.
 
 ## Evidence and provenance
 
@@ -50,16 +50,18 @@ Earlier flat-reservation/zero-price attempts remain excluded as invalid infrastr
 
 ## Recommended trajectory
 
-1. **004 development ablation delivered.** Attribution and a full-surface compact declaration presentation are implemented. Keep compact opt-in pending independent confirmation; do not repeat the completed development slice.
-2. **Confirm usefulness on independent work.** Use a small session-informed or licensed repository task set with plausible distractors but objectively resolvable answers. Existing -3/-4 instances have been inspected and rerun; reserve genuinely new families/repos for confirmation. Add a second model after an affordable development signal, not a large engine×model×task campaign.
+1. **004 development ablation delivered; confirmation negative/inconclusive.** Attribution and a full-surface compact declaration presentation are implemented. The R-CALL confirmation failed the predeclared cost bar, so compact stays opt-in; do not repeat the completed development slice. The repeated compact+R-CALL-2 harness error is worth a look before reusing this family.
+2. **Confirm usefulness on independent work.** Use a small session-informed or licensed repository task set with plausible distractors but objectively resolvable answers. Existing -3/-4 instances and the R-CALL family have been inspected and run; reserve genuinely new families/repos for confirmation. Add a second model after an affordable positive signal, not a large engine×model×task campaign. The selected 037 AppWorld offline spike is in progress and is not delivered.
 3. **Decide continue, narrow or stop.** A read-only hybrid remains plausible, but aggregation superiority is not yet demonstrated. If bounded tuning does not improve task-level economics, keep Strata as a learning/tooling project or a narrowly justified integration. Edits/checks can be a separately selected product-coverage experiment, not a remedy assumed to rescue these numbers.
 
 Keep engines, memory, caps, a new sandbox and broad catalogs out of the next context-cost ablation. 032/013/033 can supply coverage evidence without new adapters. See [handoff](handoff.md), [evaluation](evaluation.md) and the [issue board](../.work/issues/index.md).
 
-## Subsequent compact development trial (2026-09-06)
+## Subsequent compact development trial (2026-09-06, positive) and R-CALL confirmation (2026-09-13, negative/inconclusive)
 
 Issue [004](../.work/issues/004-harness-tuning.md), delivered at `4b8e39a`, records a separate 36-cell paired run: stock 11/12 successes, full QuickJS 12/12, compact QuickJS 12/12. Estimated costs were $0.0092/$0.0212/$0.0156 respectively; compact cost per success fell 26.4% against full, exceeding the predeclared 15% development retention bar. Tokens fell from 437,030 to 304,406. Ledger $0.0461 versus key delta $0.0385 remains an accounting discrepancy, not a verified invoice.
 
-This result is additional development evidence, not part of the historical 120-cell export or independent confirmation. Compact remains opt-in; full declarations remain default. Fresh uninspected task families are the next confirmation step. The supervisor checked raw cell totals on 2026-09-13: full $0.021239208 versus compact $0.015626048, each with 12 successes, gives 26.4% improvement. The former 28% claim used rounded per-success values. This is an arithmetic/accounting review, not a regrade or new model run.
+This result is additional development evidence, not part of the historical 120-cell export or independent confirmation. The supervisor checked raw cell totals on 2026-09-13: full $0.021239208 versus compact $0.015626048, each with 12 successes, gives 26.4% improvement. The former 28% claim used rounded per-success values. This is an arithmetic/accounting review, not a regrade or new model run.
+
+The frozen-matrix R-CALL confirmation (12 cells, 2026-09-13, `meta/muse-spark-1.3-contributor`, predeclared in 004 slice C, raw artifacts local-only) is the latest result and supersedes the development signal as the standing verdict: stock 4/4 ($0.0035 charged, $0.0009/success), full 3/4 ($0.0095, $0.0032/success), compact 2/4 ($0.0075, $0.0037/success). Success is within 1 cell but compact cost/success runs ~16% above full, failing the ≥15%-below confirmation bar — negative/inconclusive, compact stays opt-in, no win against stock. All three typed misses returned correct answers: full's R-CALL-1-r1 miss is a canary-related policy-audit flag (a heuristic argument match, not proof of file I/O); both compact misses are R-CALL-2 harness errors (`Missing structured typed_program report`) with compliant policy. Tokens still favor compact (−36% vs full) but at n=4/arm failures dominate cost/success. No task/prompt/API edits were made from these results; the freeze held. The R-CALL family is now regression material.
 
 [Sanitized compact trial totals](evaluations/compact-dev-2026-09-06.json) retain cell identities and quantitative verdicts without model text or raw transcripts.

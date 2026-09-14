@@ -1,12 +1,12 @@
 # Evaluation plan: can typed composition earn its cost?
 
-Reviewed 2026-09-06. Fixture protocol 009-v2 and repository protocol repo-2 are implemented; four repo-2 stages have run. [Reviewed evidence](repo-trials.md) and [sanitized cell data](evaluations/repo-2-2026-09-06.json) own current results. Historical fixture v1 remains exploratory and unchanged. Current implementation passes typecheck and 148 deterministic tests with permitted local subprocess/loopback access.
+Reviewed 2026-09-14. Fixture protocol 009-v2 and repository protocol repo-2 are implemented; four repo-2 stages plus the 36-cell compact development trial and the 12-cell R-CALL confirmation have run. [Reviewed evidence](repo-trials.md) and [sanitized cell data](evaluations/repo-2-2026-09-06.json) own current results. Historical fixture v1 remains exploratory and unchanged. Historical test counts in delivery records refer to their revisions; see the tracked issue board for current verification.
 
 ## Current evidence and next selection
 
-Typed profiles made fewer Pi tool calls at greater estimated cost/context on the current single-model repository corpus. Declaration causality, engine equivalence and a winning aggregation niche are not established. Next is 004: offline context attribution and one bounded full-surface compact-declaration comparison, then independent-work confirmation. Quiet success and both executors are delivered.
+Typed profiles made fewer Pi tool calls at greater estimated cost/context on the current single-model repository corpus. Declaration causality, engine equivalence and a winning aggregation niche are not established. 004 attribution and the full-surface compact comparison are delivered: compact won the 36-cell development run (−26.4% cost/success, 12/12 each) but the 12-cell R-CALL confirmation was negative/inconclusive (compact 2/4 vs full 3/4, cost/success ~16% above full; all typed misses returned correct answers but failed policy/harness checks). Compact stays opt-in; full stays default. Quiet success and both executors are delivered. Fixture fingerprints for reproducible manifests are delivered under 009.
 
-The first -3/-4 held-out instances were subsequently inspected and partly rerun for path diagnostics, so they are now regression data. Freeze new repository/workflow families before confirmatory evaluation. Plausible distractors are useful; ambiguity over multiple valid answers is a grading flaw, not desirable difficulty. Two repeats support exploratory diagnostics, not rankings.
+The R-CALL family and the first -3/-4 held-out instances are now regression data: freeze new repository/workflow families before confirmatory evaluation. Plausible distractors are useful; ambiguity over multiple valid answers is a grading flaw, not desirable difficulty. Two repeats support exploratory diagnostics, not rankings. The selected next experiment is the 037 AppWorld offline spike (in progress, not delivered).
 
 ## Execution engine as an independent dimension
 
