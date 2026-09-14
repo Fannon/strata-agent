@@ -18,6 +18,7 @@ On September 14 the user selected documentation reconciliation and the recommend
 | --- | --- |
 | [037 — Reuse enterprise tool benchmarks](037-enterprise-benchmark-reuse.md) | selected/in progress: Pi implementing offline AppWorld compatibility; matched pilot and catalog scaling follow feasibility review |
 | [038 — Diagnose missing typed-program reports](038-missing-typed-program-reports.md) | recorded prerequisite before reusing affected repository evaluation path; no regrading or new model runs |
+| [039 — Typed REST operations via client generation](039-typed-rest-operations.md) | idea only (user requirement 2026-09-14): MCP/REST as the only typed transports; evaluate client-generation libraries before building; no implementation authorized |
 | [004 — Attribute and reduce typed-context cost](004-harness-tuning.md) | A/B delivered; slice C confirmation on fresh R-CALL family ran 2026-09-13: negative/inconclusive (compact 2/4 vs full 3/4, $0.0037 vs $0.0032/success) — compact stays opt-in, no change |
 | [009 — Baseline hardening: variance, warm sessions, wider tasks](009-baseline-hardening.md) | fixture hardening, repo-2 trials and reproducibility fingerprints delivered; evidence-quality follow-ups remain open; 004 confirmation ran and was negative/inconclusive |
 
