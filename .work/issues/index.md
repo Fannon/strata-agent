@@ -1,8 +1,10 @@
 # Strata issue board
 
-Reviewed 2026-09-14 from `4e04e94`, including the September 13 confirmation and newly selected AppWorld sequence. This board owns next-work ordering; [handoff](../../docs/handoff.md) owns the concise implementation handoff, [trial report](../../docs/repo-trials.md) owns evidence, [ACD](../../ACD.md) owns architectural direction. Issue Markdown is tracked; raw `.work/` artifacts and local notes remain ignored.
+Reviewed 2026-09-16 against `c5e0b7e`, including delivered AppWorld replay and BFCL diagnostic work. This board owns next-work ordering; [handoff](../../docs/handoff.md) owns the concise implementation handoff, [trial report](../../docs/repo-trials.md) owns repository evidence, and [AppWorld](../../docs/appworld-spike.md)/[BFCL](../../docs/bfcl-diagnostic.md) own enterprise diagnostic reports. [ACD](../../ACD.md) owns architectural direction. Issue Markdown is tracked; raw `.work/` artifacts and local notes remain ignored.
 
 ## Decision and verification
+
+Current review (2026-09-16, `c5e0b7e`, Windows/Bun 1.4.2): `bun run check` passed; `bun test` failed with **67 pass / 95 fail / 743 assertions**, 162 tests across 25 files. Observed failures include POSIX-only supervision and compiler standard-library path rejection despite the file being present. [041](041-windows-verification.md) records diagnosis/support work; historical Linux counts below remain historical. No paid/model calls were made.
 
 The typed capability layer is enduring; both engines and the useful read-only API are implemented. Four trial stages show no demonstrated task-level advantage: typed profiles use fewer Pi calls but more context/cost. 004 attribution and compact development testing are delivered: compact reduced cost/success 26.4% against full declarations at 12/12 success in both arms. The September 13 R-CALL confirmation failed its cost threshold (compact 2/4 overall successes, full 3/4, stock 4/4); compact stays opt-in. Typed final answers were correct, with one policy failure and two harness failures. 025 shutdown ownership, 029 policy-aware discovery and 009 fixture fingerprints are delivered. Path-prefix close-out and 026/027/031 are delivered; do not repeat them. Engine equivalence, declaration causality and aggregation superiority are not established.
 
@@ -16,13 +18,16 @@ On September 14 the user selected documentation reconciliation and the recommend
 
 | Issue | Current status |
 | --- | --- |
-| [037 — Reuse enterprise tool benchmarks](037-enterprise-benchmark-reuse.md) | selected/in progress: Pi implementing offline AppWorld compatibility; matched pilot and catalog scaling follow feasibility review |
+| [037 — Reuse enterprise tool benchmarks](037-enterprise-benchmark-reuse.md) | selected/in progress: replay and BFCL diagnostic delivered; AppWorld response compatibility is partial; matched lazy-direct reference and pilot remain open |
+| [040 — AppWorld date-time compatibility](040-appworld-datetime-compatibility.md) | proposed decision/fix prerequisite for 037 comparison; no global validation relaxation authorized |
 | [038 — Diagnose missing typed-program reports](038-missing-typed-program-reports.md) | recorded prerequisite before reusing affected repository evaluation path; no regrading or new model runs |
 | [039 — Typed REST operations via client generation](039-typed-rest-operations.md) | idea only (user requirement 2026-09-14): MCP/REST as the only typed transports; evaluate client-generation libraries before building; no implementation authorized |
 | [004 — Attribute and reduce typed-context cost](004-harness-tuning.md) | A/B delivered; slice C confirmation on fresh R-CALL family ran 2026-09-13: negative/inconclusive (compact 2/4 vs full 3/4, $0.0037 vs $0.0032/success) — compact stays opt-in, no change |
 | [009 — Baseline hardening: variance, warm sessions, wider tasks](009-baseline-hardening.md) | fixture hardening, repo-2 trials and reproducibility fingerprints delivered; evidence-quality follow-ups remain open; 004 confirmation ran and was negative/inconclusive |
 
 ## Completed mechanisms and trial slices
+
+Working order: resolve 040's compatibility decision within the 037 feasibility review, verify a task-solving replay, complete the matched lazy-direct reference, then freeze a development matrix and spend cap before comparative calls. Catalog scaling is a separate subsequent experiment; confirmation follows a positive signal. 038 blocks reuse of the affected repository evaluator, not unrelated offline work. 039 remains an idea. This review does not launch implementation or paid campaigns.
 
 | Issue | Current status |
 | --- | --- |
@@ -46,6 +51,7 @@ On September 14 the user selected documentation reconciliation and the recommend
 | Issue | Current status |
 | --- | --- |
 | [005 — Revisit resource limits before broader or hostile-input workloads](005-runtime-limits.md) | backlog |
+| [041 — Windows support and verification gaps](041-windows-verification.md) | proposed; current Windows suite fails; diagnose before claiming Windows support |
 | [007 — Bounded report loop and pre-delivery size caps](007-report-bounds.md) | backlog |
 | [012 — Authorize concrete effects and filesystem resources](012-scoped-permissions.md) | Phase A best-effort repository reads delivered; interactive/stronger grants remain backlog |
 | [013 — Learn composable operations from local agent sessions](013-session-capability-study.md) | optional bounded study ready; preliminary counts recorded in 033, reproducible workflow study not delivered |
@@ -76,9 +82,9 @@ On September 14 the user selected documentation reconciliation and the recommend
 
 ## Scope rules
 
-- Native Bun first; mature argv/library adapters when justified. No universal Unix replacement or subprocess-free mandate.
+- Existing native/CLI adapters remain research scaffolding. The intended product transport direction is MCP/REST (039); stdio MCP is implemented, REST generation is not selected for implementation. No universal Unix replacement.
 - Keep semantic checking, runtime validation, operation/resource policy and execution containment distinct. Bun ambient calls can bypass capability checks and traces.
 - Default QuickJS, opt-in Bun; freeze one executor for the next presentation ablation.
 - 013 owns bounded session research; 033 is its data-source work, 032 owns promotion decisions. Counts are observational and require reproducible classification.
-- 034 caps remain conditional on measured failures; 025 load/shutdown robustness should accompany real dynamic-loading work. Neither requires broad infrastructure expansion.
+- 034 caps remain conditional on measured failures; 025 load/shutdown robustness is delivered. Neither justifies broad infrastructure expansion.
 - New work must have a caller need or an explicitly labeled experiment. Negative and inconclusive outcomes are useful project results.

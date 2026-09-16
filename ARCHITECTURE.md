@@ -1,6 +1,6 @@
 # Implemented architecture and investigation notes
 
-Prototype reviewed at `5079c4d`; benchmark repair delivered in `1513917` on 2026-09-05. This document describes the current prototype, including known gaps. Future repository APIs and authorization design are in [ACD.md](ACD.md); comparative evidence requirements are in [docs/evaluation.md](docs/evaluation.md).
+Documentation reconciled against `c5e0b7e` on 2026-09-16. This unfinished research prototype is not intended for productive use. Historical investigation sections retain their dates. Architectural direction is in [ACD.md](ACD.md); comparative evidence requirements are in [docs/evaluation.md](docs/evaluation.md).
 
 ## Decision
 
@@ -80,7 +80,7 @@ The deterministic test fixture covers typed/nested/enumerated input, untyped out
 
 ## Decisions since the MVP (2026-09-05)
 
-**Historical benchmark choice: deterministic CLI twin.** The first pilot used identical fixture data through shell-driven CLI calls and typed `api.*` calls, with a real process boundary. This controlled backend variance while proving wiring. Real repository tools are now the proposed next slice, with pinned versions and seeded state to manage variability; fixture realism is insufficient for the product question.
+**Historical benchmark choice: deterministic CLI twin.** The first pilot used identical fixture data through shell-driven CLI calls and typed `api.*` calls, with a real process boundary. This controlled backend variance while proving wiring. Native read-only repository tools and seeded trials were subsequently delivered; fixture realism alone is insufficient for the product question.
 
 **Catalog format: single-file TypeScript with static extraction.** Alternatives considered: JSON descriptors plus separate TS bindings (safe but two files to drift), TS files with a pure-const convention enforced only by discipline (single-file DX but security theater — search would execute), SQLite/FTS5 storage (verified working in `bun:sqlite`, zero deps — kept as the documented upgrade trigger if measured indexing/ranking behavior justifies it; the old ~50-entry suggestion is not a requirement), and GraphRAG/embeddings (an LLM-indexing pipeline for narrative corpora; disproportionate at catalog scale, deferred until lexical methods demonstrably fail). The chosen middle holds: `export const meta` must be JSON-compatible literals (builder calls are rejected, so schemas are inlined), extracted via the compiler API without execution; `bindings` import only on load.
 
@@ -108,4 +108,4 @@ Historical benchmark-repair validation: 53 tests and typecheck passed; Pi integr
 
 At `807562a`, typecheck and 148 tests pass with local subprocess/loopback access. Repository operations, both executors, correlated tracing and quiet success/on-demand details are delivered. Four repo-2 stages provide cooperative diagnostic evidence; they are distinct from the fixture-v2 runner. The [trial report](docs/repo-trials.md) separates exact correctness, policy audit and accounting and corrects earlier narrative aggregates.
 
-Next architectural work is the 004 presentation experiment: preserve schemas, checker and broker policy while measuring and reducing model-facing context. No runtime replacement or generic tool framework is needed. Catalog load/shutdown races (025) and policy-aware search (029) remain documented follow-ups, not completed guarantees.
+This September 6 priority is historical: 004 presentation development and its negative/inconclusive confirmation have since run; 025 lifecycle guards and 029 policy-aware search are delivered. Current work is 037 enterprise feasibility: AppWorld replay and BFCL diagnostics are implemented, with partial response compatibility and no matched comparison. Resolve the date-time decision (040) before proceeding to that comparison. See the [issue board](.work/issues/index.md) for current dependencies and verification.

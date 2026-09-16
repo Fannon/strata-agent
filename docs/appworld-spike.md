@@ -1,8 +1,7 @@
 # AppWorld offline-compatibility spike (issue037)
 
-Status: **implementation awaiting supervisor verification.**
-No successful runs have been observed by this author; do not treat the
-commands below as tested. Do not claim any benchmark or model gains.
+Status: **replay implemented and smoke execution recorded; response compatibility remains partial.**
+Reviewed 2026-09-16. The recorded inspect/replay/save/grading run below supersedes the initial unverified implementation status. The smoke did not solve the task; the later development model run exposed a date-time validation gap. No comparative gains are established. Next decision: [040](../.work/issues/040-appworld-datetime-compatibility.md).
 
 ## Pins and environment
 
@@ -71,7 +70,7 @@ Notes:
   author inspected the supervisor DB, so no model score may be claimed
   on it. Later trials must use uninspected tasks.
 
-## Connection path (verified against upstream source, not yet run)
+## Connection path (exercised by the recorded smoke)
 
 - Controller starts `AppWorldServers(experiment_name=..., remote_apis_port="{port}")`
   and opens `AppWorld(task_id=..., **servers.defaults)`; ports are auto-assigned.
@@ -117,8 +116,7 @@ Notes:
   (success/failure `anyOf` envelope). Programs must unwrap it; the dev
   program's first version read top-level fields and got empty results with
   outcome `ok`. Fixed in the local program — no framework change needed.
-- Unsupported schema constructs encountered: none (all 98 ops generated
-  declarations without `any` fallbacks or errors).
+- Declaration generation succeeded for all 98 operations without `any` fallbacks or errors. Later real responses exposed date-time incompatibility; generation success does not establish runtime compatibility.
 - Lifecycle gaps found and fixed during the spike (setup, not framework):
   the venv needed `appworld install` to unpack its test bundle before
   servers start, and the controller must not resolve the venv-python
@@ -127,9 +125,7 @@ Notes:
 
 ## Go / no-go for a matched lazy-direct versus typed pilot
 
-- Technical readiness: **GO**. The full path (fresh world → stdio MCP →
-  typed program → save → upstream grade) is proven end-to-end with
-  artifacts a supervisor can re-inspect.
+- Transport/replay readiness: demonstrated for the smoke path (fresh world → stdio MCP → typed program → save → upstream grade). Matched-pilot readiness remains blocked on the date-time compatibility decision and a task-solving replay; see 040.
 - Conditions before any pilot spend: use uninspected tasks only
   (`82e2fac_1` is development-only — its database was inspected by an
   earlier author, so it can never be evidence); build the lazy direct-tool
@@ -150,9 +146,9 @@ Notes:
   + ~39 K out-tokens ≈ **$0.044 actual** (key-delta reconciliation pending).
 - Outcome: task NOT solved (0 passes / 2 failures, grader correctly
   incomplete). The agent never called `supervisor__complete_task`.
-- Harness signal (the point of the spend): the typed path worked throughout —
+- Initial trajectory observation (superseded by the validation diagnosis below):
   38 programs, 33 `ok`, 83 broker calls, zero direct-tool attempts. Agent
-  strategy failed, not the harness: correct setup (active task → profile →
+  failure was initially attributed to agent strategy: correct setup (active task → profile →
   passwords → `spotify__login`, which it then repeated defensively in most
   programs) followed by wandering — `search_songs` ×11, queue/play/add calls,
   `show_*_privates` ×15 looking at likes — without ever converging on the
@@ -161,11 +157,7 @@ Notes:
   ×4, queue/play calls) it was never asked to make. No task authorized
   modification; future pilots should track unauthorized effects as 037
   requires ( today: observed, not fenced).
-- Reading: at 40 requests the agent explored rather than exploited; success
-  needs tighter prompting (submit-what-you-have rules), a longer budget, or
-  task families where the answer computation is more scaffolded. No framework
-  change is indicated by this run; do not tune prompts against `82e2fac_1`
-  (development-only) — any prompt revision must prove out on uninspected tasks.
+- The initial prompt/strategy interpretation is superseded by the output-validation finding below. Do not infer that longer budgets or prompt tuning would fix this run. The inspected `82e2fac_1` remains development-only.
 - Root cause found on trajectory review (2026-09-14, local artifacts only):
   the agent's strategy was largely correct — login succeeded, then the very
   data it needed arrived (3,958 bytes from `show_playlist_library`) and OUR

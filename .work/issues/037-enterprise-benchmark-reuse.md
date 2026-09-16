@@ -1,6 +1,6 @@
 # 037 — Reuse an enterprise tool benchmark before building our own
 
-Status: selected; setup feasibility completed, controller/replay implementation still open (2026-09-14)
+Status: selected/in progress; controller/replay and BFCL diagnostic delivered, AppWorld response compatibility partial; matched comparison not delivered (reviewed 2026-09-16)
 Dependencies: 035 enterprise hypothesis; 025 lifecycle and 029 discovery fixes; 009 evidence protocol
 
 ## Decision
@@ -11,8 +11,10 @@ Prefer an AppWorld feasibility spike for realistic cross-application composition
 
 ## Bounded next implementation
 
+Current evidence: [AppWorld](../../docs/appworld-spike.md) records a 98-operation inspection, two-call handwritten replay, save and upstream grading (task incomplete), followed by an unsuccessful development model run with date-time validation failures. [BFCL](../../docs/bfcl-diagnostic.md) records 30/30 corrected call verdicts, with guard-stopped sessions reported separately. Neither is a comparative win. [040](040-appworld-datetime-compatibility.md) tracks the compatibility decision before a matched pilot. The checklist below separates completed smoke mechanics from remaining acceptance work.
+
 - [ ] Pin an AppWorld revision and review code/data/bundle terms. Keep downloaded bundles, credentials, generated schema derivatives and task solutions local unless redistribution rights are confirmed.
-- [ ] Start one disposable task world, obtain static API descriptions, and connect through stdio MCP. Verify input/output schema coverage, naming, serialization, reset/save and independent grading. Reuse existing connector; do not build HTTP transport just for this spike.
+- [x] Start a disposable task world, inspect 98 operations, connect through existing stdio MCP, replay calls, save and invoke upstream grading. Response compatibility remains partial (040); successful declaration generation alone is insufficient.
 - [ ] Run one handwritten typed program against that world and verify final state with the upstream grader. Ensure the agent cannot read grader/answers. Report unsupported schema constructs instead of silently replacing them with `any`.
 - [ ] Add a lazy direct-tool reference with the same discovery results, operation visibility, backend effects and access policy. Separate backend adaptation effort from harness/model efficiency. Preserve upstream task semantics; label adaptations explicitly, not official leaderboard results.
 - [ ] Predeclare a small development selection spanning single-call controls, cross-app joins and state-changing workflows, with untouched confirmation tasks. Freeze budget, repetitions, model, executor, declarations, task IDs and fixture provenance before paid calls.

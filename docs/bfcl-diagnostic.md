@@ -49,7 +49,7 @@ retrieval across thousands of tools.
 
 30 single-shot cells, ~1-2 requests each at small contexts: expected actual
 roughly $0.02-0.05 under a $5 reservation cap (dual ledger, same discipline
-as repo-pilot). No paid run has happened under this plan yet.
+as repo-pilot). This was the pre-run estimate; the recorded paid pilot follows.
 
 ## Paid pilot result (ran 2026-09-14, author-paid, dev-only diagnostic)
 
@@ -74,8 +74,7 @@ requests, recorded calls, verdicts, results).
   typed programs, the model was near-perfect (including genuine abstention
   on all 10 irrelevance cases after model inference, and correct nested
   arguments). This diagnoses the AppWorld contrast precisely: the model
-  drives typed tools well; the paid AppWorld failure was data starvation
-  from our date-time validation, not tool-use inability.
+  can invoke these typed tools correctly. AppWorld separately exposed date-time validation failures; this unmatched diagnostic cannot establish the sole cause of its task failure.
 - Limits: one repeat, one model, ≤4 requests/cell, no repairs needed; no
   distractor scaling (leaderboard comparability would break); not official
   BFCL scores — labeled diagnostic only.
