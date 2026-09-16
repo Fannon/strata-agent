@@ -8,7 +8,7 @@
 
 import { parseArgs } from "node:util";
 import { mkdir, readFile, stat, writeFile } from "node:fs/promises";
-import { dirname, isAbsolute, resolve } from "node:path";
+import { dirname, isAbsolute, relative, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { connectMcp } from "../../src/capabilities/mcp/connector.ts";
 import { createSession } from "../../src/session.ts";
@@ -35,8 +35,9 @@ function nonEmptyString(value: unknown): string | undefined {
 }
 
 function isWithin(child: string, parent: string): boolean {
-  const rel = resolve(child);
-  return rel === parent || rel.startsWith(parent + "/");
+  // relative()-based so the check holds on POSIX and Windows separators.
+  const rel = relative(parent, resolve(child));
+  return rel === "" || (!rel.startsWith("..") && !isAbsolute(rel));
 }
 
 async function isFile(path: string): Promise<boolean> {

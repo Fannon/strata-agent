@@ -45,6 +45,9 @@ def parse_args(argv: list[str]) -> argparse.Namespace:
     parser.add_argument("--out", required=True, help="New local artifact dir under .work/appworld")
     parser.add_argument("--experiment", default=None, help="Experiment name (generated if omitted)")
     parser.add_argument("--apps", default="supervisor,spotify", help="Comma-separated app names")
+    parser.add_argument("--python", default=None,
+                        help="Interpreter for the MCP server child "
+                             "(default <root>/venv/bin/python; e.g. a platform venv elsewhere)")
     return parser.parse_args(argv)
 
 
@@ -90,13 +93,16 @@ def main(argv: list[str] | None = None) -> int:
             print(f"program not found: {program}", file=sys.stderr)
             return 2
 
-    # The venv interpreter path MUST stay unresolved: venv/bin/python is a
-    # symlink, and resolving it loses the venv (CPython finds pyvenv.cfg by
-    # walking up from the executable path). A resolved path boots a bare
-    # interpreter without appworld/mcp installed, which kills the MCP child
-    # instantly with ModuleNotFoundError (seen as MCP -32000 Connection
-    # closed). Absolute but unresolved keeps venv site-packages active.
-    venv_python = os.path.abspath(os.path.join(root, "venv", "bin", "python"))
+    # Interpreter for the MCP server child. Default is the Linux venv path;
+    # --python overrides it (e.g. a Windows platform venv). The path MUST
+    # stay unresolved: venv/bin/python is a symlink, and resolving it loses
+    # the venv (CPython finds pyvenv.cfg by walking up from the executable
+    # path). A resolved path boots a bare interpreter without appworld/mcp
+    # installed, which kills the MCP child instantly with ModuleNotFoundError
+    # (seen as MCP -32000 Connection closed). Absolute but unresolved keeps
+    # venv site-packages active.
+    venv_python = os.path.abspath(args.python) if args.python else os.path.abspath(
+        os.path.join(root, "venv", "bin", "python"))
     if Path(os.path.abspath(sys.executable)) != Path(venv_python):
         print(
             f"warning: current interpreter {sys.executable} != venv python {venv_python}",
@@ -196,7 +202,8 @@ def main(argv: list[str] | None = None) -> int:
                         "appworld": APPWORLD_VERSION,
                         "data": APPWORLD_DATA_VERSION,
                         "mcp": MCP_VERSION,
-                        "python": PYTHON_VERSION,
+                        "python": f"{sys.version_info.major}.{sys.version_info.minor}",
+                        "python_full": sys.version.split()[0],
                     },
                 }
                 write_json(out / "result.json", result)
