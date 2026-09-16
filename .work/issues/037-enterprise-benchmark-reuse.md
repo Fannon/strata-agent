@@ -13,11 +13,17 @@ Prefer an AppWorld feasibility spike for realistic cross-application composition
 
 Current evidence: [AppWorld](../../docs/appworld-spike.md) records a 98-operation inspection, two-call handwritten replay, save and upstream grading (task incomplete), followed by an unsuccessful development model run with date-time validation failures. [BFCL](../../docs/bfcl-diagnostic.md) records 30/30 corrected call verdicts, with guard-stopped sessions reported separately. Neither is a comparative win. [040](040-appworld-datetime-compatibility.md) tracks the compatibility decision before a matched pilot. The checklist below separates completed smoke mechanics from remaining acceptance work.
 
-- [ ] Pin an AppWorld revision and review code/data/bundle terms. Keep downloaded bundles, credentials, generated schema derivatives and task solutions local unless redistribution rights are confirmed.
+- [x] Record AppWorld revision and package/data versions (see spike report).
+- [ ] Verify the available environment matches those pins and record relevant code/data/bundle terms. Keep downloaded bundles, credentials, generated schema derivatives and task solutions local unless redistribution rights are confirmed.
 - [x] Start a disposable task world, inspect 98 operations, connect through existing stdio MCP, replay calls, save and invoke upstream grading. Response compatibility remains partial (040); successful declaration generation alone is insufficient.
-- [ ] Run one handwritten typed program against that world and verify final state with the upstream grader. Ensure the agent cannot read grader/answers. Report unsupported schema constructs instead of silently replacing them with `any`.
-- [ ] Add a lazy direct-tool reference with the same discovery results, operation visibility, backend effects and access policy. Separate backend adaptation effort from harness/model efficiency. Preserve upstream task semantics; label adaptations explicitly, not official leaderboard results.
-- [ ] Predeclare a small development selection spanning single-call controls, cross-app joins and state-changing workflows, with untouched confirmation tasks. Freeze budget, repetitions, model, executor, declarations, task IDs and fixture provenance before paid calls.
+- [ ] Resolve 040, then solve one development task with a handwritten typed program using public task/tool information. Save and evaluate with the upstream grader, then repeat from a fresh world. Keep grader/answers unavailable to the program and report all failures. The earlier two-call smoke did not satisfy task completion.
+- [ ] Hand off matched direct-tool preparation and the frozen pilot proposal to [042](042-matched-application-comparison.md), which owns parity, measures and decision rules.
+
+## Next worker scope: offline feasibility
+
+Use an existing Linux/WSL environment if available and verify it with fresh checks. Windows support (041) is separate unless it blocks the only available environment; classify the blocker rather than starting a broad port. If the pinned environment or protected bundles are unavailable, record the setup requirements and continue independent synthetic reproduction work.
+
+Deliver exact reproduction commands, versions, schema disposition, first and reset-run grader aggregates, remaining gaps and a go/no-go for 042. A no-go must identify the smallest actionable next step. This assignment needs no external model calls, prompt tuning, REST transport or catalog expansion.
 
 ## Measurements and falsification
 
@@ -25,4 +31,4 @@ Measure state-graded success, unauthorized effects, missing-tool abstention, dis
 
 A separate controlled extension varies distractor catalog size (100/1,000/10,000 descriptors) while keeping executable task operations constant. Both arms get identical discovery. Report retrieval scaling separately from composition and distinguish metadata-only distractors from real integrations. Separately inject permission revocation and schema changes between discovery/load/call, measuring denied effects and recovery. Do not call static allowlist filtering dynamic authorization support.
 
-Acceptance for the spike: one reproducible offline end-to-end trace, schema/transport/license gap report, and a go/no-go recommendation for a matched trial. No general enterprise platform, universal OpenAPI importer, or live benchmark spend is required to complete it.
+Acceptance for the remaining spike: a task-solving offline trace repeated from reset, schema/transport/terms gap report, and a go/no-go for matched preparation. If blocked, retain a failing reproduction and next decision without marking feasibility complete. No general enterprise platform, universal OpenAPI importer or live benchmark spend is required.

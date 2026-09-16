@@ -21,6 +21,8 @@ A command-line tool, an MCP tool (a tool exposed through the Model Context Proto
 
 The hypothesis is that the agent could compose these functions without having to handle a different calling convention for each tool. Some functions would make remote calls; others would perform local work inside the sandbox. Access to files, processes and external services would still need explicit permissions.
 
+The broader goal is that every operation available to the agent can be expressed as a typed function, including CLI and filesystem operations underneath. One risk is familiarity: models may already be better at established Bash/Linux workflows than at a new set of function names and schemas. Strata could lose that advantage while adding more definitions to read. This is a counter-hypothesis to test, not an established explanation of the results; comparisons must retain the baseline's ordinary CLI and scripting abilities.
+
 That is the direction being explored, not a description of a finished universal tool system. Today, Strata has an MCP connection, a small CLI demonstration, and read-only repository tools. General REST integration and broad tool coverage remain ideas to investigate. In the current prototype, local tool adapters run in the trusted host; the generated program's computation runs in a restricted environment. This is not yet a hardened security sandbox.
 
 ## A small example
@@ -72,6 +74,10 @@ Comparisons need to give the alternatives equivalent access to data and tools. O
 These results come from limited experiments, largely on one model. They leave room for a useful application, but also for a narrower outcome—or a well-supported conclusion that the added complexity does not pay off.
 
 ## Where the research could go
+
+A more interesting fit may be agents with a programmable execution environment: a runtime such as Bun, CLI tools and filesystem access, combined with many APIs and MCP tools. For familiar local coding tasks, shell tools and ordinary scripts are already effective; Strata's extra type definitions and checking may not earn their cost. The repository experiments so far support that caution, without establishing that typed composition can never help coding agents.
+
+With many unfamiliar services, the proposition changes: discover a small set of typed functions, call them from a program, and combine remote results with local work. A function might query an API, invoke a CLI tool or read a file; the program can then join responses, transform data and calculate an answer. The potential benefit comes from one composable interface over those different operations, backed by a general-purpose execution environment. Whether it earns its cost remains a research hypothesis. Execution location and filesystem, network and process permissions remain explicit design choices.
 
 A promising setting may be an agent working across many unfamiliar business services. Existing API descriptions could supply the types; the agent could discover a few relevant functions, combine their results locally, and return an answer without filling its conversation with raw records. Whether that helps more than good direct tools remains an open question.
 

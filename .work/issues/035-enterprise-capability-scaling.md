@@ -2,7 +2,7 @@
 
 Status: research/concept captured; experiment not selected
 Source: user asks whether dynamic enterprise applications/APIs/permissions are a better fit than local CLI replacement.
-Dependencies: 003 discovery, 012 authorization, 026 traces; informed by 004 context-cost findings. Does not displace the active 004 slice or authorize enterprise infrastructure work.
+Dependencies: 003 discovery, 012 authorization, 026 traces; informed by completed 004 findings. 037/042 own the selected application-composition sequence. This scaling concept does not authorize enterprise infrastructure work.
 
 ## Hypothesis and limits
 

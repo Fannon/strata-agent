@@ -5,13 +5,9 @@ Kind: capability-transport follow-up
 Source: user direction 2026-09-14 during the 037 AppWorld spike review
 Dependencies: 012 scoped permissions (effect policy); 017 capability relationships; 035/037 enterprise scaling (demand signal)
 
-## Principle (user-selected)
+## Direction and updated hypothesis
 
-Strata should always call tools through real typed transports: MCP tools
-or REST APIs. Bespoke one-off adapters (hand-written argv mappers, narrow
-bridges) are scaffolding, not the product. Where an MCP server exists, use
-it. Where a REST API exists, generate a typed client rather than hand-writing
-another adapter.
+The earlier MCP/REST-only framing is superseded by the broader typed-function hypothesis in the README: local/CLI operations, MCP tools and REST APIs may share a composable interface. Prefer existing contracts and generated clients over bespoke adapters. This issue owns only the REST investigation; it neither removes existing local tools nor authorizes a universal adapter framework. REST is not a dependency of the current MCP experiment.
 
 ## Current gap
 
@@ -31,8 +27,7 @@ another adapter.
    `openapi-typescript` (types only), `openapi-fetch` (typed fetch client),
    and whatever the OpenAPI-3.1 ecosystem currently recommends. Criteria:
    output must feed the existing declaration generator (`schemas.ts`) and
-   broker validation unchanged; generated code must run wherever Strata
-   programs run; no new runtime dependency without justification.
+   broker validation; generated network clients may run in the trusted connector while sandboxed programs call typed bindings. Do not require a fetch-based client to run inside QuickJS. No new runtime dependency without justification.
 2. Define the transport policy first: per-operation allowlist (same broker
    semantics as MCP), base-URL pinning, auth/secret handling that keeps
    credentials out of programs, prompts, traces and artifacts, timeouts and

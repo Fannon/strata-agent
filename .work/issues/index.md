@@ -2,6 +2,27 @@
 
 Reviewed 2026-09-16 against `c5e0b7e`, including delivered AppWorld replay and BFCL diagnostic work. This board owns next-work ordering; [handoff](../../docs/handoff.md) owns the concise implementation handoff, [trial report](../../docs/repo-trials.md) owns repository evidence, and [AppWorld](../../docs/appworld-spike.md)/[BFCL](../../docs/bfcl-diagnostic.md) own enterprise diagnostic reports. [ACD](../../ACD.md) owns architectural direction. Issue Markdown is tracked; raw `.work/` artifacts and local notes remain ignored.
 
+## Goal and evidence path
+
+Find out whether giving an agent typed functions that it can compose into programs improves useful task completion compared with equally capable direct tools and ordinary scripts. Functions may represent local tools, MCP operations or REST calls; local computation and remote effects can share an interface without sharing an execution location. Demonstrating that this interface works is a feasibility result. Demonstrating that it earns its complexity requires a fair comparison.
+
+The current priority is real application composition through the existing MCP path. Building every transport, a large catalog or a production sandbox is not a prerequisite. Success includes identifying a narrow useful setting or a supported negative result.
+
+Architectural goal: every operation can be exposed as a typed function, including local CLI/filesystem actions. Counter-hypothesis: familiar Bash/Linux workflows may give ordinary agents an advantage over novel function interfaces. Keep that baseline capable; do not infer a training-familiarity cause from cost results alone. [043](043-api-composition-computer-environment.md) records this goal and risk without authorizing universal adapter work.
+
+| Gate | Work and owner | Evidence required / next decision |
+| --- | --- | --- |
+| 0. Trust the environment | 037 preflight; 041 only if Windows blocks the chosen environment | Record runtime versions and fresh offline checks on Linux/WSL or another verified environment. Classify failures. Do not spend on models with a broken compiler or runner; do not turn this into a general Windows port. |
+| 1. Trust the data contract | 040 | Reproduce date-time rejection, choose and document a narrow compatibility policy or explicit unsupported result, and verify real affected responses. Preserve strict defaults and schema provenance. |
+| 2. Complete a real task | 037 offline acceptance | A handwritten program solves one development task through public tools, followed by save and upstream grading in a fresh world. Repeat from reset. This proves feasibility, not model performance. A failed replay remains a blocker with a diagnosis. |
+| 3. Make comparison fair | 042, offline first | Both arms share task state, discovery, callable operations, validation and effect policy. Deterministic checks verify parity, grading and accounting; a dry-run plan freezes tasks, settings and a proposed spend cap. |
+| 4. Measure value | 042, only after matrix/cap approval | A small paired development pilot compares task success, total cost per success, latency and unauthorized effects. Include simple controls and composition tasks; report harness failures separately. Decide continue, narrow, repair or stop. |
+| 5. Test generalization | 009 / 035, separately selected | Confirm a positive signal on untouched tasks before broader claims. Catalog-size, contract-change and revocation experiments remain distinct from composition; a second model tests portability. |
+
+Next worker assignment: gates 0–2, ending with a reproducible offline feasibility report. If compatibility is demonstrably unsupported, finish the diagnosis and propose an alternative task/backend; do not silently weaken contracts or expand infrastructure. Gate 3 is the subsequent bounded assignment. Gate 4 is not authorized merely by this roadmap.
+
+038 matters only if the affected repository evaluator is reused. 039 is a transport hypothesis, not a dependency of the MCP comparison. 041 is an environment-dependent support track. Backlog ideas are not an implementation queue.
+
 ## Decision and verification
 
 Current review (2026-09-16, `c5e0b7e`, Windows/Bun 1.4.2): `bun run check` passed; `bun test` failed with **67 pass / 95 fail / 743 assertions**, 162 tests across 25 files. Observed failures include POSIX-only supervision and compiler standard-library path rejection despite the file being present. [041](041-windows-verification.md) records diagnosis/support work; historical Linux counts below remain historical. No paid/model calls were made.
@@ -21,13 +42,12 @@ On September 14 the user selected documentation reconciliation and the recommend
 | [037 — Reuse enterprise tool benchmarks](037-enterprise-benchmark-reuse.md) | selected/in progress: replay and BFCL diagnostic delivered; AppWorld response compatibility is partial; matched lazy-direct reference and pilot remain open |
 | [040 — AppWorld date-time compatibility](040-appworld-datetime-compatibility.md) | proposed decision/fix prerequisite for 037 comparison; no global validation relaxation authorized |
 | [038 — Diagnose missing typed-program reports](038-missing-typed-program-reports.md) | recorded prerequisite before reusing affected repository evaluation path; no regrading or new model runs |
-| [039 — Typed REST operations via client generation](039-typed-rest-operations.md) | idea only (user requirement 2026-09-14): MCP/REST as the only typed transports; evaluate client-generation libraries before building; no implementation authorized |
+| [042 — Matched application comparison](042-matched-application-comparison.md) | next slice of selected 037 sequence; offline parity and pilot plan follow feasibility; new model campaign requires a frozen matrix/cap |
+| [039 — Typed REST operations via client generation](039-typed-rest-operations.md) | idea only: explore generated REST clients within the broader local/CLI/MCP/REST function hypothesis; not a prerequisite for 037 |
 | [004 — Attribute and reduce typed-context cost](004-harness-tuning.md) | A/B delivered; slice C confirmation on fresh R-CALL family ran 2026-09-13: negative/inconclusive (compact 2/4 vs full 3/4, $0.0037 vs $0.0032/success) — compact stays opt-in, no change |
 | [009 — Baseline hardening: variance, warm sessions, wider tasks](009-baseline-hardening.md) | fixture hardening, repo-2 trials and reproducibility fingerprints delivered; evidence-quality follow-ups remain open; 004 confirmation ran and was negative/inconclusive |
 
 ## Completed mechanisms and trial slices
-
-Working order: resolve 040's compatibility decision within the 037 feasibility review, verify a task-solving replay, complete the matched lazy-direct reference, then freeze a development matrix and spend cap before comparative calls. Catalog scaling is a separate subsequent experiment; confirmation follows a positive signal. 038 blocks reuse of the affected repository evaluator, not unrelated offline work. 039 remains an idea. This review does not launch implementation or paid campaigns.
 
 | Issue | Current status |
 | --- | --- |
@@ -66,6 +86,8 @@ Working order: resolve 040's compatibility decision within the 037 feasibility r
 
 ## Enterprise-fit hypothesis
 
+[043 — Remote services and local tools through typed functions](043-api-composition-computer-environment.md) records the broader proposition: many APIs/MCP operations plus a programmable execution environment, CLI tools and filesystem functions behind one composable interface. 037/042 test its first service-composition slice; additional adapters remain task-driven follow-ups.
+
 [035 — Enterprise discovery and typed composition](035-enterprise-capability-scaling.md) captures a potentially different use case: large dynamic API catalogs with small discovered working sets. It remains an unproven hypothesis and does not overturn 004's negative/inconclusive confirmation. [037 — Reuse enterprise tool benchmarks](037-enterprise-benchmark-reuse.md) is now selected for implementation, starting with an AppWorld offline compatibility spike, with BFCL as a complementary diagnostic. Compare with equally lazy direct tools and test schema changes/revocation separately from task efficiency.
 
 ## Deferred experiments
@@ -82,7 +104,7 @@ Working order: resolve 040's compatibility decision within the 037 feasibility r
 
 ## Scope rules
 
-- Existing native/CLI adapters remain research scaffolding. The intended product transport direction is MCP/REST (039); stdio MCP is implemented, REST generation is not selected for implementation. No universal Unix replacement.
+- Explore a shared typed-function interface across local/CLI, MCP and REST operations. Prefer existing contracts and generated clients; avoid bespoke adapters without a demonstrated task need. MCP is the current real-application path; REST generation is not selected. No universal Unix replacement.
 - Keep semantic checking, runtime validation, operation/resource policy and execution containment distinct. Bun ambient calls can bypass capability checks and traces.
 - Default QuickJS, opt-in Bun; freeze one executor for the next presentation ablation.
 - 013 owns bounded session research; 033 is its data-source work, 032 owns promotion decisions. Counts are observational and require reproducible classification.
