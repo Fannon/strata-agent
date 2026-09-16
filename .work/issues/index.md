@@ -86,6 +86,8 @@ On September 14 the user selected documentation reconciliation and the recommend
 
 ## Enterprise-fit hypothesis
 
+[044 — Uniform versus hybrid interfaces](044-uniform-versus-hybrid.md) captures the expectation that typed wrappers may lose on familiar tools but help with unfamiliar ones, and that workflow composition may outweigh individual-call overhead. A hybrid retaining ordinary shell/direct tools is a separate open comparison. This is not a conclusion about training exposure and does not expand the initial 042 matrix.
+
 [043 — Remote services and local tools through typed functions](043-api-composition-computer-environment.md) records the broader proposition: many APIs/MCP operations plus a programmable execution environment, CLI tools and filesystem functions behind one composable interface. 037/042 test its first service-composition slice; additional adapters remain task-driven follow-ups.
 
 [035 — Enterprise discovery and typed composition](035-enterprise-capability-scaling.md) captures a potentially different use case: large dynamic API catalogs with small discovered working sets. It remains an unproven hypothesis and does not overturn 004's negative/inconclusive confirmation. [037 — Reuse enterprise tool benchmarks](037-enterprise-benchmark-reuse.md) is now selected for implementation, starting with an AppWorld offline compatibility spike, with BFCL as a complementary diagnostic. Compare with equally lazy direct tools and test schema changes/revocation separately from task efficiency.

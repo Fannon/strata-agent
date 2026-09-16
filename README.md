@@ -23,6 +23,8 @@ The hypothesis is that the agent could compose these functions without having to
 
 The broader goal is that every operation available to the agent can be expressed as a typed function, including CLI and filesystem operations underneath. One risk is familiarity: models may already be better at established Bash/Linux workflows than at a new set of function names and schemas. Strata could lose that advantage while adding more definitions to read. This is a counter-hypothesis to test, not an established explanation of the results; comparisons must retain the baseline's ordinary CLI and scripting abilities.
 
+The working hypothesis is that this tradeoff depends on familiarity: a typed wrapper may add friction for a tool the model already knows, yet provide useful structure for an unfamiliar API it must learn anyway. A uniform interface could also make entire workflows easier to compose, even when some individual calls become more expensive. A hybrid—typed functions alongside familiar shell tools—might work better still. Whether uniform composition outweighs the benefit of choosing between interfaces is an open research question.
+
 That is the direction being explored, not a description of a finished universal tool system. Today, Strata has an MCP connection, a small CLI demonstration, and read-only repository tools. General REST integration and broad tool coverage remain ideas to investigate. In the current prototype, local tool adapters run in the trusted host; the generated program's computation runs in a restricted environment. This is not yet a hardened security sandbox.
 
 ## A small example

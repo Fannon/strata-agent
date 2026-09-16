@@ -23,4 +23,6 @@ Separate retrieval, business semantics, schema compatibility, local processing a
 
 ## Completion and decisions
 
+[044](044-uniform-versus-hybrid.md) owns the separate familiar/unfamiliar and uniform/hybrid comparison. Uniform typed functions are the architectural hypothesis; their superiority is not a prerequisite conclusion. Keep the initial service-composition test bounded before adding that comparison.
+
 Use 042's parity table and pilot to identify whether service composition earns its cost. Any later local-tool extension needs a justified task, baseline with equivalent abilities, documented execution/permission boundary and bounded experiment. No GUI automation, universal adapter framework or new sandbox is implied. Negative results can narrow or stop this direction.
