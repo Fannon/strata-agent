@@ -1,6 +1,6 @@
 # 040 — Resolve AppWorld date-time compatibility before comparison
 
-Status: adaptation implemented and unit-verified 2026-09-16; real-response replay verification still open (needs Linux runtime)
+Status: adaptation implemented, live-verified 2026-09-16; investigation closed, replay acceptance under 037
 Dependencies: existing AppWorld replay code and reported response examples; prerequisite for 037 task-solving acceptance and 042 comparison
 
 ## Evidence and hypothesis
@@ -51,11 +51,13 @@ timezone invented, original values and schemas preserved:
 
 ## Remaining
 
-- [ ] Verify real affected responses through replay on a Linux runtime
-  (open: no WSL/Linux here; Windows AppWorld install attempt in progress
-  under `.work/appworld/venv-win`). Task-solving replay itself belongs
-  to 037; this issue closes on a verified real-response accept (or a
-  documented unsupported finding with a smallest-alternative proposal).
+- [x] Verify real affected responses through replay (2026-09-16:
+  verified live on a Windows platform venv, Python 3.14.7 — two fresh
+  worlds, 0 validation failures across 2 x 70 capability calls while
+  accepting naive `created_at`/`release_date` from
+  `show_playlist_library`/`show_playlist`/`show_song`; strict-mode
+  rejection of the same shapes is documented in the paid trajectory and
+  synthetic tests). See 037 for the task-solving replay acceptance.
 
 ## Completion criteria
 

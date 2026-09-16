@@ -25,15 +25,19 @@ export class Workspace {
       noEmitOnError: true,
     };
     // Compiler can read only its standard libraries and the two virtual files.
-    const read = (path: string) =>
-      path === programPath
-        ? this.source
-        : path === declarationPath
-          ? this.declarations
-          : path.startsWith(libDir + "/") &&
-              /^lib\.[\w.]+\.d\.ts$/.test(path.slice(libDir.length + 1))
-            ? ts.sys.readFile(path)
-            : undefined;
+    // Separator-normalized: TypeScript hands the host forward-slash paths
+    // even when libDir carries Windows separators (041). The lib-file gate
+    // below still admits only lib.*.d.ts basenames, so no traversal opens.
+    const libPrefix = libDir.replace(/\\/g, "/") + "/";
+    const read = (path: string) => {
+      if (path === programPath) return this.source;
+      if (path === declarationPath) return this.declarations;
+      const slash = path.replace(/\\/g, "/");
+      return slash.startsWith(libPrefix) &&
+        /^lib\.[\w.]+\.d\.ts$/.test(slash.slice(libPrefix.length))
+        ? ts.sys.readFile(path)
+        : undefined;
+    };
     const host: ts.LanguageServiceHost = {
       getCompilationSettings: () => options,
       getScriptFileNames: () => [programPath, declarationPath],

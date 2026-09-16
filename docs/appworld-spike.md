@@ -1,7 +1,7 @@
 # AppWorld offline-compatibility spike (issue037)
 
-Status: **replay implemented and smoke execution recorded; response compatibility remains partial.**
-Reviewed 2026-09-16. The recorded inspect/replay/save/grading run below supersedes the initial unverified implementation status. The smoke did not solve the task; the later development model run exposed a date-time validation gap. No comparative gains are established. Next decision: [040](../.work/issues/040-appworld-datetime-compatibility.md).
+Status: **task-solving replay delivered and repeated from reset; 040 resolved and live-verified.**
+Reviewed 2026-09-16. The handwritten solver completed development task `82e2fac_1` twice from fresh worlds (completed=true, 2 passes / 0 failures both runs). No comparative gains are established. Next decision: gate-3 offline parity under [042](../.work/issues/042-matched-application-comparison.md).
 
 ## Pins and environment
 
@@ -124,6 +124,11 @@ Notes:
   child instantly).
 
 ## Go / no-go for a matched lazy-direct versus typed pilot
+
+GO for gate-3 offline preparation (2026-09-16): gates 0–2 delivered —
+verified environment, resolved + live-verified data contract, real task
+solved twice from reset. Gate 4 (paid pilot) still needs a frozen
+matrix and spend-cap approval.
 
 - Transport/replay readiness: demonstrated for the smoke path (fresh world → stdio MCP → typed program → save → upstream grade). Matched-pilot readiness remains blocked on the date-time compatibility decision and a task-solving replay; see 040.
 - Conditions before any pilot spend: use uninspected tasks only

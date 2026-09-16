@@ -12,20 +12,22 @@ Architectural goal: every operation can be exposed as a typed function, includin
 
 | Gate | Work and owner | Evidence required / next decision |
 | --- | --- | --- |
-| 0. Trust the environment | 037 preflight; 041 only if Windows blocks the chosen environment | Record runtime versions and fresh offline checks on Linux/WSL or another verified environment. Classify failures. Do not spend on models with a broken compiler or runner; do not turn this into a general Windows port. |
-| 1. Trust the data contract | 040 | Reproduce date-time rejection, choose and document a narrow compatibility policy or explicit unsupported result, and verify real affected responses. Preserve strict defaults and schema provenance. |
-| 2. Complete a real task | 037 offline acceptance | A handwritten program solves one development task through public tools, followed by save and upstream grading in a fresh world. Repeat from reset. This proves feasibility, not model performance. A failed replay remains a blocker with a diagnosis. |
+| 0. Trust the environment | 037 preflight (delivered 2026-09-16); 041 only if Windows blocks the chosen environment | Windows platform venv verified: byte-identical 98-op manifest, inspect green, suite 155/12 after a one-line compiler-separator fix (041). Remaining 12 classified, no broad port. |
+| 1. Trust the data contract | 040 (delivered 2026-09-16: boundary opt-in implemented + live-verified) | Strict default kept; naive outputs accepted verbatim with provenance; 0 validation failures over 2 x 70 live calls. Same policy required in both 042 arms. |
+| 2. Complete a real task | 037 offline acceptance (delivered 2026-09-16) | Handwritten solver, dev task, save + upstream grading, repeated from reset: 2/0 twice. Proves feasibility, not model performance. |
 | 3. Make comparison fair | 042, offline first | Both arms share task state, discovery, callable operations, validation and effect policy. Deterministic checks verify parity, grading and accounting; a dry-run plan freezes tasks, settings and a proposed spend cap. |
 | 4. Measure value | 042, only after matrix/cap approval | A small paired development pilot compares task success, total cost per success, latency and unauthorized effects. Include simple controls and composition tasks; report harness failures separately. Decide continue, narrow, repair or stop. |
 | 5. Test generalization | 009 / 035, separately selected | Confirm a positive signal on untouched tasks before broader claims. Catalog-size, contract-change and revocation experiments remain distinct from composition; a second model tests portability. |
 
-Next worker assignment: gates 0–2, ending with a reproducible offline feasibility report. If compatibility is demonstrably unsupported, finish the diagnosis and propose an alternative task/backend; do not silently weaken contracts or expand infrastructure. Gate 3 is the subsequent bounded assignment. Gate 4 is not authorized merely by this roadmap.
+Next worker assignment: gate 3 (042 offline parity + dry-run matrix/cap proposal). Gates 0–2 delivered 2026-09-16 (see verification entry below). Gate 4 is not authorized merely by this roadmap.
 
 038 matters only if the affected repository evaluator is reused. 039 is a transport hypothesis, not a dependency of the MCP comparison. 041 is an environment-dependent support track. Backlog ideas are not an implementation queue.
 
 ## Decision and verification
 
 Current review (2026-09-16, `c5e0b7e`, Windows/Bun 1.4.2): `bun run check` passed; `bun test` failed with **67 pass / 95 fail / 743 assertions**, 162 tests across 25 files. Observed failures include POSIX-only supervision and compiler standard-library path rejection despite the file being present. [041](041-windows-verification.md) records diagnosis/support work; historical Linux counts below remain historical. No paid/model calls were made.
+
+Gates 0–2 delivered 2026-09-16 (no model calls, 0 spend): Windows platform venv (Python 3.14.7, pinned upstream source + `mcp==2.2.0`, `PYTHONUTF8=1`) reproduces the pinned inspect byte-identically (98 ops, 0 missing output schemas); `bun run check` clean; `bun test` **155 pass / 12 fail / 167 tests** after a one-line compiler path-separator fix that preserved the fs allowlist (remaining 12 classified under 041, no broad port). 040 boundary opt-in live-verified (0 validation failures over 2 x 70 calls). Handwritten solver completed dev task `82e2fac_1` twice from reset (completed=true, 2 passes / 0 failures both runs; answer "A Love That Never Was", likeCount 18; 70 calls, ~0.4 s compile + ~3.4 s exec, ~101 KB raw to 189 bytes). Raw artifacts local (`out-inspect-win2`, `out-run-win1`, `out-run-win2`); solver/scratch ignored, never committed. Go for 042 gate-3 offline preparation; gate 4 still needs a frozen matrix/cap.
 
 The typed capability layer is enduring; both engines and the useful read-only API are implemented. Four trial stages show no demonstrated task-level advantage: typed profiles use fewer Pi calls but more context/cost. 004 attribution and compact development testing are delivered: compact reduced cost/success 26.4% against full declarations at 12/12 success in both arms. The September 13 R-CALL confirmation failed its cost threshold (compact 2/4 overall successes, full 3/4, stock 4/4); compact stays opt-in. Typed final answers were correct, with one policy failure and two harness failures. 025 shutdown ownership, 029 policy-aware discovery and 009 fixture fingerprints are delivered. Path-prefix close-out and 026/027/031 are delivered; do not repeat them. Engine equivalence, declaration causality and aggregation superiority are not established.
 
@@ -39,10 +41,10 @@ On September 14 the user selected documentation reconciliation and the recommend
 
 | Issue | Current status |
 | --- | --- |
-| [037 — Reuse enterprise tool benchmarks](037-enterprise-benchmark-reuse.md) | selected/in progress: replay and BFCL diagnostic delivered; AppWorld response compatibility is partial; matched lazy-direct reference and pilot remain open |
-| [040 — AppWorld date-time compatibility](040-appworld-datetime-compatibility.md) | proposed decision/fix prerequisite for 037 comparison; no global validation relaxation authorized |
+| [037 — Reuse enterprise tool benchmarks](037-enterprise-benchmark-reuse.md) | gates 0–2 delivered 2026-09-16: env verified, 040 live-verified, dev task solved twice from reset; 042 gate-3 offline prep is next |
+| [040 — AppWorld date-time compatibility](040-appworld-datetime-compatibility.md) | closed 2026-09-16: boundary opt-in implemented, synthetic tests green, live-verified (0 validation failures); shared-policy requirement passed to 042 |
 | [038 — Diagnose missing typed-program reports](038-missing-typed-program-reports.md) | recorded prerequisite before reusing affected repository evaluation path; no regrading or new model runs |
-| [042 — Matched application comparison](042-matched-application-comparison.md) | next slice of selected 037 sequence; offline parity and pilot plan follow feasibility; new model campaign requires a frozen matrix/cap |
+| [042 — Matched application comparison](042-matched-application-comparison.md) | GO for gate-3 offline preparation (parity arm, checks, dry-run matrix/cap proposal); paid pilot still needs frozen matrix/cap approval |
 | [039 — Typed REST operations via client generation](039-typed-rest-operations.md) | idea only: explore generated REST clients within the broader local/CLI/MCP/REST function hypothesis; not a prerequisite for 037 |
 | [004 — Attribute and reduce typed-context cost](004-harness-tuning.md) | A/B delivered; slice C confirmation on fresh R-CALL family ran 2026-09-13: negative/inconclusive (compact 2/4 vs full 3/4, $0.0037 vs $0.0032/success) — compact stays opt-in, no change |
 | [009 — Baseline hardening: variance, warm sessions, wider tasks](009-baseline-hardening.md) | fixture hardening, repo-2 trials and reproducibility fingerprints delivered; evidence-quality follow-ups remain open; 004 confirmation ran and was negative/inconclusive |
@@ -71,7 +73,7 @@ On September 14 the user selected documentation reconciliation and the recommend
 | Issue | Current status |
 | --- | --- |
 | [005 — Revisit resource limits before broader or hostile-input workloads](005-runtime-limits.md) | backlog |
-| [041 — Windows support and verification gaps](041-windows-verification.md) | proposed; current Windows suite fails; diagnose before claiming Windows support |
+| [041 — Windows support and verification gaps](041-windows-verification.md) | compiler-separator fix landed 2026-09-16 (155 pass / 12 fail, was 67/95); remaining 12 classified environment failures, no general support claimed |
 | [007 — Bounded report loop and pre-delivery size caps](007-report-bounds.md) | backlog |
 | [012 — Authorize concrete effects and filesystem resources](012-scoped-permissions.md) | Phase A best-effort repository reads delivered; interactive/stronger grants remain backlog |
 | [013 — Learn composable operations from local agent sessions](013-session-capability-study.md) | optional bounded study ready; preliminary counts recorded in 033, reproducible workflow study not delivered |

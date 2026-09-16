@@ -1,6 +1,6 @@
 # 037 — Reuse an enterprise tool benchmark before building our own
 
-Status: selected/in progress; controller/replay and BFCL diagnostic delivered, AppWorld response compatibility partial; matched comparison not delivered (reviewed 2026-09-16)
+Status: selected/in progress; gates 0-2 delivered 2026-09-16 (env verified, 040 live-verified, dev task solved twice from reset); matched comparison not delivered (reviewed 2026-09-16)
 Dependencies: 035 enterprise hypothesis; 025 lifecycle and 029 discovery fixes; 009 evidence protocol
 
 ## Decision
@@ -14,12 +14,32 @@ Prefer an AppWorld feasibility spike for realistic cross-application composition
 Current evidence: [AppWorld](../../docs/appworld-spike.md) records a 98-operation inspection, two-call handwritten replay, save and upstream grading (task incomplete), followed by an unsuccessful development model run with date-time validation failures. [BFCL](../../docs/bfcl-diagnostic.md) records 30/30 corrected call verdicts, with guard-stopped sessions reported separately. Neither is a comparative win. [040](040-appworld-datetime-compatibility.md) tracks the compatibility decision before a matched pilot. The checklist below separates completed smoke mechanics from remaining acceptance work.
 
 - [x] Record AppWorld revision and package/data versions (see spike report).
-- [ ] Verify the available environment matches those pins and record relevant code/data/bundle terms. Keep downloaded bundles, credentials, generated schema derivatives and task solutions local unless redistribution rights are confirmed.
-- [x] Start a disposable task world, inspect 98 operations, connect through existing stdio MCP, replay calls, save and invoke upstream grading. Response compatibility remains partial (040); successful declaration generation alone is insufficient.
-- [ ] Resolve 040, then solve one development task with a handwritten typed program using public task/tool information. Save and evaluate with the upstream grader, then repeat from a fresh world. Keep grader/answers unavailable to the program and report all failures. The earlier two-call smoke did not satisfy task completion.
+- [x] Verify the available environment matches those pins and record relevant code/data/bundle terms. Downloaded bundles, credentials, generated schema derivatives and task solutions stay local. Platform note: no WSL/Linux existed, so a Windows platform venv was built (Python 3.14.7, pinned upstream source + `mcp==2.2.0`, `PYTHONUTF8=1` for upstream console output); manifest from the Windows inspect is byte-identical to the pinned Linux one (98 ops). Original `venv` (Linux) untouched.
+- [x] Start a disposable task world, inspect 98 operations, connect through existing stdio MCP, replay calls, save and invoke upstream grading. 040 resolved AND live-verified (0 validation failures over live naive responses); declaration generation plus runtime acceptance both hold.
+- [x] Resolve 040, then solve one development task with a handwritten typed program using public task/tool information. `.work/appworld/solve-82e2fac-1.ts` (local, dev-only; runtime credential discovery, no hardcoded secrets, no grader access): first run completed=true, 2 passes / 0 failures; reset repeat identical (answer "A Love That Never Was", likeCount 18, 8 playlists / 57 songs / 70 calls, ~0.4 s compile + ~3.4 s exec, 101 KB raw reduced to 189 bytes). Save and upstream grading in both runs; all failures reported (none). The earlier two-call smoke did not satisfy task completion; this does.
 - [ ] Hand off matched direct-tool preparation and the frozen pilot proposal to [042](042-matched-application-comparison.md), which owns parity, measures and decision rules.
 
-## Next worker scope: offline feasibility
+## Next worker scope: offline feasibility (gates 0-2, in progress 2026-09-16)
+
+Gate 0 (environment): Windows/Bun 1.4.2 + Python 3.14, no WSL distros, no
+Docker; `.work/appworld/venv` is a Linux venv and cannot execute here.
+`bun run check` passes. `bun test` reproduces the board baseline exactly
+(67 pass / 95 fail) plus the new 040 file: now 71 pass / 1 env-gated skip
+/ 95 fail across 167 tests — failures are the known 041 classes (POSIX
+supervision, compiler stdlib-path rejection), no regressions from the 040
+change. A Windows AppWorld install (`.work/appworld/venv-win`, Python
+3.14, pinned local source) is downloading dependencies; if it completes,
+gates 1-replay/2 run natively, else they await a Linux runtime.
+
+Gate 2 (handwritten solver): `.work/appworld/solve-82e2fac-1.ts` (local,
+dev-only) solves the inspected development task from public instruction +
+pinned schemas only — runtime credential discovery via supervisor profile
++ account-passwords APIs, login, full library pagination, per-song
+like_count max with deterministic tie-break, `complete_task` submit.
+Statically cross-checked against the pinned manifest (all 7 calls match
+names + required inputs; `.work/appworld/check-solver.ts`). Compile +
+grade pending runtime (Windows compiler-stdlib bug blocks local compile;
+program is written to the same constraints as the verified dev-smoke).
 
 Use an existing Linux/WSL environment if available and verify it with fresh checks. Windows support (041) is separate unless it blocks the only available environment; classify the blocker rather than starting a broad port. If the pinned environment or protected bundles are unavailable, record the setup requirements and continue independent synthetic reproduction work.
 
