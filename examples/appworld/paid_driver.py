@@ -35,6 +35,14 @@ def parse_args(argv: list[str]) -> argparse.Namespace:
     p.add_argument("--max-requests", type=int, default=40)
     p.add_argument("--max-cost-usd", type=float, default=5.0)
     p.add_argument("--agent-timeout-s", type=int, default=1700)
+    p.add_argument("--python", default=None,
+                   help="Interpreter for the MCP server child "
+                        "(default <root>/venv/bin/python; e.g. a platform venv)")
+    p.add_argument("--arm", default="typed", choices=["typed", "direct"],
+                   help="typed: Strata typed_program only (STRATA_STRICT=1); "
+                        "direct: one Pi tool per MCP operation + stock Pi tools")
+    p.add_argument("--thinking", default="medium",
+                   help="Pi thinking level (pilot default: medium)")
     return p.parse_args(argv)
 
 
@@ -115,7 +123,9 @@ def main(argv: list[str] | None = None) -> int:
         return 2
 
     out.mkdir(parents=True, exist_ok=False)
-    venv_python = os.path.abspath(os.path.join(root, "venv", "bin", "python"))
+    # Interpreter override (Windows platform venv); default keeps the Linux path.
+    venv_python = os.path.abspath(args.python) if args.python else os.path.abspath(
+        os.path.join(root, "venv", "bin", "python"))
     bun_exe = __import__("shutil").which("bun")
     if not bun_exe:
         print("bun executable not found on PATH", file=sys.stderr)
@@ -146,6 +156,8 @@ def main(argv: list[str] | None = None) -> int:
                          "--remote-apis-url", remote_apis_url,
                          "--root", str(root)],
                 "allow": allow,
+                # 040 boundary policy, shared verbatim by both 042 arms.
+                "compat": {"acceptNaiveDateTime": True},
             }
             write_json(out / "strata.json", strata_config)
 
@@ -182,34 +194,56 @@ def main(argv: list[str] | None = None) -> int:
                 if not isinstance(instruction, str) or not instruction:
                     instruction = str(getattr(getattr(world, "task", None), "instruction", ""))
                 (out / "instruction.txt").write_text(instruction, encoding="utf-8")
-                prompt = (
-                    "Solve this AppWorld task using ONLY typed_program with "
-                    "`import { api } from '@cap/appworld'` (program_details may inspect past runs). "
-                    "Direct file and shell tools are disabled; do not attempt them.\n\n"
-                    f"Task instruction: {instruction}\n\n"
-                    "Work plan: read the supervisor active task and profile for account context; "
-                    "if an API needs login, look up account credentials through supervisor APIs only; "
-                    "query the needed app APIs; compute the answer inside the program. "
-                    "Note: call payloads nest under a `response` key. "
-                    "When you have the final answer, submit it with supervisor__complete_task "
-                    "(concise answer, e.g. a title) and then reply with ONLY a ```json block "
-                    "containing the answer value you submitted."
-                )
+                if args.arm == "typed":
+                    prompt = (
+                        "Solve this AppWorld task using ONLY typed_program with "
+                        "`import { api } from '@cap/appworld'` (program_details may inspect past runs). "
+                        "Direct file and shell tools are disabled; do not attempt them.\n\n"
+                        f"Task instruction: {instruction}\n\n"
+                        "Work plan: read the supervisor active task and profile for account context; "
+                        "if an API needs login, look up account credentials through supervisor APIs only; "
+                        "query the needed app APIs; compute the answer inside the program. "
+                        "Note: call payloads nest under a `response` key. "
+                        "When you have the final answer, submit it with supervisor__complete_task "
+                        "(concise answer, e.g. a title) and then reply with ONLY a ```json block "
+                        "containing the answer value you submitted."
+                    )
+                    extensions = [str(repo / "src/pi/extension.ts"),
+                                  str(repo / "examples/benchmark/guard.ts")]
+                    extra_env = {"STRATA_STRICT": "1"}
+                else:
+                    prompt = (
+                        "Solve this AppWorld task with the available app tools "
+                        "(`<app>__<api>` operations listed below) and ordinary "
+                        "shell/file tools for local computation.\n\n"
+                        f"Available operations: {', '.join(allow)}\n\n"
+                        f"Task instruction: {instruction}\n\n"
+                        "Work plan: read the supervisor active task and profile for account context; "
+                        "if an API needs login, look up account credentials through supervisor tools only; "
+                        "call the needed app operations; compute the answer locally. "
+                        "Note: call payloads nest under a `response` key. "
+                        "When you have the final answer, submit it with supervisor__complete_task "
+                        "(concise answer, e.g. a title) and then reply with ONLY a ```json block "
+                        "containing the answer value you submitted."
+                    )
+                    extensions = [str(repo / "src/pi/direct-tools.ts"),
+                                  str(repo / "examples/benchmark/guard.ts")]
+                    extra_env = {}
                 (out / "prompt.md").write_text(prompt, encoding="utf-8")
 
                 cli = [bun_exe or "bun",
                        str(repo / "node_modules/@mariozechner/pi-coding-agent/dist/cli.js"),
-                       "--provider", "openrouter", "--model", MODEL, "--thinking", "medium",
+                       "--provider", "openrouter", "--model", MODEL, "--thinking", args.thinking,
                        "--no-session", "--no-extensions", "--no-skills", "--no-prompt-templates",
                        "--mode", "json",
-                       "-e", str(repo / "src/pi/extension.ts"),
-                       "-e", str(repo / "examples/benchmark/guard.ts"),
+                       *[x for ext in extensions for x in ("-e", ext)],
                        "-p", prompt]
                 env = dict(os.environ)
                 env["PI_CODING_AGENT_DIR"] = str(profile)
                 env["STRATA_CONFIG"] = str(out / "strata.json")
-                env["STRATA_STRICT"] = "1"
+                env["STRATA_DIRECT_LOG"] = str(out / "direct-calls.jsonl")
                 env["STRATA_BENCHMARK_GUARD"] = str(out / "guard.json")
+                env.update(extra_env)
                 agent_exit: int | None = None
                 try:
                     with open(out / "run.jsonl", "wb") as so, open(out / "stderr.log", "wb") as se:
@@ -229,8 +263,10 @@ def main(argv: list[str] | None = None) -> int:
                 tracker = world.evaluate()
                 completed = bool(world.task_completed())
                 result = {
-                    "mode": "paid-dev",
+                    "mode": f"paid-{args.arm}",
                     "task": args.task,
+                    "arm": args.arm,
+                    "thinking": args.thinking,
                     "experiment": experiment,
                     "agentExit": agent_exit,
                     "completed": completed,
