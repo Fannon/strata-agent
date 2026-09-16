@@ -3,13 +3,40 @@ import addFormats from "ajv-formats";
 import { compile } from "json-schema-to-typescript";
 import type { CapabilityModule, JsonSchema } from "./manifest.ts";
 
-export function validator(schema: JsonSchema) {
+export interface ValidatorOptions {
+  /**
+   * Accept timezone-free `YYYY-MM-DDTHH:MM:SS[.fraction]` alongside strict
+   * RFC 3339 `date-time` values. Boundary-scoped compatibility for backends
+   * whose declared `date-time` schemas disagree with their actual naive
+   * responses (040: AppWorld serializes naive datetimes via isoformat while
+   * declaring strict `date-time`). Validation-only: the original string is
+   * preserved verbatim and no timezone is ever inferred. Global default is
+   * strict (false). Applies wherever the caller uses it; the broker applies
+   * it to output validators only, never to agent-supplied inputs.
+   */
+  acceptNaiveDateTime?: boolean;
+}
+
+/** Shared `date-time` gate for the boundary opt-in: strict RFC 3339 (offset
+ * or Z) plus the naive upstream `YYYY-MM-DDTHH:MM:SS` form with optional
+ * fraction. Ranges are bounded (month 01-12, day 01-31, hour 00-23,
+ * min/sec 00-59) so malformed values stay rejected; like AJV's own format
+ * check this is a lexical gate, not a calendar validation. The offset stays
+ * optional and is never defaulted: a naive value validates as itself, with
+ * no timezone inferred. */
+const LOOSE_DATE_TIME =
+  /^\d{4}-(0[1-9]|1[0-2])-(0[1-9]|[12]\d|3[01])[tT]([01]\d|2[0-3]):[0-5]\d:[0-5]\d(\.\d+)?([zZ]|[+-]([01]\d|2[0-3]):[0-5]\d)?$/;
+
+export function validator(schema: JsonSchema, options: ValidatorOptions = {}) {
   const ajv = new Ajv2020({
     strict: false,
     allErrors: false,
     validateFormats: true,
   });
   addFormats(ajv);
+  if (options.acceptNaiveDateTime === true) {
+    ajv.addFormat("date-time", (value: string) => LOOSE_DATE_TIME.test(value));
+  }
   const check = ajv.compile(schema);
   return (value: unknown): string | undefined =>
     check(value)

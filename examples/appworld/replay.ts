@@ -160,10 +160,25 @@ async function main(): Promise<number> {
   let session: Awaited<ReturnType<typeof createSession>> | undefined;
   try {
     const allowed = new Set<string>(manifest.operations.map((op) => op.name));
+    // 040 boundary compatibility: upstream declares strict `date-time` but
+    // emits naive `YYYY-MM-DDTHH:MM:SS` responses (orm isoformat; see the
+    // pinned docstring examples). The opt-in below applies to output
+    // validation only — inputs stay strict, original strings are preserved
+    // verbatim, no timezone is inferred, and the global default is
+    // unchanged. Original schemas are kept untouched in manifest.json and
+    // declarations.d.ts; the effective policy is recorded in summary.json
+    // and must be shared by both arms of any comparison (042 parity).
+    const outputCompatibility = {
+      policy: "accept-naive-date-time",
+      scope: "appworld module outputs only",
+      globalDefault: "strict-rfc3339",
+      provenance: "issue 040; upstream orm.py isoformat vs date-time schema",
+    };
     try {
       session = await createSession(manifest, connector, allowed, {
         executor: "quickjs",
         declarations: "full",
+        validation: { acceptNaiveDateTime: true },
       });
     } catch (error) {
       await connector.close();
@@ -211,6 +226,7 @@ async function main(): Promise<number> {
         manifestBytes: Buffer.byteLength(manifestText),
         declarationBytes: Buffer.byteLength(declarationText),
         declarationsLength: session.declarations.length,
+        outputCompatibility,
       });
       console.log(`inspect ok: ${operationCount} operations, ${missingOutputSchemas} missing output schemas`);
       return 0;
@@ -237,6 +253,7 @@ async function main(): Promise<number> {
       outcome,
       capabilityCalls: calls,
       reportBytes: Buffer.byteLength(result.text),
+      outputCompatibility,
     });
     console.log(`run ${String(outcome)}: calls=${String(calls)} reportBytes=${Buffer.byteLength(result.text)}`);
     return outcome === "ok" ? 0 : 1;

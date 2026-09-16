@@ -1,5 +1,5 @@
 import { Workspace } from "./compiler/workspace.ts";
-import { CapabilityBroker, type Metrics } from "./capabilities/broker.ts";
+import { CapabilityBroker, type BrokerOptions, type Metrics } from "./capabilities/broker.ts";
 import { declarations, declarationsPreamble, parseDeclarationStyle, type DeclarationStyle } from "./capabilities/schemas.ts";
 import {
   type CapabilityModule,
@@ -21,6 +21,13 @@ export interface SessionOptions {
   executor?: ExecutorKind;
   /** Declaration presentation. Default "full"; "compact" is opt-in for the 004 experiment. */
   declarations?: DeclarationStyle;
+  /**
+   * Boundary-scoped response validation compatibility (040). Passed to the
+   * broker for output validators only; inputs stay strict. Default is
+   * strict RFC 3339 everywhere. The AppWorld replay harness opts in for
+   * its module; comparison arms must share the setting (042 parity).
+   */
+  validation?: BrokerOptions;
 }
 
 export async function createSession(
@@ -33,7 +40,7 @@ export async function createSession(
   const texts = [await declarations(manifest, style)];
   const joined = () => `${declarationsPreamble}\n${texts.join("\n")}`;
   const workspace = new Workspace(joined());
-  const broker = new CapabilityBroker(manifest, connector, allowed);
+  const broker = new CapabilityBroker(manifest, connector, allowed, options.validation ?? {});
   const connectors = [connector];
   const shutdown = new AbortController();
   let closed = false;

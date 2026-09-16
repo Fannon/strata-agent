@@ -1,6 +1,6 @@
 import type { CapabilityConnector, CapabilityModule } from "./manifest.ts";
 import { DeniedError } from "./manifest.ts";
-import { validator } from "./schemas.ts";
+import { validator, type ValidatorOptions } from "./schemas.ts";
 import { TRACE_VERSION, type TraceEvent } from "../trace.ts";
 
 export type CallFailure =
@@ -22,6 +22,16 @@ export interface CallMetric {
   /** Monotonic broker-side duration in milliseconds. */
   durationMs: number;
   failure?: CallFailure;
+}
+export interface BrokerOptions {
+  /**
+   * Boundary-scoped output compatibility (040): accept timezone-free
+   * upstream datetimes in response validation. Opt-in per broker; global
+   * default is strict. Never applies to input validation: agent-supplied
+   * values are always checked strictly. The same setting must be used in
+   * both arms of any comparison (042 parity).
+   */
+  acceptNaiveDateTime?: boolean;
 }
 export type RunOutcome = "ok" | "compile-error" | "cancelled" | "timeout" | "error";
 export interface Metrics {
@@ -62,11 +72,18 @@ export class CapabilityBroker {
   private tracer: TraceEmit | undefined;
   private sessionId = "adhoc";
   private callSeq = new Map<string, number>();
+  private readonly outputFormats: ValidatorOptions;
   constructor(
     manifest: CapabilityModule,
     connector: CapabilityConnector,
     allowed: ReadonlySet<string>,
+    options: BrokerOptions = {},
   ) {
+    this.outputFormats = {
+      ...(options.acceptNaiveDateTime === true
+        ? { acceptNaiveDateTime: true as const }
+        : {}),
+    };
     this.addModule(manifest, connector, allowed);
   }
   /** Attach the session trace sink and correlation identity. */
@@ -86,7 +103,10 @@ export class CapabilityBroker {
     const outputs = new Map<string, ((value: unknown) => string | undefined) | undefined>();
     for (const op of manifest.operations) {
       inputs.set(op.name, validator(op.inputSchema));
-      outputs.set(op.name, op.outputSchema ? validator(op.outputSchema) : undefined);
+      outputs.set(
+        op.name,
+        op.outputSchema ? validator(op.outputSchema, this.outputFormats) : undefined,
+      );
     }
     this.modules.set(manifest.id, { connector, allowed, inputs, outputs });
   }
