@@ -19,7 +19,7 @@ Architectural goal: every operation can be exposed as a typed function, includin
 | 4. Measure value | 042, only after matrix/cap approval | A small paired development pilot compares task success, total cost per success, latency and unauthorized effects. Include simple controls and composition tasks; report harness failures separately. Decide continue, narrow, repair or stop. |
 | 5. Test generalization | 009 / 035, separately selected | Confirm a positive signal on untouched tasks before broader claims. Catalog-size, contract-change and revocation experiments remain distinct from composition; a second model tests portability. |
 
-Next worker assignment: gate 3 (042 offline parity + dry-run matrix/cap proposal). Gates 0–2 delivered 2026-09-16 (see verification entry below). Gate 4 is not authorized merely by this roadmap.
+Next worker assignment: no new model campaign is selected. The 042 v2 pilot is a healthy negative (direct 15/18 strict at $0.0069/success vs typed 9/18 at $0.0290, one model, six dev tasks); confirmation under 009 does not follow, and any follow-up (new task family, hybrid arm under 044) needs its own justification. Total session model spend ≈ $0.81 of the authorized 5€. Gate 4 is not authorized merely by this roadmap.
 
 038 matters only if the affected repository evaluator is reused. 039 is a transport hypothesis, not a dependency of the MCP comparison. 041 is an environment-dependent support track. Backlog ideas are not an implementation queue.
 
@@ -44,7 +44,7 @@ On September 14 the user selected documentation reconciliation and the recommend
 | [037 — Reuse enterprise tool benchmarks](037-enterprise-benchmark-reuse.md) | gates 0–2 delivered 2026-09-16: env verified, 040 live-verified, dev task solved twice from reset; 042 gate-3 offline prep is next |
 | [040 — AppWorld date-time compatibility](040-appworld-datetime-compatibility.md) | closed 2026-09-16: boundary opt-in implemented, synthetic tests green, live-verified (0 validation failures); shared-policy requirement passed to 042 |
 | [038 — Diagnose missing typed-program reports](038-missing-typed-program-reports.md) | recorded prerequisite before reusing affected repository evaluation path; no regrading or new model runs |
-| [042 — Matched application comparison](042-matched-application-comparison.md) | gate-3 offline delivered 2026-09-16 (parity arm, checks, matrix + ~$1.60 proposal); paid pilot authorized ≤5€ but blocked on model credentials |
+| [042 — Matched application comparison](042-matched-application-comparison.md) | pilot v2 delivered 2026-09-16 (36/36, $0.36): healthy negative, direct wins strict 15–9 at ~4x lower cost/success; no confirmation selected |
 | [039 — Typed REST operations via client generation](039-typed-rest-operations.md) | idea only: explore generated REST clients within the broader local/CLI/MCP/REST function hypothesis; not a prerequisite for 037 |
 | [004 — Attribute and reduce typed-context cost](004-harness-tuning.md) | A/B delivered; slice C confirmation on fresh R-CALL family ran 2026-09-13: negative/inconclusive (compact 2/4 vs full 3/4, $0.0037 vs $0.0032/success) — compact stays opt-in, no change |
 | [009 — Baseline hardening: variance, warm sessions, wider tasks](009-baseline-hardening.md) | fixture hardening, repo-2 trials and reproducibility fingerprints delivered; evidence-quality follow-ups remain open; 004 confirmation ran and was negative/inconclusive |

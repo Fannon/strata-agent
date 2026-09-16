@@ -1,6 +1,6 @@
 # 042 — Compare typed composition with equally capable direct tools
 
-Status: gate-3 offline preparation delivered 2026-09-16 (parity arm + checks + matrix/budget proposal); paid pilot authorized under 5€ total but blocked on model credentials
+Status: pilot v2 delivered 2026-09-16 (36/36 cells, $0.36): healthy negative — direct 15/18 strict at $0.0069/success vs typed 9/18 at $0.0290; no confirmation follows
 Dependencies: 037 completed task-solving replay; 040 compatibility disposition; verified execution environment
 
 ## Question
@@ -58,7 +58,45 @@ script data access and any delta from typed-arm sandboxing to be logged
 as an explicit remaining difference. 038 does not carry over: grading is
 upstream `evaluate()`, not the repository evaluator.
 
-## Proposed development pilot (freeze before running)
+## Pilot v2 results (2026-09-16, 36/36 cells, $0.36; total session spend ≈ $0.81 of 5€)
+
+v1 ($0.41) is superseded: it ran gmail/amazon cells under a stale
+supervisor+spotify allowlist (zero backend calls possible there). v2
+pins a per-app-set manifest per cell (gmail 54, amazon 81, spotify 98
+ops). Raw cells local under `.work/appworld/pilot-v2/`; ledger +
+`pilot-summary.json` retained.
+
+Strict success = completed AND zero grader failures (controller run
+rule); completed-only reported secondarily. One model
+(`meta/muse-spark-1.3-contributor`, medium), 40-request cells, seeded
+order, fresh world per cell:
+
+| Arm | Strict /18 | Completed /18 | Cost | Cost/strict |
+| --- | --- | --- | --- | --- |
+| typed | 9 | 10 | $0.2610 | $0.0290 |
+| direct | 15 | 15 | $0.1035 | $0.0069 |
+
+Paired strict wins by task (typed–direct): `4ec8de5_1` 0–1, `9bf2c8a_2`
+3–3, `ccb4494_1` 3–3, `e85d92a_1` 0–3, `eb5ad85_2` 0–2, `f691597_1`
+3–3. Direct never worse; wins two tasks outright. Effort: provider
+requests tied (214 vs 212); backend calls diverge — typed ≈122/cell
+(2198 total, 442 validation failures absorbed inside ok-programs,
+0 policy) vs direct ≈14/cell (256 total): the repair-loop overhead.
+Guard stops: typed 8, direct 3. Unauthorized effects: none in either
+arm on question tasks (zero destructive-hint calls). Harness health:
+no transport crashes; one pilot-harness bug found and fixed mid-course
+(v1 allowlist, above). Latency not measured per cell (requests proxy
+only) — limitation.
+
+Against the predeclared screening rule (typed completion no lower,
+≥15% lower cost/success or latency, no worse effects): typed fails
+bars 1 and 2. **Verdict: healthy negative for the typed hypothesis on
+this pilot.** No confirmation under 009 follows; any follow-up (new
+task family, hybrid arm under 044) needs its own justification and is
+not selected here. v1's direction agreed (direct 6 vs typed 3 strict)
+but is not evidence (broken tool universe).
+
+Superseded proposal text (kept for audit; executed as v2 above):
 
 Starting proposal: six development tasks, two per category (single-call/simple control, dependent read/aggregation, state-changing workflow), two arms, three fresh-world repetitions: 36 cells. Use only tasks not already inspected for answers; the known inspected smoke task stays regression-only. If the upstream corpus cannot supply a category, document the actual coverage instead of inventing official tasks. Confirmatory tasks remain untouched and separate.
 
@@ -75,10 +113,48 @@ repeats. Enforce per-cell 40-request cap, hard stop at $5 cumulative
 pilot time by seeded sampling across the three categories (specs only;
 ground truth/DBs sealed; inspected tasks excluded).
 
+**Auth and execution (2026-09-16 update): user-authorized ≤5€ spend;
+Pi auth resolved via stored `sk-or-` key injected as `OPENROUTER_API_KEY`
+by a local wrapper (never persisted). v2 ran 36/36 for $0.36
+(cumulative session ≈ $0.81). Results under "Pilot v2 results" above;
+the blocker below is resolved.**
+
 **Pilot blocker (2026-09-16): no model credentials in this environment**
 (no `OPENROUTER_*` key, no Pi model config), so no paid cell can run
 until the user provides them. Offline gate 3 is complete; the paid pilot
 is the next action once credentials exist.
+
+## Frozen pilot matrix v1 (seed `042-pilot-order-v1`, 36 cells)
+
+Auth resolved 2026-09-16 (Pi `auth.json` holds an `sk-or-` key for
+openrouter; injected as `OPENROUTER_API_KEY` via local wrapper, never
+persisted). Model `meta/muse-spark-1.3-contributor`, `--thinking medium`
+per user direction. Smoke cells (15-req cap, dev task `f691597_1`):
+typed completed=true 1/1 ($0.0109), direct completed=false 1/1
+($0.0149) — direct wandered in shell, so its prompt now carries the op
+inventory (names only; same preloaded discovery as typed). Measured
+~$0.011-0.015/15-req cell → 40-req cells ≈ $0.03-0.04 → 36 cells ≈
+$1.10-1.45, inside 5€ with per-cell 40-req caps and a cumulative $5
+stop from measured usage (`pilot.py` ledger).
+
+Tasks (specs/instructions read for categorization only;
+ground_truth/DBs sealed; inspected `82e2fac` excluded):
+
+| Category | Task | Apps |
+| --- | --- | --- |
+| single | `f691597_1` (read gmail threads count) | supervisor,gmail |
+| single | `e85d92a_1` (most-played song by artist) | supervisor,spotify |
+| aggregation | `eb5ad85_2` (amazon spend last month) | supervisor,amazon |
+| aggregation | `4ec8de5_1` (songs released this/last year) | supervisor,spotify |
+| workflow | `9bf2c8a_2` (wishlist to cart) | supervisor,amazon |
+| workflow | `ccb4494_1` (like queue songs) | supervisor,spotify |
+
+Design deltas from the proposal: direct arm keeps stock Pi
+shell/file tools (the capable baseline per 043/044) + one Pi tool per
+MCP op with identical validation; typed arm stays `STRATA_STRICT=1`.
+Asymmetry is logged, not hidden. Primary measures per 042 decision
+rule; cost-per-success undefined (not zero) if an arm has zero
+successes.
 
 Primary measures: upstream task completion, total estimated cost divided by successful completions (including failed work), and end-to-end latency. Also record unauthorized effects, harness failures, tool/model/backend calls, declaration/discovery/program/result tokens where available, and integration effort. Zero successes means cost per success is undefined, not zero. Correct recorded calls are not completed tasks.
 
