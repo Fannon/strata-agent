@@ -48,6 +48,9 @@ def parse_args(argv: list[str]) -> argparse.Namespace:
     parser.add_argument("--python", default=None,
                         help="Interpreter for the MCP server child "
                              "(default <root>/venv/bin/python; e.g. a platform venv elsewhere)")
+    parser.add_argument("--direct-script", default=None,
+                        help="Canned direct-call JSON script for reference-arm mode "
+                             "(mutually exclusive with --program)")
     return parser.parse_args(argv)
 
 
@@ -93,6 +96,22 @@ def main(argv: list[str] | None = None) -> int:
             print(f"program not found: {program}", file=sys.stderr)
             return 2
 
+    direct_script: Path | None = None
+    if args.direct_script:
+        if args.program:
+            print("--program and --direct-script are mutually exclusive", file=sys.stderr)
+            return 2
+        if args.inspect:
+            print("--inspect and --direct-script are mutually exclusive", file=sys.stderr)
+            return 2
+        direct_script = Path(args.direct_script).resolve()
+        if not direct_script.is_file():
+            print(f"direct script not found: {direct_script}", file=sys.stderr)
+            return 2
+        if not _is_within(direct_script, repo):
+            print(f"direct script must resolve under {repo}", file=sys.stderr)
+            return 2
+
     # Interpreter for the MCP server child. Default is the Linux venv path;
     # --python overrides it (e.g. a Windows platform venv). The path MUST
     # stay unresolved: venv/bin/python is a symlink, and resolving it loses
@@ -117,7 +136,7 @@ def main(argv: list[str] | None = None) -> int:
         return 2
 
     out.mkdir(parents=True, exist_ok=False)
-    mode = "inspect" if args.inspect else "run"
+    mode = "inspect" if args.inspect else ("direct" if direct_script is not None else "run")
 
     # Environment must be set before any appworld import.
     os.environ["APPWORLD_ROOT"] = str(root)
@@ -142,9 +161,16 @@ def main(argv: list[str] | None = None) -> int:
                 "remoteApisUrl": remote_apis_url,
                 "apps": apps,
                 "artifactDir": str(out),
+                # 040 boundary policy, shared verbatim by both 042 arms.
+                "outputCompatibility": {"acceptNaiveDateTime": True},
             }
             if program is not None:
                 config["program"] = str(program)
+            if direct_script is not None:
+                config["directScript"] = str(direct_script)
+                # Parity runs persist structured results (incl. world tokens)
+                # to local ignored artifacts for arm comparison.
+                config["persistResults"] = True
             write_json(out / "config.json", config)
 
             with AppWorld(task_id=args.task, **defaults) as world:
@@ -159,7 +185,8 @@ def main(argv: list[str] | None = None) -> int:
                 except OSError:
                     pass
 
-                replay_argv = [bun_exe, str(repo / "examples" / "appworld" / "replay.ts"),
+                harness = "direct.ts" if mode == "direct" else "replay.ts"
+                replay_argv = [bun_exe, str(repo / "examples" / "appworld" / harness),
                                "--config", str(out / "config.json")]
                 if args.inspect:
                     replay_argv.append("--inspect")
@@ -209,6 +236,12 @@ def main(argv: list[str] | None = None) -> int:
                 write_json(out / "result.json", result)
 
                 if args.inspect:
+                    ok = replay_ok
+                elif mode == "direct":
+                    # Reference-arm parity scripts are read-only and never
+                    # submit complete_task; harness success means every
+                    # scripted call validated. Grader aggregates are still
+                    # recorded for the parity table.
                     ok = replay_ok
                 else:
                     ok = bool(replay_ok and completed and len(tracker.failures) == 0)

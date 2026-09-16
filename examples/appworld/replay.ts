@@ -127,6 +127,12 @@ async function main(): Promise<number> {
   }
   // All validation happens before any subprocess starts.
   const config = validateConfig(raw);
+  // 040 boundary policy shared with the direct arm (042): the controller
+  // writes it; default true preserves pre-config behavior.
+  const compatRaw = (raw as Record<string, unknown>).outputCompatibility as
+    | { acceptNaiveDateTime?: boolean }
+    | undefined;
+  const compatAcceptNaive = compatRaw?.acceptNaiveDateTime !== false;
   if (!await isDirectory(config.root)) throw new Error(`root is not a directory: ${config.root}`);
   if (!await isFile(config.python)) throw new Error(`python not found: ${config.python}`);
   if (!await isDirectory(config.artifactDir)) {
@@ -170,7 +176,7 @@ async function main(): Promise<number> {
     // declarations.d.ts; the effective policy is recorded in summary.json
     // and must be shared by both arms of any comparison (042 parity).
     const outputCompatibility = {
-      policy: "accept-naive-date-time",
+      policy: compatAcceptNaive ? "accept-naive-date-time" : "strict-rfc3339",
       scope: "appworld module outputs only",
       globalDefault: "strict-rfc3339",
       provenance: "issue 040; upstream orm.py isoformat vs date-time schema",
@@ -179,7 +185,7 @@ async function main(): Promise<number> {
       session = await createSession(manifest, connector, allowed, {
         executor: "quickjs",
         declarations: "full",
-        validation: { acceptNaiveDateTime: true },
+        ...(compatAcceptNaive ? { validation: { acceptNaiveDateTime: true as const } } : {}),
       });
     } catch (error) {
       await connector.close();

@@ -1,6 +1,6 @@
 # 042 — Compare typed composition with equally capable direct tools
 
-Status: planned next slice of the already selected 037 sequence; offline preparation precedes any separately approved model campaign
+Status: gate-3 offline preparation delivered 2026-09-16 (parity arm + checks + matrix/budget proposal); paid pilot authorized under 5€ total but blocked on model credentials
 Dependencies: 037 completed task-solving replay; 040 compatibility disposition; verified execution environment
 
 ## Question
@@ -19,11 +19,66 @@ Parity facts the offline work can reuse: the 040 output-compatibility policy (`a
 4. Add deterministic checks for matching tool visibility/results, reset and save behavior, deliberate invalid outputs, forbidden-effect accounting, incomplete runs, missing usage and budget refusal. Treat success, policy and harness health as separate fields. Confirm whether any reused grading path inherits 038.
 5. Produce a dry-run matrix and a concise parity table. Record task/model/runtime/schema versions and adaptation provenance. Keep raw requests, protected data and task solutions local; commit only permitted sanitized summaries and reproducible harness code.
 
+## Gate-3 offline report (2026-09-16, no model calls)
+
+Direct reference arm delivered: `examples/appworld/direct.ts` connects to
+the same MCP server (identical `listTools` discovery), validates with the
+same factory + shared 040 setting, and records the same failure
+categories without bypasses. Core (`runDirectCalls` + `$call`/`$path` +
+`$select` runtime wiring) is unit-covered. Controller gained
+`--direct-script` mode reusing the save/grade path; both arms record the
+040 policy in `summary.json`. Committed parity tests
+(`test/integration/appworld-parity.test.ts`): 4 pass — validation-matrix
+agreement, allowlist denial without invocation, ref wiring.
+
+Live parity (fresh worlds, dev task `82e2fac_1`, local artifacts
+`out-direct-prefixA` / `out-typed-prefixB` / `out-direct-probe` /
+`out-direct-neg`):
+
+| Check | Typed arm | Direct arm | Agreement |
+| --- | --- | --- | --- |
+| Manifest (discovery output) | 98 ops | 98 ops | byte-identical |
+| Output-compat policy | accept-naive-date-time | accept-naive-date-time | identical summaries |
+| Read prefix (profile→passwords→login→library) | ok | 4/4 ok | — |
+| Library rows across fresh worlds | 8 rows | 8 rows | identical ids/titles/likes/song_ids |
+| Naive datetimes live | accepted, 0 failures | accepted, 0 failures | — |
+| Invalid input live | (unit: input-fail) | input-fail, not invoked | zero-effect both |
+| Allowlist denial | policy-fail, not invoked (unit) | policy-fail, not invoked (unit) | — |
+| isError/throw | transport (unit) | transport (unit) | — |
+
+Discovery decision: **labeled identical-preloaded comparison**. The
+production catalog only indexes cli-twin entries; wiring arbitrary MCP
+catalogs into it would be the general enterprise catalog, explicitly out
+of scope. Both arms share the live `listTools` manifest + full 98-name
+allowlist; lazy-discovery cost is excluded from the pilot and stays with
+035. Computation predeclare for the pilot: typed arm composes in-program;
+direct arm gets the same 98 MCP operations as individual tools and may
+use ordinary Pi scripting (stock Pi abilities preserved per 043/044) —
+script data access and any delta from typed-arm sandboxing to be logged
+as an explicit remaining difference. 038 does not carry over: grading is
+upstream `evaluate()`, not the repository evaluator.
+
 ## Proposed development pilot (freeze before running)
 
 Starting proposal: six development tasks, two per category (single-call/simple control, dependent read/aggregation, state-changing workflow), two arms, three fresh-world repetitions: 36 cells. Use only tasks not already inspected for answers; the known inspected smoke task stays regression-only. If the upstream corpus cannot supply a category, document the actual coverage instead of inventing official tasks. Confirmatory tasks remain untouched and separate.
 
 Freeze exact task IDs, order/counterbalancing, model/provider/reasoning, prompts, executor, declarations, discovery rules, per-cell time/request/token caps and total cost reservation. Compute a concrete spend proposal from current model metadata; old development budgets are not automatically the pilot budget. Both arms use the same retry policy; retain all attempts.
+
+Spend proposal (2026-09-16 OpenRouter metadata,
+`meta/muse-spark-1.3-contributor`, medium reasoning): prompt $1e-7,
+completion $2e-7 per token. Calibrated on the Sept-14 dev run actuals
+(~361K in + ~39K out over 40 requests ≈ $0.044, i.e. ~$0.0011/request):
+36 cells x 40-request cap ≈ 1440 requests worst case ≈ **~$1.60 at
+measured rates**, inside the authorized 5€ total with headroom for
+repeats. Enforce per-cell 40-request cap, hard stop at $5 cumulative
+(key-delta reconciled), same retry policy both arms. Task IDs frozen at
+pilot time by seeded sampling across the three categories (specs only;
+ground truth/DBs sealed; inspected tasks excluded).
+
+**Pilot blocker (2026-09-16): no model credentials in this environment**
+(no `OPENROUTER_*` key, no Pi model config), so no paid cell can run
+until the user provides them. Offline gate 3 is complete; the paid pilot
+is the next action once credentials exist.
 
 Primary measures: upstream task completion, total estimated cost divided by successful completions (including failed work), and end-to-end latency. Also record unauthorized effects, harness failures, tool/model/backend calls, declaration/discovery/program/result tokens where available, and integration effort. Zero successes means cost per success is undefined, not zero. Correct recorded calls are not completed tasks.
 
