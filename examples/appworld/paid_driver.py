@@ -43,6 +43,9 @@ def parse_args(argv: list[str]) -> argparse.Namespace:
                         "direct: one Pi tool per MCP operation + stock Pi tools")
     p.add_argument("--thinking", default="medium",
                    help="Pi thinking level (pilot default: medium)")
+    p.add_argument("--allow-manifest", default=None,
+                   help="Inspect manifest.json for this cell's app set "
+                        "(default: newest inspect-*/manifest.json)")
     return p.parse_args(argv)
 
 
@@ -103,12 +106,17 @@ def main(argv: list[str] | None = None) -> int:
         return 2
 
     # Operation allowlist comes from a locally inspected MCP manifest
-    # (discovered names, never invented). Newest inspect dir wins.
-    manifests = sorted(base.glob("inspect-*/manifest.json"))
-    if not manifests:
-        print("no inspect manifest found; run --inspect first", file=sys.stderr)
-        return 2
-    manifest = json.loads(manifests[-1].read_text(encoding="utf-8"))
+    # (discovered names, never invented). --allow-manifest selects it
+    # explicitly so each cell's tool universe matches its apps; without it,
+    # the newest inspect-* manifest wins (legacy fallback).
+    if args.allow_manifest:
+        manifest = json.loads(Path(args.allow_manifest).read_text(encoding="utf-8"))
+    else:
+        manifests = sorted(base.glob("inspect-*/manifest.json"))
+        if not manifests:
+            print("no inspect manifest found; run --inspect first", file=sys.stderr)
+            return 2
+        manifest = json.loads(manifests[-1].read_text(encoding="utf-8"))
     allow = sorted({op["name"] for op in manifest["operations"]})
     if not allow:
         print("inspect manifest has no operations", file=sys.stderr)

@@ -79,6 +79,8 @@ def main(argv: list[str] | None = None) -> int:
             "--max-cost-usd", f"{min(2.0, remaining):.2f}",
             "--thinking", cell.get("thinking", "medium"),
         ]
+        if cell.get("allowManifest"):
+            cmd += ["--allow-manifest", cell["allowManifest"]]
         print(f"--- cell {cell['id']} task={cell['task']} arm={cell['arm']} "
               f"rep={cell['rep']} (spent ${spent:.4f}) ---", flush=True)
         try:
