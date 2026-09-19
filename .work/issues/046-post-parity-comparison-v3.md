@@ -1,6 +1,6 @@
 # 046 — Bounded post-parity comparison v3 (versioned rerun)
 
-Status: PROPOSED MATRIX FROZEN, calibration pending — no full run yet
+Status: CALIBRATION DONE 2026-09-19 ($0.0156) — full v3 pending
 Dependencies: 045 (delivered compat fix + regression); 042 (v2 preserved unchanged, confounded record)
 
 ## Question
@@ -23,6 +23,19 @@ Typed strict completion no lower than direct, with ≥15% lower total cost per s
 - v3 estimate from v2 actuals ($0.3645/36 cells ≈ $0.0101/cell): full v3 ≈ **$0.40–0.60**, worst-case reservation ≈ $1.60 at measured rates.
 - Cumulative: prior ≈ $0.84192 (reported, not reconciled) + v3 ≈ $0.50 → ≈ **$1.35**, inside the user-authorized €5 total (tracked conservatively in USD; $5.00 cap < €5 at any plausible rate).
 - Staging: 2-cell calibration (`e85d92a_1` typed+direct, the task where typed went 0/3 in v2) ≈ $0.03 first; full 36-cell run only if calibration cells complete cleanly through the fixed entry points.
+
+## Calibration readout (pilot-v3-cal, 2 cells, $0.0156)
+
+Task `e85d92a_1` (v2: typed 0/3, direct 3/3 strict):
+
+| Cell | Cost | Grading | Strict |
+| --- | --- | --- | --- |
+| typed r1 | $0.0114 | completed, 2 passes / 0 failures | YES (exit 0) |
+| direct r1 | $0.0042 | completed, 2/0 | NO by exit code only (agentExit 78: guard cost-reservation stop after 4 requests) |
+
+Typed solved a task it never solved in v2 — first evidence the parity fix matters. Direct's exit 78 is a harness artifact of the small calibration budget ($0.5 → per-cell $0.5 cap trips worst-case reservation accounting), not a task failure; v2 used per-cell $2.00. Full v3 reuses v2 budget params (4.5 total, $2.00/cell) for comparable guard behavior; strict counting stays by the frozen driver rule in both arms.
+
+Cumulative after calibration: prior ≈ $0.84192 + $0.0156 ≈ **$0.8575** (unreconciled estimate), inside the €5 authorization.
 
 ## Acceptance
 
