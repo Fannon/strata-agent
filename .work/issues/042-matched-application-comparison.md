@@ -1,6 +1,6 @@
 # 042 — Compare typed composition with equally capable direct tools
 
-Status: v2 executed 36/36 cells (numbers preserved below); 2026-09-19 review: negative OBSERVED result with confirmed validation-policy confound — NOT a healthy matched comparison; no confirmation follows; 045 proposed
+Status: v2 executed 36/36 cells (numbers preserved below); 2026-09-19 review: negative OBSERVED result with confirmed validation-policy confound — NOT a healthy matched comparison; no confirmation follows; 045 delivered 2026-09-19
 Dependencies: 037 completed task-solving replay; 040 compatibility disposition; verified execution environment
 
 ## Question
@@ -13,7 +13,7 @@ No regrade or rerun. Pilot v2 measured typed strict 9/18 ($0.261013 total, $0.02
 
 Thus v2 is a negative observed result with a confirmed validation-policy confound, not a healthy matched comparison. This is not proof typed composition would win after fixing it; all failures and the success gap cannot be attributed solely to the mismatch. Prior offline/manual-replay compatibility fix is delivered but not wired through the typed model path. Metrics/evidence limits: typed tool_execution_end 191 total (144 with structured metrics, all outcome ok; 47 without); visible 2198 backend invocations, 2199 call attempts, 442 validation failures (441 output, 1 input). Zero traceDropped does not establish completeness. Direct 256 recorded attempts include 13 input failures not invoked (the records lack an explicit invocation flag; do not label all 256 as backend invocations). Programs can catch failures without successful recovery; the counters alone do not establish the cause of the extra work. Zero destructive-hint direct records and zero visible typed policyFailures do not prove no unauthorized effects (metadata/grant checks only, not task-intent audit). Pilot preloaded per-app sets 54/81/98, not all 98; no lazy discovery. Baseline shell/files vs typed strict remains a difference; no per-cell latency measurement. Review spend: $0.007880732 + $0.014327204 + $0.009713860 = $0.031921796, all paid worker sessions; prior reported cumulative approximately $0.81. No new benchmark cells.
 
-Next: proposed 045 owns the real-entry regression; only after demonstrated parity propose separately a versioned bounded comparison (frozen tasks/settings/caps), keeping v2 unchanged with reused tasks development-only.
+Next: 045 delivered the real-entry regression and compat fix (parity demonstrated offline); any new comparison still needs a separately proposed versioned bounded run (frozen tasks/settings/caps), keeping v2 unchanged with reused tasks development-only.
 
 ## Offline deliverables (historical; gate 3 now partial — see review note above)
 

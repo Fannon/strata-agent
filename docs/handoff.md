@@ -32,11 +32,11 @@ The broader hypothesis is uniform typed functions over remote services and local
 
 ## Verification and environment
 
-Fresh supervisor checks: `bun run check` passes; AppWorld parity tests 4/4; full suite **159 pass / 12 fail**, 171 tests, 1,252 assertions. Failures match the documented Windows classes in [041](../.work/issues/041-windows-verification.md); general Windows support is not established.
+Fresh supervisor checks: `bun run check` passes; AppWorld parity tests 4/4; full suite **163 pass / 12 fail**, 175 tests, 1,292 assertions (baseline 159/12 at `1d8ed19` + 4 new 045 regression tests; failures match the documented Windows classes).
 
 The available AppWorld venv is `.work/appworld/venv-win` (Python 3.14.7, pinned upstream source, MCP 2.2.0). Set `PYTHONUTF8=1` and `PYTHONIOENCODING=utf-8`, pass the Windows interpreter explicitly, and use the matching per-app allow-manifest. Do not use the dead Linux venv or reintroduce the v1 stale-allowlist bug.
 
-Synthetic audit reproduction: `bun .work/pi-agent/review-20260919/verify-entry.ts`. This local diagnostic is not a committed regression; 045 must make the reproduction durable.
+Synthetic audit reproduction: `bun .work/pi-agent/review-20260919/verify-entry.ts` (local diagnostic). The durable regression is committed: `test/integration/pi-entry-parity.test.ts` over the real-entry probe server `test/fixture-mcp/datetime-server.ts` (045, green).
 
 ## Spend and artifact discipline
 

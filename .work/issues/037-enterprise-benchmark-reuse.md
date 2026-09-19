@@ -11,7 +11,7 @@ Prefer an AppWorld feasibility spike for realistic cross-application composition
 
 ## Bounded next implementation
 
-Current ordering is in the index: gates 0–2 are complete, 042 ran, and [045](045-pilot-entrypoint-validation-parity.md) is the proposed offline parity repair. The original sequence below is historical; it does not authorize another campaign or require repeating completed manual replay work. The cumulative €5 program ceiling supersedes historical per-session reservation examples.
+Current ordering is in the index: gates 0–2 are complete, 042 ran, and [045](045-pilot-entrypoint-validation-parity.md) delivered the offline parity repair 2026-09-19. The original sequence below is historical; it does not authorize another campaign or require repeating completed manual replay work. The cumulative €5 program ceiling supersedes historical per-session reservation examples.
 
 Current evidence: [AppWorld](../../docs/appworld-spike.md) records a 98-operation inspection, two-call handwritten replay, save and upstream grading (task incomplete), followed by an unsuccessful development model run with date-time validation failures. [BFCL](../../docs/bfcl-diagnostic.md) records 30/30 corrected call verdicts, with guard-stopped sessions reported separately. Neither is a comparative win. [040](040-appworld-datetime-compatibility.md) tracks the compatibility decision before a matched pilot. The checklist below separates completed smoke mechanics from remaining acceptance work.
 
