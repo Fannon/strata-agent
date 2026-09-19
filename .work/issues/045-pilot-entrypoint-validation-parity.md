@@ -1,6 +1,6 @@
 # 045 — Pilot entry-point validation parity
 
-Status: PROPOSED, not automatically selected — do not launch paid work
+Status: DELIVERED 2026-09-19 — compat forwarded through real entry points; regression green; no paid comparison run
 Dependencies: 042 (confounded v2 record, preserved unchanged); 040 (delivered offline/manual-replay compat); 037 (harnesses)
 
 ## Evidence
@@ -8,7 +8,7 @@ Dependencies: 042 (confounded v2 record, preserved unchanged); 040 (delivered of
 - Pilot v2 observed (preserved, no regrade/rerun): typed strict 9/18 ($0.261013, $0.0290014/success), direct 15/18 ($0.103518, $0.0069012/success).
 - Confirmed mismatch: `src/pi/extension.ts` `sessionFromConfig` MCP branch destructures id/command/args/allow, creates session with {executor, declarations}, IGNORES `config.compat.acceptNaiveDateTime`; `src/pi/direct-tools.ts` reads it for output validation. `paid_driver.py` sets compat for both.
 - Existing offline parity tests compare broker/direct replay, not actual Pi entry points.
-- Supervisor synthetic repro `.work/pi-agent/review-20260919/verify-entry.ts` (mock MCP `{at:'2020-01-01T00:00:00'}`, actual `sessionFromConfig`, compat true): typed outcome error/failure output; actual registered direct tool accepts the identical response; default strict validator rejects. No runtime fix applied.
+- Supervisor synthetic repro `.work/pi-agent/review-20260919/verify-entry.ts` (mock MCP `{at:'2020-01-01T00:00:00'}`, actual `sessionFromConfig`, compat true): typed outcome error/failure output; actual registered direct tool accepts the identical response; default strict validator rejects. Fixed 2026-09-19: `sessionFromConfig` now forwards `compat.acceptNaiveDateTime` to `createSession` validation for all transports (MCP/catalog/cli-twin/repo); inputs stay strict in the broker. Permanent regression `test/integration/pi-entry-parity.test.ts` (real MCP subprocess `test/fixture-mcp/datetime-server.ts`, real typed + direct entry points) covers compat true/unset/false, malformed outputs, and strict inputs. Offline: `bun run check` green; new file 4/4; full suite 163 pass / 12 fail (baseline 159/12 + 4 new, same documented Windows classes). No v2 regrade/rerun; no paid work.
 
 ## Hypothesis limits
 

@@ -20,11 +20,11 @@ No runtime fix was made during this review. Fixing the gap may not reverse the r
 
 ## Recommended next assignment
 
-[045 — Actual-entry validation parity](../.work/issues/045-pilot-entrypoint-validation-parity.md) is proposed, not yet selected for implementation:
+[045 — Actual-entry validation parity](../.work/issues/045-pilot-entrypoint-validation-parity.md) is delivered 2026-09-19:
 
-1. Add a permanent synthetic regression through real typed and direct Pi entry points.
-2. Forward the explicit compatibility policy while preserving strict defaults and input validation; verify configured/unconfigured and malformed-value cases.
-3. Run relevant offline checks and report parity before proposing any further paid comparison.
+1. Permanent synthetic regression through real typed and direct Pi entry points is green (`test/integration/pi-entry-parity.test.ts` 4/4 over a real MCP probe subprocess).
+2. Explicit compatibility policy is forwarded in `sessionFromConfig` for all transports while strict defaults and input validation are preserved; compat true/unset/false, malformed values and strict inputs covered.
+3. Relevant offline checks are green (`bun run check`; full suite 163 pass / 12 fail = baseline 159/12 + 4 new, same documented Windows classes). No paid comparison ran; v2 unchanged.
 
 Any subsequent model run needs its own version, frozen matrix and spend cap. Preserve v2; reused tasks are development material. Do not jump directly to confirmation, heavier-computation tasks, hybrid 044, REST integration or catalog scaling. Those need separate justification. Narrowing or stopping remains valid.
 

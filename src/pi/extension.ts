@@ -82,6 +82,20 @@ function refuse(id: string): never {
   );
 }
 
+/** Boundary-scoped output compatibility (040) for model-facing entry
+ * points: forward `compat.acceptNaiveDateTime` from STRATA_CONFIG to the
+ * broker's output validators. Strict default preserved; inputs stay strict
+ * inside the broker. The direct-tools arm reads the same setting (042
+ * parity); the typed arm must share it. Only `true` opts in. */
+function compatValidation(record: Record<string, unknown>):
+  | { acceptNaiveDateTime: true }
+  | Record<string, never> {
+  const compat = record.compat as { acceptNaiveDateTime?: unknown } | undefined;
+  return compat?.acceptNaiveDateTime === true
+    ? { acceptNaiveDateTime: true as const }
+    : {};
+}
+
 /** Build a session from parsed STRATA_CONFIG. Exported for testing. */
 export async function sessionFromConfig(
   config: unknown,
@@ -138,7 +152,7 @@ export async function sessionFromConfig(
       const built = await buildEntryConnector(entry);
       try {
         if (!session) {
-          session = await createSession(built.manifest, built.connector, allowed!, { executor, declarations });
+          session = await createSession(built.manifest, built.connector, allowed!, { executor, declarations, validation: compatValidation(record) });
         } else {
           await session.load(built.manifest, built.connector, allowed!);
         }
@@ -162,7 +176,7 @@ export async function sessionFromConfig(
         manifest,
         connector,
         new Set(record.allow),
-        { executor, declarations },
+        { executor, declarations, validation: compatValidation(record) },
       );
       return {
         session,
@@ -196,7 +210,7 @@ export async function sessionFromConfig(
         manifest,
         connector,
         new Set(allow as string[]),
-        { executor, declarations },
+        { executor, declarations, validation: compatValidation(record) },
       );
       return {
         session,
@@ -222,7 +236,7 @@ export async function sessionFromConfig(
     );
   const { manifest, connector } = await connectMcp(id, { command, args });
   try {
-    const session = await createSession(manifest, connector, new Set(allow), { executor, declarations });
+    const session = await createSession(manifest, connector, new Set(allow), { executor, declarations, validation: compatValidation(record) });
     return {
       session,
       allowFor: () => new Set(allow as string[]),
