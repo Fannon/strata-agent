@@ -69,7 +69,7 @@ Comparisons need to give the alternatives equivalent access to data and tools. O
 
 **The repository experiments have not shown an advantage.** On the tasks tested, typed programs used fewer agent tool calls but more model tokens and greater estimated cost than ordinary Pi. Shorter type descriptions helped in an initial experiment, but a follow-up did not confirm the improvement. There is no established overall win in task success, cost or speed. The [repository trial report](docs/repo-trials.md) contains the measurements and limitations.
 
-**Connecting real applications is possible, but compatibility is incomplete.** An AppWorld experiment connected a realistic collection of application tools and ran a small handwritten program. A later agent run did not solve its task and exposed a mismatch between the declared date-time format and actual responses. This illustrates an important risk: stricter contracts can block useful data when a service's schema and behavior disagree. See the [AppWorld report](docs/appworld-spike.md).
+**The application pilot also favored direct tools, but the comparison had a flaw.** Across six tasks repeated three times per approach, typed programs completed 9 of 18 attempts versus 15 for direct tools, at roughly four times the cost per success. We subsequently found that the two paths applied different response-validation settings: the typed path rejected some timestamps that the direct path accepted. The recorded result stays negative, but it does not cleanly isolate the value of typed composition. Correcting the mismatch may or may not improve the outcome. See the [pilot report and review](.work/issues/042-matched-application-comparison.md).
 
 **Small tool-use diagnostics are encouraging, but narrow.** In a small BFCL-based exercise, the model selected functions, supplied arguments and abstained when no function fit. Corrected grading accepted all recorded calls, but some sessions stopped at a request limit. This was neither an official benchmark score nor a comparison proving Strata was better. See the [diagnostic report](docs/bfcl-diagnostic.md).
 
@@ -91,11 +91,11 @@ Possible directions include:
 - **Changing contracts and permissions:** investigate how an agent recovers when an API changes or access is revoked between discovering a function and calling it.
 - **Broader workflows:** consider edits, project checks and state across programs where real tasks demonstrate a need.
 
-The immediate next step is more modest: resolve the real-API compatibility gap, demonstrate a completed application task, and compare typed programs with direct tools that have the same discovery and access. Larger catalog experiments come after that. These directions are research possibilities, not committed product features; the [issue board](.work/issues/index.md) records priorities and dependencies.
+The next step is to make both tool paths apply the same validation rules and test that through the interfaces agents actually use. Only then can a new, bounded comparison tell us more. We have not yet tested whether selective discovery or substantially heavier local data processing earns the added cost; those possibilities need concrete tasks and fair baselines, not an assumption that larger workloads will produce a win. Larger catalog experiments come after that. These directions are research possibilities, not committed product features; the [issue board](.work/issues/index.md) records priorities and dependencies.
 
 ## Try the prototype
 
-The local demonstration requires Bun and uses bundled test data; it needs no model API key or external service. Linux is the tested environment. Windows currently has known compiler-path and test failures.
+The local demonstration requires Bun and uses bundled test data; it needs no model API key or external service. Linux is the tested environment. Windows support remains limited.
 
 ```sh
 git clone https://github.com/Fannon/strata-agent.git

@@ -3,6 +3,8 @@
 Status: adaptation implemented, live-verified 2026-09-16; investigation closed, replay acceptance under 037
 Dependencies: existing AppWorld replay code and reported response examples; prerequisite for 037 task-solving acceptance and 042 comparison
 
+2026-09-19 scope correction: this delivered the validator/broker option and manual replay compatibility, not model-facing configuration parity. The typed Pi MCP entry point fails to forward the option; the direct extension applies it. [045](045-pilot-entrypoint-validation-parity.md) owns the proposed regression/fix. Preserve this issue's successful manual results without treating them as evidence that both pilot arms used identical validation.
+
 ## Evidence and hypothesis
 
 [The spike report](../../docs/appworld-spike.md) records output rejection of timezone-free timestamps in the paid development trajectory. `src/capabilities/schemas.ts` installs standard AJV formats. Schema generation succeeded, but that did not establish response compatibility. This is a confirmed interoperability gap; its contribution to final task failure is not a controlled causal result.

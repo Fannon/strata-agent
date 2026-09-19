@@ -1,7 +1,7 @@
 # AppWorld offline-compatibility spike (issue037)
 
 Status: **task-solving replay delivered and repeated from reset; 040 resolved and live-verified.**
-Reviewed 2026-09-16. The handwritten solver completed development task `82e2fac_1` twice from fresh worlds (completed=true, 2 passes / 0 failures both runs). No comparative gains are established. Next decision: gate-3 offline parity under [042](../.work/issues/042-matched-application-comparison.md).
+The handwritten solver completed development task `82e2fac_1` twice from fresh worlds (completed=true, 2 passes / 0 failures both runs). No comparative gains are established. The subsequent [042 pilot](../.work/issues/042-matched-application-comparison.md) observed worse typed results, but the September 19 review found the typed Pi entry point ignores the compatibility setting used by direct tools. Manual replay success did not establish model-facing parity. [045](../.work/issues/045-pilot-entrypoint-validation-parity.md) now proposes that offline regression and fix; no new campaign is selected.
 
 ## Pins and environment
 

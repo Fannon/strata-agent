@@ -1,6 +1,6 @@
 # 037 — Reuse an enterprise tool benchmark before building our own
 
-Status: selected/in progress; gates 0-2 delivered 2026-09-16 (env verified, 040 live-verified, dev task solved twice from reset); matched comparison not delivered (reviewed 2026-09-16)
+Status: manual feasibility delivered; 042 pilot executed with negative observed results; actual Pi validation mismatch confirmed in the 2026-09-19 review, next proposed work under 045
 Dependencies: 035 enterprise hypothesis; 025 lifecycle and 029 discovery fixes; 009 evidence protocol
 
 ## Decision
@@ -10,6 +10,8 @@ The user selected the recommended sequence on September 14 and explicitly author
 Prefer an AppWorld feasibility spike for realistic cross-application composition. Use BFCL as a separate invocation/relevance diagnostic. See [primary-source comparison](../../docs/research/tool-catalog-benchmarks.md). Neither alone establishes that Strata scales to thousands of dynamically authorized operations. Reusing existing APIs and state graders is more valuable than inventing a benchmark designed around our strengths.
 
 ## Bounded next implementation
+
+Current ordering is in the index: gates 0–2 are complete, 042 ran, and [045](045-pilot-entrypoint-validation-parity.md) is the proposed offline parity repair. The original sequence below is historical; it does not authorize another campaign or require repeating completed manual replay work. The cumulative €5 program ceiling supersedes historical per-session reservation examples.
 
 Current evidence: [AppWorld](../../docs/appworld-spike.md) records a 98-operation inspection, two-call handwritten replay, save and upstream grading (task incomplete), followed by an unsuccessful development model run with date-time validation failures. [BFCL](../../docs/bfcl-diagnostic.md) records 30/30 corrected call verdicts, with guard-stopped sessions reported separately. Neither is a comparative win. [040](040-appworld-datetime-compatibility.md) tracks the compatibility decision before a matched pilot. The checklist below separates completed smoke mechanics from remaining acceptance work.
 

@@ -1,13 +1,21 @@
 # 042 — Compare typed composition with equally capable direct tools
 
-Status: pilot v2 delivered 2026-09-16 (36/36 cells, $0.36): healthy negative — direct 15/18 strict at $0.0069/success vs typed 9/18 at $0.0290; no confirmation follows
+Status: v2 executed 36/36 cells (numbers preserved below); 2026-09-19 review: negative OBSERVED result with confirmed validation-policy confound — NOT a healthy matched comparison; no confirmation follows; 045 proposed
 Dependencies: 037 completed task-solving replay; 040 compatibility disposition; verified execution environment
 
 ## Question
 
 On application tasks requiring several related calls, does checked TypeScript composition improve task completion, cost or latency relative to direct tools with the same discovery and access? Simple calls and server-side aggregation are controls where composition may add little. This tests the combined typed-program interface, not the isolated causal effect of typechecking.
 
-## Offline deliverables
+## 2026-09-19 review note (supersedes "healthy negative" conclusion; preserves all recorded numerical outcomes)
+
+No regrade or rerun. Pilot v2 measured typed strict 9/18 ($0.261013 total, $0.0290014/success) and direct 15/18 ($0.103518 total, $0.0069012/success) — unchanged. This review found a real mismatch: `src/pi/extension.ts` `sessionFromConfig` MCP branch destructures id/command/args/allow, creates the session with {executor, declarations}, and IGNORES `config.compat.acceptNaiveDateTime`; `src/pi/direct-tools.ts` reads that setting and uses it for output validation. `paid_driver.py` sets compat for both. Existing offline parity tests compare broker/direct replay, not actual Pi entry points. Supervisor synthetic repro (`.work/pi-agent/review-20260919/verify-entry.ts`, mock MCP response `{at:'2020-01-01T00:00:00'}` with actual `sessionFromConfig` and compat true): typed outcome error/failure output while the actual registered direct tool succeeds on the same mock response; the default strict validator rejects. NO runtime fix applied.
+
+Thus v2 is a negative observed result with a confirmed validation-policy confound, not a healthy matched comparison. This is not proof typed composition would win after fixing it; all failures and the success gap cannot be attributed solely to the mismatch. Prior offline/manual-replay compatibility fix is delivered but not wired through the typed model path. Metrics/evidence limits: typed tool_execution_end 191 total (144 with structured metrics, all outcome ok; 47 without); visible 2198 backend invocations, 2199 call attempts, 442 validation failures (441 output, 1 input). Zero traceDropped does not establish completeness. Direct 256 recorded attempts include 13 input failures not invoked (the records lack an explicit invocation flag; do not label all 256 as backend invocations). Programs can catch failures without successful recovery; the counters alone do not establish the cause of the extra work. Zero destructive-hint direct records and zero visible typed policyFailures do not prove no unauthorized effects (metadata/grant checks only, not task-intent audit). Pilot preloaded per-app sets 54/81/98, not all 98; no lazy discovery. Baseline shell/files vs typed strict remains a difference; no per-cell latency measurement. Review spend: $0.007880732 + $0.014327204 + $0.009713860 = $0.031921796, all paid worker sessions; prior reported cumulative approximately $0.81. No new benchmark cells.
+
+Next: proposed 045 owns the real-entry regression; only after demonstrated parity propose separately a versioned bounded comparison (frozen tasks/settings/caps), keeping v2 unchanged with reused tasks development-only.
+
+## Offline deliverables (historical; gate 3 now partial — see review note above)
 
 Feasibility gate status 2026-09-16: **GO for gate-3 offline preparation** (gates 0-2 delivered: Windows platform venv verified with byte-identical 98-op manifest, 040 adaptation live-verified with 0 validation failures, dev task solved twice from reset with 2/0 grading). This go covers offline parity work only — direct-tool arm, deterministic parity checks, dry-run matrix and spend proposal. A paid pilot (gate 4) still needs a frozen matrix and spend-cap approval and is not authorized by this recommendation.
 
@@ -58,7 +66,9 @@ script data access and any delta from typed-arm sandboxing to be logged
 as an explicit remaining difference. 038 does not carry over: grading is
 upstream `evaluate()`, not the repository evaluator.
 
-## Pilot v2 results (2026-09-16, 36/36 cells, $0.36; total session spend ≈ $0.81 of 5€)
+## Historical pilot v2 report (2026-09-16; interpretation superseded by review above)
+
+The original narrative below is retained for audit. Its outcome/cost counts remain observations; its healthy-comparison, backend-call equivalence and unauthorized-effect conclusions must be read with the corrections above. The pilot ran 36 cells for approximately $0.36; reported cumulative program spend at that point was approximately $0.81.
 
 v1 ($0.41) is superseded: it ran gmail/amazon cells under a stale
 supervisor+spotify allowlist (zero backend calls possible there). v2
