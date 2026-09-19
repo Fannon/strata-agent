@@ -1,6 +1,6 @@
 # 046 — Bounded post-parity comparison v3 (versioned rerun)
 
-Status: CALIBRATION DONE 2026-09-19 ($0.0156) — full v3 pending
+Status: V3 DELIVERED 2026-09-19 — 36/36 cells, $0.3493; completion gap closed, cost gap persists
 Dependencies: 045 (delivered compat fix + regression); 042 (v2 preserved unchanged, confounded record)
 
 ## Question
@@ -36,6 +36,23 @@ Task `e85d92a_1` (v2: typed 0/3, direct 3/3 strict):
 Typed solved a task it never solved in v2 — first evidence the parity fix matters. Direct's exit 78 is a harness artifact of the small calibration budget ($0.5 → per-cell $0.5 cap trips worst-case reservation accounting), not a task failure; v2 used per-cell $2.00. Full v3 reuses v2 budget params (4.5 total, $2.00/cell) for comparable guard behavior; strict counting stays by the frozen driver rule in both arms.
 
 Cumulative after calibration: prior ≈ $0.84192 + $0.0156 ≈ **$0.8575** (unreconciled estimate), inside the €5 authorization.
+
+## v3 readout (pilot-v3, 36/36 cells, $0.3493, 2026-09-19)
+
+| Arm | Strict /18 | Completed /18 | Cost | Cost/strict |
+| --- | --- | --- | --- | --- |
+| typed | 15 | 18 | $0.2113 | $0.0141 |
+| direct | 15 | 16 | $0.1380 | $0.0092 |
+
+Paired strict (typed–direct): `4ec8de5_1` 0–0, `9bf2c8a_2` 3–3, `ccb4494_1` 3–3, `e85d92a_1` 3–3, `eb5ad85_2` 3–3, `f691597_1` 3–3. v2 was typed 9/18 ($0.0290/success) vs direct 15/18 ($0.0069/success).
+
+Typed gains vs v2: `e85d92a_1` 0→3 and `eb5ad85_2` 0→3 strict; both are datetime-heavy tasks consistent with the parity fix. `4ec8de5_1` defeats both arms in v3 (typed 0/3 with 1/1 grading; direct 0/3: two genuine 1/1 misses plus one True/2/0 cut by guard reservation stop, exit 78). Direct held 15/18; its one v2 success on `4ec8de5_1` did not repeat (n=3 noise, no attribution).
+
+Against the frozen screening rule: bar 1 (typed completion no lower) PASSES 15–15; bar 2 (≥15% lower cost/success) FAILS — typed $0.0141 is ~53% above direct $0.0092, though the gap narrowed from v2's ~4.2× to ~1.5×. Bar 3 (no worse effects) passes: zero destructive-hint direct calls (252 attempts, 14 failed, all non-destructive), zero typed policy-failure evidence in transcripts.
+
+Verdict: parity fix recovered typed completion but not cost efficiency — still no positive signal for the typed hypothesis on this pilot; a narrowed negative/inconclusive. No confirmation follows. Raw cells local under `.work/appworld/pilot-v3/` (+`pilot-v3-cal/`); ledger + summaries retained. v2 preserved unchanged.
+
+Spend: v3 $0.3493 + calibration $0.0156 = $0.3649 new. Cumulative ≈ $0.84192 + $0.3649 ≈ **$1.21** (unreconciled estimate), inside the €5 authorization with ~€3.8 headroom.
 
 ## Acceptance
 
