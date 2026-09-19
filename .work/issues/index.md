@@ -19,7 +19,7 @@ Architectural goal: every operation can be exposed as a typed function, includin
 | 4. Measure value | 042 confounded, 045 fix, 046 v3 delivered 2026-09-19 | v3 (post-parity, same 36 cells): typed 15/18 strict at $0.0141/success vs direct 15/18 at $0.0092/success. Fix recovered completion (v2 typed was 9/18) but not cost (bar 2 fails); `4ec8de5_1` defeats both arms. Verdict: narrowed negative/inconclusive, no confirmation. Cumulative ≈ $1.21 of €5. |
 | 5. Test generalization | 009 / 035, separately selected | Confirm a positive signal on untouched tasks before broader claims. Catalog-size, contract-change and revocation experiments remain distinct from composition; a second model tests portability. |
 
-Recommended next assignment: none selected — 046 v3 delivered (completion parity 15–15, cost still favors direct ~1.5×; 4ec8de5_1 hard for both). Candidate follow-ups each need their own justification: heavier-computation tasks (typed in-program compute vs direct scripting), hybrid 044, or stopping. Cumulative ≈ $1.21 of the €5 authorization.
+Recommended next assignment: none selected — 046 v3 delivered with mechanism (typed halves requests but triples cost/request; direct cheaper on all six tasks; heavier-compute probe not justified). Open: hybrid 044 (own justification) or stop. Cumulative ≈ $1.21 of the €5 authorization; no further spend planned without selection.
 
 038 matters only if the affected repository evaluator is reused. 039 is a transport hypothesis, not a dependency of the MCP comparison. 041 is an environment-dependent support track. Backlog ideas are not an implementation queue.
 

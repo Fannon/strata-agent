@@ -54,7 +54,14 @@ Verdict: parity fix recovered typed completion but not cost efficiency — still
 
 Spend: v3 $0.3493 + calibration $0.0156 = $0.3649 new. Cumulative ≈ $0.84192 + $0.3649 ≈ **$1.21** (unreconciled estimate), inside the €5 authorization with ~€3.8 headroom.
 
-## Acceptance
+## Efficiency anatomy (free local analysis, no spend)
+
+- Requests: typed 6.1/cell vs direct 12.3/cell — typed needs HALF the round trips.
+- Cost/request: typed $0.0019 vs direct $0.0006 — typed costs 3× per request (declaration context in every prompt).
+- Net: 1.5× cost per success at completion parity. Per-task costs favor direct on ALL six tasks, including aggregation `eb5ad85_2` ($0.039 vs $0.026).
+- Hard task `4ec8de5_1` ("songs released in this or last year"): both arms fail identically (1/1 grading) — date-relative counting difficulty, arm-independent.
+
+Mechanism: the typed interface wins interaction efficiency but loses token efficiency; declarations dominate. This predicts heavier computation would NOT close the cost gap (context rides along), so a heavier-compute probe is not currently justified. Hybrid 044 remains open but unselected. Stopping here is valid: narrowed negative with a measured mechanism.
 
 - Calibration 2/2 cells complete with valid result.json + upstream grading.
 - Full v3 36/36 attempted within budget; ledger + pilot-summary committed as sanitized summaries only (raw runs stay local).
