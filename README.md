@@ -112,6 +112,7 @@ The [prototype guide](docs/prototype-guide.md) covers Pi usage, connecting an MC
 
 ## Read further
 
+- [Evaluation summary](docs/evaluation-summary.md) — plain-language rundown of what works, what doesn't, and the numbers.
 - [How it works](docs/how-it-works.md) explains the execution flow.
 - [Architecture](ARCHITECTURE.md) describes the implementation and its trust boundaries.
 - [Architectural direction](ACD.md) develops the longer-term design.
