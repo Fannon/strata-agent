@@ -1,6 +1,6 @@
 # Strata issue board
 
-Reviewed 2026-09-19 at `1d8ed19`, including the pilot evidence audit and confirmed entry-point validation mismatch. This board owns next-work ordering; [handoff](../../docs/handoff.md) owns the concise implementation handoff, [trial report](../../docs/repo-trials.md) owns repository evidence, and [AppWorld](../../docs/appworld-spike.md)/[BFCL](../../docs/bfcl-diagnostic.md) own enterprise diagnostic reports. [ACD](../../ACD.md) owns architectural direction. Issue Markdown is tracked; raw `.work/` artifacts and local notes remain ignored.
+Reviewed 2026-09-20 at `1f28a6b`, including 045 entry-point fix and 046 post-parity v3 (15–15 completion parity, persistent cost gap). This board owns next-work ordering; [handoff](../../docs/handoff.md) owns the concise implementation handoff, [trial report](../../docs/repo-trials.md) owns repository evidence, and [AppWorld](../../docs/appworld-spike.md)/[BFCL](../../docs/bfcl-diagnostic.md) own enterprise diagnostic reports. [ACD](../../ACD.md) owns architectural direction. Issue Markdown is tracked; raw `.work/` artifacts and local notes remain ignored.
 
 ## Goal and evidence path
 
@@ -25,7 +25,7 @@ Recommended next assignment: none selected — 046 v3 delivered with mechanism (
 
 ## Decision and verification
 
-Current review (supervisor fresh check): `bun run check` passed; parity 4/4; full suite 159 pass / 12 fail / 171 tests / 1252 assertions, same documented Windows classes. See [041](041-windows-verification.md); general Windows support remains limited. These verification commands were model-free. Three delegated Pi review/documentation sessions cost $0.031921796 combined (48 requests); the first two hit conservative reservation limits, and the third completed. Prior reported program spend was approximately $0.81, so cumulative estimated spend is approximately $0.84192, not a reconciled bill. No new benchmark cells ran. Local ledgers are under `.work/pi-agent/review-20260919*/`; the combined ledger is `.work/pi-agent/review-20260919/combined-ledger.json`.
+Current review (supervisor check 2026-09-20): `bun run check` passed. Last recorded full suite 163 pass / 12 fail / 175 tests / 1292 assertions (baseline 159/12 at `1d8ed19` + 4 new 045 regression tests, same documented Windows classes). See [041](041-windows-verification.md); general Windows support remains limited. These verification commands were model-free. Three delegated Pi review/documentation sessions cost $0.031921796 combined (48 requests); 046 v3 added $0.3649 (calibration $0.0156 + 36 cells $0.3493). Prior reported program spend was approximately $0.81, so cumulative estimated spend is approximately $1.21, not a reconciled bill. No new benchmark cells ran in this check. Local ledgers are under `.work/pi-agent/review-20260919*/`; the combined ledger is `.work/pi-agent/review-20260919/combined-ledger.json`.
 
 Historical gates 0–2 delivery (2026-09-16, no model spend): the Windows venv reproduced the 98-operation manifest, the output-only compatibility policy worked in manual replay, and the handwritten development solver completed its task twice from reset with 2 passes / 0 failures. Raw runs and solutions remain local. This established manual feasibility; it did not verify configuration propagation through the typed Pi extension, which 045 delivered 2026-09-19.
 
