@@ -3,6 +3,8 @@
 Status: V3 DELIVERED 2026-09-19 — 36/36 cells, $0.3493; completion gap closed, cost gap persists
 Dependencies: 045 (delivered compat fix + regression); 042 (v2 preserved unchanged, confounded record)
 
+Wrap-up interpretation note (2026-09-22): the readout below is preserved as the historical analysis. Persistent declaration overhead is a plausible explanation, not an isolated causal result or proof that heavier workloads cannot win. Zero strict successes on `4ec8de5_1` does not mean identical failures: one direct attempt passed grading but hit a guard, as detailed below. Effect hints and policy logs do not prove complete task authorization; v3 per-cell latency was not measured. The current recommendation is to pause; see the [review](../../docs/wrap-up.md).
+
 ## Question
 
 Does the 045 parity fix change the v2 outcome (typed 9/18 vs direct 15/18 strict)? v2 ran with the typed arm rejecting naive datetimes the direct arm accepted. v3 reruns the identical cells with both arms now sharing the compat setting through the real entry points.

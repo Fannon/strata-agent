@@ -6,7 +6,7 @@ These are experimental setup and implementation details. Start with the [project
 
 Requires **Bun** (tested with 1.4.1 on Linux). No API key or external service is needed for the fixture demo and integration tests.
 
-Current review on Windows with Bun 1.4.2: typecheck passes, but the suite fails (67 pass / 95 fail), including compiler library-path failures and explicitly POSIX-only benchmark supervision. Windows operation is not verified; see [041](../.work/issues/041-windows-verification.md). The commands below describe the research workflow, not a cross-platform reliability guarantee.
+The Windows compiler library-path bug was fixed on 2026-09-16. Subsequent recorded verification reached 163 pass / 12 fail; remaining failures include POSIX benchmark supervision and Windows path/privilege differences. General Windows support remains limited; see [041](../.work/issues/041-windows-verification.md) and the [latest wrap-up verification](wrap-up.md#verification). The commands below describe the research workflow, not a cross-platform reliability guarantee.
 
 ```sh
 git clone https://github.com/Fannon/strata-agent.git
@@ -97,7 +97,7 @@ This is where we report honestly what the numbers show and how to reproduce them
 * **Executor comparison (deterministic):** QuickJS and opt-in Bun (`STRATA_EXECUTOR=bun`) keep the same contracts, checks, and policy. Bun is tens of ms faster per run — noise next to model latency. Bun measures cooperative use of the nice API, not enforced containment. See [docs/executors.md](executors.md).
 * **Live smoke (opt-in, paid):** compile rejection with zero calls, then a valid 3-call composition. Verified 2026-09-05 with Muse Spark (1,947,909 bytes → 557 bytes). Transcripts stay local in `.work/`.
 
-The [evaluation plan](evaluation.md) records the delivered context-attribution and compact-presentation work, the negative/inconclusive R-CALL confirmation, and the selected AppWorld compatibility experiment.
+The [evaluation plan](evaluation.md) records context-attribution and compact-presentation work, the negative/inconclusive R-CALL confirmation, and the delivered AppWorld post-parity comparison: 15/18 strict successes for each approach, with direct tools cheaper. No further experiment is selected.
 
 ### How to benchmark
 
@@ -251,4 +251,4 @@ The live smoke test additionally records Pi's model usage. Generated declaration
 
 The tests cover the seven core claims: compile rejection without calls, typed invocation, composition, invalid output rejection, honest untyped results, context-volume reduction, and policy interception. Additional checks cover cancellation, timeout recovery, host API exclusion, schema name collisions and lifecycle integration.
 
-There is no Pi core fork, dynamic authorization, persistent typed REPL, object store or additional agent planning/memory system. Discovery stays minimal: lexical search, static allowlists and `cli-twin` catalog entries. Delivered since the original plan: 025 load/shutdown guards, 029 policy-aware discovery, and fixture fingerprints. AppWorld replay and the BFCL diagnostic harness are implemented under `examples/`; AppWorld compatibility remains partial, and a matched lazy-direct comparison is not delivered. Further compact confirmation needs a separately frozen experiment under 009. See the [ACD](../ACD.md#delivery-and-decision-gates), [handoff](handoff.md) and [issue board](../.work/issues/index.md).
+There is no Pi core fork, dynamic authorization, persistent typed REPL, object store or additional agent planning/memory system. Discovery stays minimal: lexical search, static allowlists and `cli-twin` catalog entries. Delivered since the original plan: 025 load/shutdown guards, 029 policy-aware discovery, and fixture fingerprints. AppWorld replay, timestamp compatibility, actual-entry parity and the post-fix comparison are delivered; the BFCL diagnostic harness is implemented under `examples/`. The AppWorld comparison preloaded both operation sets, so lazy discovery remains untested. Further experiments require a separate selection and frozen protocol. See the [wrap-up review](wrap-up.md), [handoff](handoff.md) and [issue board](../.work/issues/index.md).

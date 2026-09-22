@@ -2,6 +2,8 @@
 
 > **Work in progress — research proof of concept.** Strata is unfinished and is not intended for productive or production use.
 
+**Research checkpoint (2026-09-22): ready to pause.** The mechanism works, but the tested tasks show no overall advantage over capable direct tools. No further experiment is selected. The [wrap-up review](docs/wrap-up.md) records the evidence, verification limits and conditions for revisiting the project; remaining ideas are deferred research, not a delivery commitment.
+
 Strata explores a simple idea: **what if an AI agent could use its tools as typed functions in a small program?**
 
 An agent often needs to find information, make several related calls, and combine the results. Strata lets it express that work in TypeScript. The program can fetch data, filter it, and pass results between tools before returning a summary to the model. Types describe what each function accepts and returns, so some mistakes can be caught before anything runs.
@@ -69,7 +71,7 @@ Comparisons need to give the alternatives equivalent access to data and tools. O
 
 **The repository experiments have not shown an advantage.** On the tasks tested, typed programs used fewer agent tool calls but more model tokens and greater estimated cost than ordinary Pi. Shorter type descriptions helped in an initial experiment, but a follow-up did not confirm the improvement. There is no established overall win in task success, cost or speed. The [repository trial report](docs/repo-trials.md) contains the measurements and limitations.
 
-**The application comparison now runs clean, and still favors direct tools on cost.** The first pilot had a flaw: across six tasks repeated three times per approach, typed programs completed 9 of 18 attempts versus 15 for direct tools, at roughly four times the cost per success — but the typed path rejected some timestamps the direct path accepted. After fixing that mismatch through both agent-facing entry points, a versioned 36-cell rerun reached completion parity (15–15) while direct tools remained cheaper (about 1.5× lower cost per success). The mechanism is measured: typed programs need half the model round trips but cost about three times more per request, with type definitions dominating the context — and direct tools were cheaper on every task, including aggregation. One task defeats both approaches identically. So typed composition earns back completion but not its cost on the tasks tested. See the [pilot report and review](.work/issues/042-matched-application-comparison.md) and the [post-parity rerun](.work/issues/046-post-parity-comparison-v3.md).
+**The application comparison now runs clean, and still favors direct tools on cost.** The first pilot had a flaw: across six tasks repeated three times per approach, typed programs completed 9 of 18 attempts versus 15 for direct tools, at roughly four times the cost per success — but the typed path rejected some timestamps the direct path accepted. After fixing that mismatch through both agent-facing entry points, a versioned 36-cell rerun reached completion parity (15–15) while direct tools remained cheaper (about 1.5× lower cost per success). The mechanism is measured: typed programs need half the model round trips but cost about three times more per request, with type definitions dominating the context — and direct tools were cheaper on every task, including aggregation. One task has zero strict successes in both approaches, although individual failure causes differ. So typed composition earns back completion but not its cost on the tasks tested. See the [pilot report and review](.work/issues/042-matched-application-comparison.md) and the [post-parity rerun](.work/issues/046-post-parity-comparison-v3.md).
 
 **Small tool-use diagnostics are encouraging, but narrow.** In a small BFCL-based exercise, the model selected functions, supplied arguments and abstained when no function fit. Corrected grading accepted all recorded calls, but some sessions stopped at a request limit. This was neither an official benchmark score nor a comparison proving Strata was better. See the [diagnostic report](docs/bfcl-diagnostic.md).
 
@@ -113,6 +115,7 @@ The [prototype guide](docs/prototype-guide.md) covers Pi usage, connecting an MC
 ## Read further
 
 - [Evaluation summary](docs/evaluation-summary.md) — plain-language rundown of what works, what doesn't, and the numbers.
+- [Wrap-up review](docs/wrap-up.md) — assessment of the stopping point, remaining gaps and restart criteria.
 - [How it works](docs/how-it-works.md) explains the execution flow.
 - [Architecture](ARCHITECTURE.md) describes the implementation and its trust boundaries.
 - [Architectural direction](ACD.md) develops the longer-term design.

@@ -1,6 +1,8 @@
 # Strata evaluation summary
 
-*For software developers and architects. No prior knowledge of the internal benchmarks assumed. Status as of 2026-09-20.*
+*For software developers and architects. No prior knowledge of the internal benchmarks assumed. Reviewed 2026-09-22.*
+
+**Recommendation: pause at this research checkpoint.** The mechanism works, but measured task outcomes do not justify further general framework development. No next experiment is selected. See the [wrap-up review](wrap-up.md) for verification and restart criteria.
 
 ## The idea in one paragraph
 
@@ -12,7 +14,7 @@ The open question is whether that convenience **earns its cost** — programs, t
 
 ## How we tested it
 
-We compared Strata ("typed" path) against an equally capable baseline ("direct" path) that calls the same underlying operations as individual tools and may use ordinary scripts. Same data, same access, same grading — the baseline was deliberately kept strong.
+We compared Strata ("typed" path) against a capable baseline ("direct" path) that calls the same underlying service operations as individual tools and may use ordinary scripts. Data, service allowlists and grading were matched. Direct retained shell/files while typed used strict mode; this compares configured systems and does not isolate typing alone.
 
 Three settings, from familiar to unfamiliar:
 
@@ -38,8 +40,8 @@ Costs are estimated from recorded token usage, not provider bills. Sample sizes 
 
 - **The mechanism is real.** Programs typecheck before running, compose multiple calls, filter large payloads locally (the demo shrinks ~2 MB of intermediate data to a few hundred bytes of answer), reject bad results, and enforce allow-lists. This is a feasibility result, and it holds.
 - **Real tasks can be completed.** A hand-written program solved a business-app task twice from a clean slate with full marks. The plumbing — discovery, execution, saving results, upstream grading — works end to end.
-- **The comparison is fair.** Both approaches run under the same validation rules through the interfaces agents actually use, locked in by a permanent regression test. The numbers below are that apples-to-apples rerun.
-- **Typed programs are interaction-efficient.** In the rerun they needed about **half the model round trips** (6.1 vs. 12.3 requests per task) and produced correct final answers with no observed unauthorized effects.
+- **Validation parity is verified.** Both approaches run under the same validation rules through the interfaces agents actually use, covered by a permanent regression test. The numbers below are the post-fix rerun; other system differences remain.
+- **Typed programs use fewer interactions.** In the rerun they needed about **half the model round trips** (6.1 vs. 12.3 requests per task). Both achieved 15/18 strict successes. No destructive hints or typed policy denials were visible in the audit; that does not prove every effect was authorized.
 - **Small diagnostic is encouraging.** 30/30 correct function selections after corrected grading — but this is a narrow exercise with ~3 candidate functions per question, not a leaderboard score.
 
 ## What doesn't (negatives)
@@ -53,9 +55,9 @@ Costs are estimated from recorded token usage, not provider bills. Sample sizes 
   | Direct tools | 15/18 | $0.0092 |
 
   Direct tools are ~1.5× cheaper per success — and cheaper on **every one of the six tasks**, including the aggregation task typed composition was supposed to favor. (The earlier run was 9/18 vs. 15/18 at ~4× cost, but that included the timestamp bug above; those numbers are preserved for audit, not used as the conclusion.)
-- **We know why.** Typed requests cost ~3× more each ($0.0019 vs. $0.0006) because the type definitions travel with every prompt. Halving the trip count can't compensate. This predicts that simply "bigger data processing" won't rescue the tradeoff — the definitions ride along regardless.
+- **Context overhead is the leading explanation.** Typed requests cost ~3× more each ($0.0019 vs. $0.0006), with type definitions included in every prompt. Halving the request count did not compensate on these tasks. This is not a controlled declaration-cost ablation and does not rule out a different workload; heavier processing alone has no demonstrated benefit here.
 - **Smaller type descriptions helped once, then didn't.** A compact-declaration variant cut cost/success ~26% in one development round (12/12 both arms) but failed confirmation on fresh tasks (2/4 vs. 3/4, stock 4/4). It stays opt-in; full descriptions stay default.
-- **One task beats both approaches equally** (date-relative "songs released this or last year" counting) — an approach-independent difficulty, not a typed-specific failure.
+- **One task has zero strict successes in both approaches** (date-relative "songs released this or last year" counting). Most attempts missed grading; one direct attempt passed the grader but stopped at a budget guard. The strict totals do not imply identical failure causes.
 - **Platform caveat:** Linux is the tested environment. Windows runs with 12 known environment-related test failures; no general Windows support claimed.
 
 ## Limits of what we claim
@@ -63,6 +65,7 @@ Costs are estimated from recorded token usage, not provider bills. Sample sizes 
 - Mostly one model, small samples, development tasks reused between runs — no generalization claim follows. A positive signal would need confirmation on untouched tasks.
 - Both compared paths preloaded the relevant operations; "finding the right tools in a huge catalog" was explicitly excluded and remains untested.
 - The diagnostic (30 cases) measures function selection in isolation, not task completion.
+- Per-cell latency was not measured in the AppWorld rerun, so fewer requests do not establish a speed advantage.
 
 ## Reading of the result
 
@@ -71,6 +74,7 @@ The pattern is consistent across settings: **typed composition buys fewer round 
 Possible next directions (none selected; stopping is a legitimate outcome):
 
 - **Hybrid:** typed functions alongside ordinary shell/direct tools, measuring what the agent actually chooses.
+- **Stored program reuse:** only if recurring workflows justify it; compare against stored scripts too, counting authoring and adaptation costs ([047](../.work/issues/047-stored-program-reuse.md)).
 - **Narrow:** a task family where local joining and filtering demonstrably outweighs definition cost — needs concrete tasks and a fair baseline, not an assumption.
 - **Larger catalogs / changing contracts:** discovering a few functions among thousands, or recovering when an API changes — separate experiments, not follow-ups to the cost result.
 

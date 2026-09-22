@@ -3,6 +3,8 @@
 Status: compiler-separator fix landed 2026-09-16 under gates 0-2 (diagnosis-driven, not a general port); 12 failures remain classified below, still not selected for implementation
 Dependencies: none for diagnosis; relevant before using this checkout on Windows
 
+Wrap-up verification (2026-09-22, `4e2df5d`, Windows/Bun 1.4.2): typecheck and fixture demo pass with local subprocess access. Full suite reproduces **163 pass / 12 fail / 175 tests / 1,292 assertions**, matching the latest recorded failure names/classes. The restricted first run hit additional subprocess `EPERM` failures and is not a comparable portability result. No portability fixes were selected or made; see [review](../../docs/wrap-up.md#verification).
+
 ## Evidence
 
 At `c5e0b7e`, Windows/Bun 1.4.2: `bun run check` passes; `bun test` exits 1 with 67 pass, 95 fail, 743 assertions, 162 tests across 25 files. No model calls were made. Historical Linux verification is not a current cross-platform pass.

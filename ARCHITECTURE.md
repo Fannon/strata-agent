@@ -1,6 +1,6 @@
 # Implemented architecture and investigation notes
 
-Documentation reconciled against `c5e0b7e` on 2026-09-16. This unfinished research prototype is not intended for productive use. Historical investigation sections retain their dates. Architectural direction is in [ACD.md](ACD.md); comparative evidence requirements are in [docs/evaluation.md](docs/evaluation.md).
+Wrap-up documentation review: 2026-09-22 against `4e2df5d`. This unfinished research prototype is not intended for productive use; the [review](docs/wrap-up.md) recommends pausing. Historical investigation sections retain their dates. Architectural direction is in [ACD.md](ACD.md); comparative evidence requirements are in [docs/evaluation.md](docs/evaluation.md).
 
 ## Decision
 
@@ -38,6 +38,8 @@ The neighboring experiment is Prime Intellect's prime-agent: persistent IPython 
 The manifest contains original operation names, input/output schemas, descriptions and effect hints. An operation's runtime binding is an entry in a generic generated API object. Quoted property names preserve arbitrary MCP names, including names that would collide under normalization. Duplicate protocol names are rejected. Each generated schema gets its own namespace and forced root type name to avoid collisions between schema titles and definitions. The broker holds any number of modules: operations are keyed by capability and name, so same-named operations in different modules stay isolated, and duplicate capability ids are rejected at load. `surfaces()` exposes the loaded set to the worker, which binds one frozen `api` object per `@cap/` module for that run.
 
 The declaration generator is independent of MCP. It uses established JSON Schema tooling, not custom schema inference. AJV validators are compiled once per broker, with no mutation/coercion of inputs. Draft 2020-12 semantics are used; unsupported dialects or unresolved references fail setup. TypeScript represents the portions the generator can express; runtime validation remains the authoritative schema check.
+
+For AppWorld, trusted configuration can opt into `compat.acceptNaiveDateTime`: timezone-free response timestamps are accepted verbatim at the output-validation boundary. Inputs and default behavior remain strict. The typed Pi entry points and direct reference extension forward this option consistently; real-entry regression tests cover the 045 fix. This is a compatibility policy, not timestamp coercion or general schema relaxation.
 
 The MCP connector paginates `tools/list` and preserves `structuredContent`, the untyped envelope, `isError`, and serialized byte size. It uses the SDK's generic `request` for `tools/call`: the higher-level `Client.callTool` also validates output, which would hide validation-stage accounting from the broker. Protocol envelope parsing remains the SDK's responsibility. See the [MCP tools specification](https://modelcontextprotocol.io/specification/2025-11-25/server/tools).
 

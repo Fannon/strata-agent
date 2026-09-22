@@ -1,9 +1,11 @@
 # AppWorld offline-compatibility spike (issue037)
 
 Status: **task-solving replay delivered and repeated from reset; 040 resolved and live-verified; 045 entry-point fix and 046 post-parity v3 delivered.**
-The handwritten solver completed development task `82e2fac_1` twice from fresh worlds (completed=true, 2 passes / 0 failures both runs). No comparative gains are established. The subsequent [042 pilot](../.work/issues/042-matched-application-comparison.md) observed worse typed results, but the September 19 review found the typed Pi entry point ignores the compatibility setting used by direct tools. Manual replay success did not establish model-facing parity. [045](../.work/issues/045-pilot-entrypoint-validation-parity.md) delivered that offline regression and fix 2026-09-19; [046](../.work/issues/046-post-parity-comparison-v3.md) reran the same 36 cells post-fix to completion parity (15–15) with direct still ~1.5x cheaper per success; no new campaign is selected.
+The handwritten solver completed development task `82e2fac_1` twice from fresh worlds (completed=true, 2 passes / 0 failures both runs). No comparative gains are established. The subsequent [042 pilot](../.work/issues/042-matched-application-comparison.md) observed worse typed results, but the September 19 review found the typed Pi entry point ignored the compatibility setting used by direct tools. Manual replay success did not establish model-facing parity. [045](../.work/issues/045-pilot-entrypoint-validation-parity.md) delivered that offline regression and fix 2026-09-19; [046](../.work/issues/046-post-parity-comparison-v3.md) reran the same 36 cells post-fix to completion parity (15–15) with direct still ~1.5x cheaper per success; no new campaign is selected.
 
 ## Pins and environment
+
+The pins below describe the original Linux spike. The later Windows replay used `.work/appworld/venv-win` with Python 3.14.7 and MCP 2.2.0; pass that interpreter explicitly via `--python`, with `PYTHONUTF8=1` and `PYTHONIOENCODING=utf-8`. The original Linux venv is not usable in the current Windows checkout. The wrap-up review did not rerun AppWorld. See [handoff](handoff.md).
 
 - Upstream AppWorld pin: `42b5bcf3cd334fee33f0c37c02070a9f5807add5`
 - AppWorld package: `0.2.0.dev0`; data bundle: `0.2.0`

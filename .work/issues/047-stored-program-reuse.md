@@ -25,7 +25,7 @@ None selected; this section maps, it does not authorize. The board owns ordering
 - **039 (typed REST via generated clients):** more operations behind the same interface; expands what stored programs could cover, not a prerequisite.
 - **030 (optional memory):** agent memory outside typed runs; idea only, do not implement with current slices. 047 is the evaluation question that would motivate it.
 - **Contract-change / revocation recovery:** how an agent recovers when an API changes or access is revoked between discovery and call. Separate from efficiency; required before reuse claims survive contact with reality.
-- **Heavier-computation families:** 046's mechanism (declaration context rides along every request) predicts heavier local work would *not* close the cost gap — not currently justified.
+- **Heavier-computation families:** 046 shows no winning task category; persistent declaration overhead alone does not rule out a different workload. A heavier-computation experiment needs concrete justification and is not selected.
 - **Confirmation on untouched tasks + a second model (009/035 tracks):** any positive signal needs confirmation on tasks the agent hasn't seen, and portability beyond one model family.
 - **Smaller ablations and comparisons:** 036 (prompt wording), 014 (Prime/IPython whole-system comparison), 015 (edits/checks/fallback), 021 (semantic-checking ablation). Each needs its own justification.
 
