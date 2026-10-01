@@ -92,13 +92,17 @@ Both approaches handled the lost-payment-reply scenario in all six model/repetit
 
 ## What this says about checking
 
-The broader tasks generated **32 compiler-rejected programs: four Muse, 28 GLM**. All were rejected before any capability calls from that program. Muse repaired two missing braces and two cursor/result inference annotations (TS7022). GLM diagnostics include missing properties, mismatched response shapes, nullable cursors, unknown caught errors and strict typing of dictionaries/callbacks. Not every rejection identifies a business mistake: some code would execute successfully as JavaScript.
+The broader tasks generated **32 compiler-rejected programs: four Muse, 28 GLM**. All were rejected before any capability calls from that program. Muse repaired two missing braces and two cursor/result inference annotations (TS7022). GLM diagnostics include missing properties, mismatched response shapes, nullable cursors, unknown page/row values from generic helpers and strict typing of dictionaries/callbacks. Not every rejection identifies a business mistake: some code would execute successfully as JavaScript.
 
 Checked compiler time totaled 9.32 seconds for Muse and 10.25 seconds for GLM, about **155/171 ms per attempt**, across all initial checks and repairs. These timers exclude session/declaration setup, which is included in wall time. Clean checks add no diagnostic text to model context. The larger GLM cost is chiefly additional model repair work and output, rather than local compiler CPU time.
 
 The native Muse overpayment used a field absent from the schema. Accurate TypeScript inference can reject that access; `any` can erase the protection. The matched checked runs used the correct field, but they generated different programs, so this is not a causal proof that adding the compiler to the native attempt alone would guarantee success. Types also did not prevent checked GLM's false claim about payments it had already made.
 
 **Practical conclusion:** keep the current quiet checking before execution, especially for business writes. It provides early contract feedback at a small local runtime cost and has now encountered naturally generated errors. Continue to inspect state after uncertain execution, and track what each attempt actually completed. Do not choose a model/approach only from pass rate: Muse's whole-system cost result is favorable; GLM's repairs and output compliance are real disadvantages. [055](../.work/issues/055-checking-attribution.md) is the deferred experiment needed to isolate the semantic gate itself.
+
+## Tuning follow-up
+
+The [post-run inventory and improvement plan](glm-improvement-plan.md) distinguishes the full extension’s existing custom instructions/search/load tools from 054’s small preloaded surface. It proposes a correct pagination example/typed helper, smaller diagnostics, effect receipts and explicit result finalization. Prompt and function-presentation/discovery changes are separate deferred comparisons. A review found 19 of 60 checked GLM attempts had compiler rejections; 16 of the 28 rejected programs declared pagination helpers. No code, scores or paid calls changed in that review.
 
 ## Family results
 

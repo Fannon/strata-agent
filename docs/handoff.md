@@ -12,9 +12,13 @@ Paid work cost $0.204487 over 576 requests including development; combined with 
 
 Verification: typecheck; 78 model-free contract/state/session checks; 72 independent SQL answer-oracle checks. Full-suite macOS/Bun baseline failures remain deferred under 050. The benchmark uses the production checked session but an experimental Pi 0.99.1 extension; the project still pins Pi 0.73.1, and full extension compatibility was not certified.
 
+## Documentation follow-up and tuning inventory
+
+The user requested updated docs/publication and ideas after the run, then explicitly asked about system prompts, function presentation and tool search. [Inventory/plan](glm-improvement-plan.md) now documents the actual full extension versus the 054 harness. Corrected the report’s “unknown caught errors” wording: the inspected TS18046 diagnostics concern unknown page/row values. Nineteen checked GLM attempts had rejections; sixteen rejected programs declared pagination helpers. Existing scores, sources and shipped runtime stayed unchanged; no paid calls.
+
 ## Next selected work
 
-None. [055 — checking attribution](../.work/issues/055-checking-attribution.md) is newly recorded, deferred: hold declarations/prompts/guards constant while varying only the semantic gate, if the user selects it. Production return-contract 052 and action-identity 053 fixes, catalog scaling, hybrid tools and new models remain unselected. Do not expand scope from this handoff.
+Subsequent user authorization selects [060](../.work/issues/060-strata-tuning-trials.md): test prompt/helper/alias-only-presentation/feedback variants, then report improvements and regressions with fresh confirmation. Freeze the new sources/tasks/selection rule/limits first; preserve prior evidence. The initial inventory recommendation was: a small correct prompt example ([036](../.work/issues/036-prompt-ablation.md)), typed pagination helper [056](../.work/issues/056-typed-pagination-helper.md), smaller feedback [057](../.work/issues/057-actionable-compiler-feedback.md), effect receipts [053](../.work/issues/053-recovery-action-identity.md) (earlier for write-heavy uses), then explicit final JSON [058](../.work/issues/058-canonical-final-json.md). [059](../.work/issues/059-function-surface-and-discovery.md) separately captures alias-only deduplication, presentation and operation-level discovery. [055](../.work/issues/055-checking-attribution.md) remains the separate attribution question; 052’s inferred-result contract is relevant to finalization. Only the experiment prototypes explicitly scoped under 060 are selected; effect receipts/finalization, production policy changes and larger-catalog discovery remain deferred. Do not expand scope from this recommendation.
 
 ## Historical checkpoints
 

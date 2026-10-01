@@ -48,3 +48,13 @@ between runs: prompts stay pinned per run as today.
 Open questions: whether terse instructions harm first-try repair quality
 (the 031 loud-error path may interact); whether per-task operation subsets
 belong in this experiment or a separate discovery one (separate — see 004).
+
+## October 1 post-054 tuning inventory
+
+The user explicitly asked whether we have a custom system prompt and what could be tuned. The answer is yes: `src/pi/extension.ts` appends fixed Strata instructions and loaded declarations to Pi's base system prompt and supplies tool descriptions/prompt snippets. The separate 054 extension adds task-specific pagination/units/effect-recovery instructions and a clearer return-from-main instruction. That latest experiment did not vary prompts.
+
+Candidate next prompt arms, only if selected: current instructions; terse recipe plus one correct pagination example; a GLM-oriented example emphasizing inference, concrete response fields and `Map` rather than invented generic wrappers. Examples add tokens and must earn them back. Prefer a common prompt unless a model-specific policy wins on untouched tasks.
+
+For a separate dedicated business-agent comparison, trimming/replacing Pi's coding-oriented base prompt is another candidate. This would be a new scope beyond the original above, which intentionally holds Pi's base prompt fixed. Compare equivalent base instructions for both native and Strata, preserve the runtime/tool constraints, and record every effective prompt. Do not mix base-prompt changes with new helpers, checking policies or function loading in the same attribution test.
+
+Prompt profiles are currently code constants rather than a shipped, versioned user-selectable Strata prompt configuration. No prompt changes or paid tuning calls were made in this inventory. Suggested priority: a small correct recipe/example alongside 056's helper design, then an isolated wording test; 059 separately captures function presentation and tool search.

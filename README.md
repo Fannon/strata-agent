@@ -121,6 +121,12 @@ The complete [comparison report](docs/checking-policy-comparison.md) includes al
 
 The repository/application comparisons predominantly used one model; the small checking pilots used two natural task definitions. The latest synthetic comparison expands to 20 definitions and two model families, with a Muse cost advantage and a GLM repair/time penalty. Real-service generalization and the isolated value of semantic checking remain open.
 
+### What can be tuned next?
+
+The full extension already appends custom Strata instructions to Pi’s base prompt and has `search_capabilities`, `load_capability` and `program_details`. Full declarations are the default; compact presentation is opt-in. The latest benchmark used a separate prompt, preloaded task-relevant functions and exposed only `typed_program` in the checked arm. It did not test discovery or optimize prompt wording.
+
+The [inventory and improvement plan](docs/glm-improvement-plan.md) distinguishes existing behavior from proposed tuning: a short correct workflow example/typed pagination helper, smaller diagnostics, action receipts, reliable final serialization, declaration layout and finer discovery. These are deferred ideas; the current compiler/runtime behavior is preserved.
+
 ## Later related work
 
 Earendil's [“You Said No MCP!”](https://earendil.com/posts/you-said-no-mcp/) (2026-09-29) describes Pi adopting MCP and JavaScript tool orchestration in its core. This announcement came **after Strata's initial September experiments and September 22 research checkpoint**. It overlaps with the composition mechanism explored here; it does not establish a performance advantage or imply that Strata influenced Pi. Earlier code-composition precedents already existed. The [comparison note](docs/research/pi-codemode-2026-09.md) connects the announcement and HN discussion to Strata's evidence and open questions. Historical repository/application measurements used Pi 0.73.1; the subsequent [September 30 pilot](docs/checking-policy-pilot.md) tested native Codemode in installed Pi 0.99.1 on a separate small synthetic fixture.
@@ -162,6 +168,8 @@ The [prototype guide](docs/prototype-guide.md) covers Pi usage, connecting an MC
 
 ## Read further
 
+- [Broader composition comparison](docs/composition-benchmark.md) — 20 workflows, two models, full correctness/efficiency data and uncertainty.
+- [Tuning inventory and GLM improvement plan](docs/glm-improvement-plan.md) — what already exists and what we could test next.
 - [Evaluation summary](docs/evaluation-summary.md) — plain-language rundown of what works, what doesn't, and the numbers.
 - [Checking-policy comparison](docs/checking-policy-comparison.md) — success, requests, tokens, time and cost for both models and all profiles.
 - [Checking-policy pilot](docs/checking-policy-pilot.md) — updated Pi baseline and always/never/after-failure checking on small synthetic tasks.
