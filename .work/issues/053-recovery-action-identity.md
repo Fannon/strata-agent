@@ -1,6 +1,6 @@
 # 053 — Distinguish completed actions from pre-existing state during recovery
 
-Status: DEFERRED — discovered in selected GLM repeat 051; no implementation or new trial selected
+Status: DELIVERED 2026-10-01 — selected implementation complete; model-free production/session/Pi integration verified
 Dependencies: 051 (observed recovery errors), 012 (effect authorization), 047 (replay and recurring workflows)
 
 ## Evidence and question
@@ -22,3 +22,9 @@ Distinguish an older matching payment, a completed current-attempt payment, a re
 ## Additional 054 evidence (October 1 documentation follow-up)
 
 W1 checked GLM repetition 2 made five correct payments, returned an empty list after an incorrect total-ledger-entry-count filter, then inspected the now-paid invoices and denied having added payments. This was a wrong report after successful effects, without an uncertain backend reply. The proposed receipts should therefore also identify completed effects of successful earlier programs when later reasoning changes. IDs/amounts/outcomes must come from observable responses or state verification; never promote an uncertain call attempt to a confirmed receipt. 054 scores and sources remain frozen. This extends the deferred question, not its implementation authorization.
+
+## Delivered implementation
+
+A bounded host ledger records program/call identities, write/unknown classification, requested arguments, accepted responses and response-validation provenance. Statuses distinguish confirmed acknowledgements, not-executed denials/rejections and uncertain dispatches. program_effects supplies paginated evidence and grant-filtered operations declared read-only for state inspection; errors include a small retained-current-request summary. Completed calls stay acknowledged after later failures/cancellation. Known reads avoid receipt payload copying. History/evidence bounds and eviction are explicit; late outcomes cannot rewrite completed evidence.
+
+Tests distinguish old/current payments and verify actual ledger state after an invalid MCP reply without replay; schema/transport uncertainty, denials, cancellation, budgets and retention are covered. No automatic retry/rollback, new backend idempotency guarantees or durable restart ledger. [Contracts and limitations](../../docs/results-and-recovery.md). No paid efficacy benchmark selected.

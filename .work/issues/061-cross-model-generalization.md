@@ -20,3 +20,15 @@ Publish per-model sample/distinct-task counts, answer/effect/format correctness,
 ## Proposed order
 
 If another tuning campaign is selected, establish this cross-model evaluation constraint before selecting new shared interface changes. Canonical finalization (058), action receipts (053), checking attribution (055) and large-catalog discovery (059) retain separate scope; this issue authorizes none of them.
+
+## Ranked recommendation after the user's next-step question
+
+First confirm portability before selecting more tuning. A useful next scope would include at least two previously untested model families with different capability levels, one frozen shared recipe, and new workflow definitions with different API shapes. Include a capable native-Pi comparison alongside checked Strata baseline and checked Strata plus recipe if the aim includes demonstrating an overall Strata advantage. Native Pi should receive equally helpful API/pagination guidance and equivalent operations; comparing a polished candidate against an unnecessarily weak prompt would confound the result. Each model's fixed provider configuration must be held across its arms.
+
+Prioritize distinct workflow definitions over extra repetitions of the same fixture. Include multi-page joins, read-only aggregation, writes with existing state, and failure recovery. Freeze development/confirmation separation and score failures without replacement. Report model-specific outcomes without selecting model-specific policies.
+
+This is a proposal recorded from the next-step discussion, not selection of a run. Following it, consider 058 explicit structured finalization (052 contract prerequisite), then 053 action receipts for critical writes. 059 larger-catalog discovery needs its own relevant workload; 055 remains the separate check-gate attribution study.
+
+## Subsequent implementation order
+
+The user chose recommendations 2 and 3 first: 058 finalization, 053 action evidence and the narrow 052 prerequisite are now implemented with model-free checks. The preceding ranked order describes the earlier proposal. A future selected 061 run must freeze the new shipped revision and decide explicitly which shared features each arm receives, including fair recovery evidence/finalization for the native comparison. No new benchmark is selected by that implementation delivery.

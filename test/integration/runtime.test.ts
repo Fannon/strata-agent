@@ -117,7 +117,7 @@ test("host access and arbitrary imports are unavailable", async () => {
 });
 test("timeout isolates infinite loop; session works afterwards", async () => {
   const result = await session.run(
-    "export function main() { while (true) {} }",
+    "export function main(): never { while (true) {} }",
     { timeoutMs: 150 },
   );
   expect(result.error).toMatch(/timeout|interrupted/);
@@ -200,7 +200,7 @@ test("pre-aborted execution performs no capability calls", async () => {
 });
 test("closing a session interrupts active execution and rejects later runs", async () => {
   const local = await fixtureSession();
-  const running = local.run("export function main() { while(true) {} }");
+  const running = local.run("export function main(): never { while(true) {} }");
   await local.close();
   expect((await running).error).toContain("cancelled");
   expect(

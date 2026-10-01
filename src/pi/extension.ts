@@ -278,7 +278,22 @@ export default function strata(pi: ExtensionAPI) {
         block: true,
         reason: `STRATA_STRICT: ${event.toolName} is disabled; use typed_program with @c/repo instead.`,
       };
+    if (!["typed_program", "finalize_result", "program_details", "program_effects"].includes(event.toolName))
+      session?.invalidateResults();
     return undefined;
+  });
+  pi.on("message_start", (event) => {
+    if (event.message.role === "user") session?.beginTurn();
+  });
+  pi.on("user_bash", () => { session?.invalidateResults(); });
+  pi.on("message_end", (event) => {
+    if (event.message.role !== "assistant") return;
+    if (["aborted", "error", "length"].includes(event.message.stopReason)) { session?.invalidateResults(); return; }
+    if (event.message.stopReason !== "stop" || event.message.content.some(c => c.type === "toolCall")) return;
+    const selected = session?.consumeSelection();
+    if (!selected) return;
+    pi.appendEntry("strata.final-result", { program: selected.program, phase: "delivered" });
+    return { message: { ...event.message, content: [...event.message.content.filter(c => c.type === "thinking"), { type: "text" as const, text: selected.json }] } };
   });
   pi.on("session_start", async () => {
     try {
@@ -302,13 +317,16 @@ export default function strata(pi: ExtensionAPI) {
     allowFor = undefined;
     await previous?.close();
   });
-  pi.on("before_agent_start", async (event) => ({
-    systemPrompt:
-      event.systemPrompt +
-      "\n\nStrata typed_program accepts a complete TypeScript module. Import { api } from '@c/<capability>' (e.g. '@c/fixture'; '@cap/' works too) and export async function main() returning a JSON-serializable result. Only capability imports and pure computation are available in the default QuickJS executor. The opt-in direct-Bun executor (STRATA_EXECUTOR=bun) additionally leaves ambient host APIs reachable, so it measures cooperative API adherence rather than enforced containment. console.log is bounded. All capability calls pass through local policy and schema validation. Type errors execute no code. Aggregate large results before returning. Success returns only { result, program }; failures return repair fields (error, diagnostics, failed calls, logs). Fetch full logs/metrics with program_details(program) only when debugging. Further capabilities can be discovered with search_capabilities and added with load_capability; a loaded API appears as another @c/ module and its import block is returned by the load call.\n" +
-      (session?.declarations ??
-        `Unavailable: ${startupError ?? "not initialized"}`),
-  }));
+  pi.on("before_agent_start", async (event) => {
+    session?.beginTurn();
+    return {
+      systemPrompt:
+        event.systemPrompt +
+        "\n\nStrata typed_program accepts a complete TypeScript module. Import { api } from '@c/<capability>' (e.g. '@c/fixture'; '@cap/' works too) and export async function main() returning a JSON-serializable result. Only capability imports and pure computation are available in the default QuickJS executor. The opt-in direct-Bun executor (STRATA_EXECUTOR=bun) additionally leaves ambient host APIs reachable, so it measures cooperative API adherence rather than enforced containment. console.log is bounded. All capability calls pass through local policy and schema validation. Type errors execute no code. Aggregate large results before returning. Success returns { result, program }. Set finalize:true only for the task’s final result, or explicitly select the latest successful program with finalize_result(program). The host delivers that selected JSON in the completed assistant message; do not reproduce it or add explanatory fields. Selection expires on another program, external tool or user request. Finalization selects data; it does not certify business correctness. Failures include recovery evidence from this request. program_effects retrieves acknowledged/uncertain/rejected actions and allowed read operations; confirmed means a broker-accepted success response, not independently verified state. Inspect state before retrying uncertain writes; effects survive later failures. Missing readOnly metadata means the operation may have effects. Fetch logs/metrics with program_details(program) only when debugging. Further capabilities can be discovered with search_capabilities and added with load_capability; a loaded API appears as another @c/ module and its import block is returned by the load call.\n" +
+        (session?.declarations ??
+          `Unavailable: ${startupError ?? "not initialized"}`),
+    };
+  });
   const tool = (
     name: string,
     label: string,
@@ -333,7 +351,7 @@ export default function strata(pi: ExtensionAPI) {
   tool(
     "typed_program",
     "Typed program",
-    "Typecheck and run a complete TypeScript module exporting main(). Success returns only { result, program }; failures return repair fields (error, diagnostics, failed calls, logs). Fetch full logs/metrics on demand with program_details. Fresh disposable worker per run; 5-second execution deadline. Engine is QuickJS by default, opt-in direct Bun via STRATA_EXECUTOR.",
+    "Typecheck and run a complete TypeScript module exporting main(). Success returns { result, program }; finalize:true explicitly selects this successful result for exact host JSON delivery. Failures return repair fields and recovery evidence. Fetch full logs/metrics on demand with program_details. Fresh disposable worker per run; 5-second execution deadline. Engine is QuickJS by default, opt-in direct Bun via STRATA_EXECUTOR.",
     "Compose typed capability calls and process structured data in TypeScript",
     Type.Object({
       source: Type.String({
@@ -341,6 +359,7 @@ export default function strata(pi: ExtensionAPI) {
           "Complete TypeScript module with exported zero-argument main()",
         maxLength: 32768,
       }),
+      finalize: Type.Optional(Type.Boolean({ description: "Select this program's successful return value as the task's final answer. Use only for the final result, not intermediate data." })),
     }),
     async (params, signal) => {
       if (!session)
@@ -360,10 +379,47 @@ export default function strata(pi: ExtensionAPI) {
         metrics: report.metrics,
       };
       if (report.error) throw new Error(report.text);
+      if (params.finalize === true) {
+        session.selectResult(report.program);
+        pi.appendEntry("strata.final-result", { program: report.program, phase: "selected" });
+      }
       return {
         content: [{ type: "text" as const, text: report.text }],
         details,
       };
+    },
+  );
+  tool(
+    "finalize_result", "Finalize result",
+    "Explicitly select the latest successful typed_program result from this user request. Host JSON serialization replaces the completed assistant answer; do not copy the data. Failed, expired, older or concurrent results are refused. No business correctness guarantee.",
+    "Select a computed result for exact final JSON delivery",
+    Type.Object({ program: Type.String({ description: "Exact program id returned by the latest successful typed_program", maxLength: 64 }) }),
+    async (params) => {
+      if (!session) throw new Error(`Typed runtime unavailable: ${startupError ?? "session not started"}`);
+      const selected = session.selectResult(params.program as string);
+      pi.appendEntry("strata.final-result", { program: selected.program, phase: "selected" });
+      return { content: [{ type: "text" as const, text: JSON.stringify({ selectedProgram: selected.program, delivery: "Host will deliver this result as pure JSON when the assistant finishes normally. Do not reformat or add more tools." }) }], details: { program: selected.program } };
+    },
+  );
+  tool(
+    "program_effects", "Program effects",
+    "Inspect bounded action evidence across this user request or one retained program. Separates accepted acknowledgements, uncertain dispatches and rejected calls; includes arguments/responses and allowed read operations for checking current state. Unknown-effect operations may be reads. Call ids are correlation ids, not idempotency keys. At most 5 receipts/page; continue with nextOffset.",
+    "Inspect completed or uncertain actions before retrying writes",
+    Type.Object({
+      program: Type.Optional(Type.String({ description: "Optional program id; omit for this user request's retained programs", maxLength: 64 })),
+      offset: Type.Optional(Type.Integer({ minimum: 0, default: 0 })),
+    }),
+    async (params) => {
+      if (!session) throw new Error(`Typed runtime unavailable: ${startupError ?? "session not started"}`);
+      let limit = 5;
+      let page = session.effects(params.program as string | undefined, { offset: params.offset as number | undefined, limit });
+      let text = JSON.stringify(page);
+      while (Buffer.byteLength(text) > 23900 && limit > 1) {
+        page = session.effects(params.program as string | undefined, { offset: params.offset as number | undefined, limit: --limit });
+        text = JSON.stringify(page);
+      }
+      if (Buffer.byteLength(text) > 23900) throw new Error("Receipt page exceeds tool budget; use an explicit program id.");
+      return { content: [{ type: "text" as const, text }], details: {} };
     },
   );
   tool(

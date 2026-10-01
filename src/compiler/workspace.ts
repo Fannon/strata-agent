@@ -121,6 +121,20 @@ export class Workspace {
       diagnostics.push(
         "program.ts: export a zero-argument main() function returning your result",
       );
+    if (main) {
+      const signatures = checker.getTypeOfSymbolAtLocation(main, file)
+        .getCallSignatures().filter(s => s.parameters.length === 0);
+      for (const signature of signatures) {
+        const result = checker.getAwaitedType(checker.getReturnTypeOfSignature(signature));
+        const alternatives = result?.isUnion() ? result.types : result ? [result] : [];
+        const invalid = alternatives.some(type =>
+          !!(type.flags & (ts.TypeFlags.Void | ts.TypeFlags.Undefined |
+            ts.TypeFlags.BigIntLike | ts.TypeFlags.ESSymbolLike)) ||
+          type.getCallSignatures().length > 0);
+
+        if (invalid) diagnostics.push("program.ts: main() must return a JSON result on every returning path; return the computed value rather than only logging it (void/undefined/bigint/symbol/function results are unsupported)");
+      }
+    }
     if (diagnostics.length) return { diagnostics };
     const emit = this.service.getEmitOutput(programPath);
     if (emit.emitSkipped)

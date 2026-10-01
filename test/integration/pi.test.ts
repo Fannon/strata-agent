@@ -5,7 +5,7 @@ import { mkdtemp, rm } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 
-test("Pi jiti loader registers one tool; lifecycle initializes and cleans runtime", async () => {
+test("Pi jiti loader registers shared tools; lifecycle initializes and cleans runtime", async () => {
   const directory = await mkdtemp(join(tmpdir(), "strata-pi-"));
   const loaded = await discoverAndLoadExtensions(
     [fileURLToPath(new URL("../../src/pi/extension.ts", import.meta.url))],
@@ -19,6 +19,8 @@ test("Pi jiti loader registers one tool; lifecycle initializes and cleans runtim
   expect(extension).toBeDefined();
   expect([...extension.tools.keys()]).toEqual([
     "typed_program",
+    "finalize_result",
+    "program_effects",
     "program_details",
     "search_capabilities",
     "load_capability",

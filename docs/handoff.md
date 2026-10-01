@@ -1,6 +1,18 @@
 # Next-agent handoff
 
-## Latest delivery — 060 tuning, October 1, 2026
+## Latest implementation — structured results and recovery, October 1, 2026
+
+User selected recommendations 2 and 3: 058 explicit structured finalization, 053 action receipts, plus the narrow 052 prerequisite. Shared production implementation is complete, without model-specific branches or paid calls. [Contracts, usage and limits](results-and-recovery.md).
+
+`typed_program` accepts optional `finalize:true`; `finalize_result(program)` explicitly selects the latest successful completed program in the current request. Session retains immutable bounded JSON; Pi message_end replaces final answer text while preserving provider usage/thinking. Completed events/state/persistence agree. New programs, other external actions, new user/steering requests and abnormal completions invalidate selection. Existing program_details/program_effects inspection preserves it. Inline selection has no separate selection turn; explicit selection adds one tool call; normal final model completion is still required. No real-model cost/completion improvement measured yet.
+
+Broker receipts separately store bounded arguments/responses and accepted/not-executed/uncertain status for write/unknown operations, with output-schema provenance. Known reads skip payload copying. Errors include a small current-request retained recovery summary; program_effects pages evidence and allowed operations declared read-only. Earlier accepted calls remain acknowledged after later failures/cancellation, fixing the previous blanket cancellation classification. No auto-retry, rollback, durable resume ledger or new backend idempotency support. 20-program retention and evidence truncation/eviction are explicit.
+
+Compiler rejects known invalid awaited root returns before effects; any/unknown/assertions/nested serialization still require runtime checks. Real payment/invalid-reply recovery verifies the backend ledger without replay. Typecheck passed; 73 focused tests/495 assertions across 11 files passed, including 18 new regressions. The final touched-source run passed 40 tests/187 assertions across runtime and both new integration files, including thinking preservation. Expanded coverage reproduced one known direct-Bun temporary-import failure under 050; no claim of a green full suite or full installed Pi 0.99.1 certification. Tests use pinned Pi 0.73.1 and scripted local responses, with no external provider access.
+
+README/ARCHITECTURE/board updated. Frozen benchmark examples, published metrics and raw evidence remain unchanged; older matrices' production fingerprints intentionally differ now. Reproduce earlier campaigns from their recorded commits. Current recommendation: no new work selected; 061 cross-model/fair-native confirmation remains deferred.
+
+## Prior delivery — 060 tuning, October 1, 2026
 
 **User constraint:** optimize a model-independent Strata interface, not individual models. 060 selected one shared recipe, with no model-name branching; examples vary only by API schema. Muse/GLM rows identify the model using that profile. Keep model-specific prompts/helpers/policies out of future tuning; unseen-model confirmation is proposed in deferred 061, not selected.
 

@@ -1,6 +1,8 @@
 # Strata issue board
 
-**Latest delivery (2026-10-01): [060 — tuning trials](060-strata-tuning-trials.md).** Inventory checkpoint `730998c` was pushed before calls. Completed the four isolated prototype hypotheses and new-definition confirmation; retain the recipe experimentally, decline this helper/lean design, and mark feedback inconclusive because its changed branch never ran. [Report](../../docs/strata-tuning-results.md) publishes full sample counts, success/effects, requests/tokens/time/cost and all sanitized evidence. Production defaults unchanged; **no further work selected**. 053/058 and broader 059 discovery remain deferred.
+**Latest implementation delivery (2026-10-01): 058 explicit final-result selection, 053 action receipts and the narrow 052 inferred-return prerequisite.** User selected recommendations 2 and 3. Shared production session/Pi features now implemented; [contracts and limits](../../docs/results-and-recovery.md). Typecheck and 73 focused integration tests passed, including 18 new regressions and actual pinned Pi SDK/MCP recovery. Existing macOS direct-Bun import failure remains in 050; no paid benchmark or model-specific tuning. No further work selected; 061 remains deferred.
+
+**Prior delivery (2026-10-01): [060 — tuning trials](060-strata-tuning-trials.md).** Inventory checkpoint `730998c` was pushed before calls. Completed the four isolated prototype hypotheses and new-definition confirmation; retain the recipe experimentally, decline this helper/lean design, and mark feedback inconclusive because its changed branch never ran. [Report](../../docs/strata-tuning-results.md) publishes full sample counts, success/effects, requests/tokens/time/cost and all sanitized evidence. Production defaults unchanged; **no further work selected**. 053/058 and broader 059 discovery remain deferred.
 
 **Prior delivery (2026-10-01): [054 — broader composition benchmark](054-broader-composition-benchmark.md).** Checkpoint `7b64a4e` was pushed first; 20 definitions × three repetitions × two approaches × two models produced 240 evaluation attempts, plus 16 development attempts. Muse checked/native scored 60/60 vs 58/60 with 23% lower checked model cost; GLM 59/60 vs 56/60 with extra repair/time and 6% higher cost. Full requests/tokens/time/cost and format/effect distinctions are in the [report](../../docs/composition-benchmark.md). Cost $0.204487, 576 requests, failures retained. Production checking retained. **No further work selected.** [055](055-checking-attribution.md) records a deferred attribution study; 052/053 remain deferred.
 
@@ -22,7 +24,7 @@ Documentation update 2026-09-30: [Pi's later MCP/Codemode announcement and HN di
 
 Subsequent 049 delivery completed the bounded 021 policy pilot and narrow 048 native baseline described above. The candidate order below now reflects that delivery; confirmation, production policy changes and recurrence/retrieval under 047 remain unselected.
 
-### Candidate order if research is reopened
+### Historical candidate order before subsequent deliveries
 
 051's new discoveries are deferred prerequisites to a stronger critical-task claim: consider **052**'s inferred result contract first, then **053**'s action-identity/recovery evidence if a concrete effectful workflow justifies it, before another checking-policy confirmation under 021. Neither is selected, and neither authorizes a broader framework build.
 
@@ -35,6 +37,8 @@ For the user's broader comparison question, **054** owns the next proposed desig
 Large-catalog work (035) and a hybrid comparison (044) remain separate questions with their existing gates. This proposed order does not activate the backlog or authorize model spend.
 
 ## Goal and evidence path
+
+**Historical proposal before the subsequent 052/053/058 implementation selection:** 061 shared-recipe portability on unseen model families/new API workflows, with a fair native-Pi arm if claiming an overall Strata advantage → 058 explicit structured finalization (052 prerequisite) → 053 action receipts, moved earlier for critical writes. 059 catalog discovery and 055 checking attribution remain separate experiments. Details in each issue; this recommendation selects no implementation or paid run.
 
 **User design constraint after 060:** one shared Strata approach across models; no model-specific recipes/prompts/helpers/checking policies. 060 already used the same recipe with Muse and GLM. [061 — cross-model generalization](061-cross-model-generalization.md) captures a possible unseen-model confirmation; deferred, no new calls or implementation selected. Apply this constraint before choosing further shared-interface tuning; existing 053/055/058/059 scopes remain separate.
 
@@ -85,14 +89,14 @@ On September 14 the user selected documentation reconciliation and the recommend
 | [048 — Modern Pi Codemode baseline](048-modern-pi-codemode-baseline.md) | narrow 0.99.1 inspection and native baseline delivered in 049 (6/6); broader comparison deferred |
 | [049 — Checking-policy pilot](049-checking-policy-pilot.md) | delivered 2026-09-30: 36/36 strict, ~$0.0242; no natural semantic rejections, early checking prevents seeded effects; no default change |
 | [051 — GLM checking-policy repeat](051-glm-checking-policy-repeat.md) | delivered 2026-10-01: 26/36 strict, ~$0.0181; eight format failures, two recovery mistakes; production checking retained |
-| [052 — Program result contract](052-main-result-contract.md) | deferred; GLM scripts can pass checking but omit a return, then fail after effects; no fix selected |
-| [053 — Recovery action identity](053-recovery-action-identity.md) | deferred; distinguish old payments from the requested new action; incorrect claims can pass types/schemas |
+| [052 — Program result contract](052-main-result-contract.md) | delivered: known invalid inferred awaited root returns rejected before effects; runtime remains authoritative |
+| [053 — Recovery action identity](053-recovery-action-identity.md) | delivered: bounded acknowledged/uncertain/rejected action evidence and inspection guidance; no automatic retries/idempotency |
 | [054 — Broader composition benchmark](054-broader-composition-benchmark.md) | delivered: 240 evaluation + 16 development attempts; model-dependent Muse cost benefit/GLM repair penalty; full metrics and uncertainty |
 | [055 — Checking attribution](055-checking-attribution.md) | deferred: isolate semantic checking while holding declarations, prompts and guards constant; no run selected |
 | [036 — Prompt wording](036-prompt-ablation.md) | narrow recipe prototype retained experimentally in 060; broader wording/base-prompt tuning deferred |
 | [056 — Typed pagination helper](056-typed-pagination-helper.md) | prototype 060 did not meet cost gate; redesign/integration deferred |
 | [057 — Actionable compiler feedback](057-actionable-compiler-feedback.md) | prototype 060 inconclusive: no changed feedback delivered; further work deferred |
-| [058 — Canonical final JSON](058-canonical-final-json.md) | deferred; explicit structured-result selection and host serialization; depends on result/effect contracts |
+| [058 — Canonical final JSON](058-canonical-final-json.md) | delivered: explicit current-request/latest-success selection and host delivery; stale selection guards |
 | [060 — Tuning trials](060-strata-tuning-trials.md) | delivered: four development hypotheses, recipe-only new-definition confirmation; production unchanged |
 | [059 — Function presentation/discovery](059-function-surface-and-discovery.md) | alias-only 060 prototype not promoted; operation-level/larger-catalog discovery deferred; capability search/load exist |
 | [050 — macOS/Bun baseline failures](050-macos-bun-baseline.md) | deferred; baseline 168/28, affected Bun/setup paths outside the QuickJS pilot |

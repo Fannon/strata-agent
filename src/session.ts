@@ -1,4 +1,5 @@
 import { Workspace } from "./compiler/workspace.ts";
+import { RecoveryLedger } from "./recovery.ts";
 import { CapabilityBroker, type BrokerOptions, type Metrics } from "./capabilities/broker.ts";
 import { declarations, declarationsPreamble, parseDeclarationStyle, type DeclarationStyle } from "./capabilities/schemas.ts";
 import {
@@ -55,11 +56,18 @@ export async function createSession(
   broker.setTracer(sessionId, (event) => sink?.event(event));
   let programSeq = 0;
   let loadSeq = 0;
+  let turnFloor = 0;
+  let resultFloor = 0;
+  let selected: { program: string; json: string } | undefined;
+  const recovery = new RecoveryLedger();
+  broker.setReceiptRecorder(receipt => recovery.record(receipt));
+  const invalidateResults = () => { selected = undefined; resultFloor = programSeq; };
+
   // On-demand detail history for program_details (031). Bounded to the last
-  // 20 programs; stores logs + metrics snapshot only, never raw results.
+  // 20 programs; additionally retains bounded JSON for explicit finalization.
   const history = new Map<
     string,
-    { outcome: Metrics["outcome"]; error?: string; logs: string[]; metrics: Metrics }
+    { sequence: number; json?: string; outcome: Metrics["outcome"]; error?: string; logs: string[]; metrics: Metrics }
   >();
   return {
     get sessionId() {
@@ -71,6 +79,31 @@ export async function createSession(
     traceStats() {
       return { events: sink?.events ?? 0, dropped: sink?.dropped ?? 0 };
     },
+    /** Start a user-request scope; prior results cannot be silently reused. */
+    beginTurn() { turnFloor = programSeq; invalidateResults(); },
+    invalidateResults,
+    effects(program?: string, options: { offset?: number; limit?: number } = {}) {
+      if (closed) throw new Error("Session is closed.");
+      return { ...recovery.page(program, turnFloor, options.offset, options.limit), inspection: broker.inspectionOperations };
+    },
+    /** Explicitly choose the latest completed successful program of this request. */
+    selectResult(program: string) {
+      if (closed || active.size) throw new Error("Cannot finalize while the session is closed or work is still running.");
+      const entry = history.get(program);
+      if (!entry || entry.sequence <= resultFloor || entry.sequence !== programSeq || entry.outcome !== "ok" || entry.json === undefined)
+        throw new Error("Select the latest successful program from this request; older, failed or expired results cannot be finalized.");
+      selected = { program, json: entry.json };
+      sink?.event({ v: TRACE_VERSION, kind: "finalize", phase: "start", session: sessionId, program, outcome: "selected", wallMs: Date.now() });
+      return { ...selected };
+    },
+    /** One-shot host delivery; never fabricates an answer from an unselected result. */
+    consumeSelection() {
+      if (closed || active.size || !selected) return undefined;
+      const value = { ...selected };
+      selected = undefined;
+      sink?.event({ v: TRACE_VERSION, kind: "finalize", phase: "outcome", session: sessionId, program: value.program, outcome: "delivered", wallMs: Date.now(), bytes: Buffer.byteLength(value.json) });
+      return value;
+    },
     /** Bounded on-demand details for program_details (031). Throws on unknown id. */
     details(programId: string) {
       const entry = history.get(programId);
@@ -81,6 +114,7 @@ export async function createSession(
         ...(entry.error ? { error: entry.error } : {}),
         logs: [...entry.logs],
         metrics: structuredClone(entry.metrics),
+        recovery: recovery.has(programId) ? recovery.page(programId, turnFloor) : { expired: true, program: programId },
       };
     },
     /** Register another capability module in this live session (discovery load).
@@ -97,6 +131,7 @@ export async function createSession(
       options: { signal?: AbortSignal } = {},
     ) {
       if (closed) throw new Error("Session is closed; load aborted.");
+      invalidateResults();
       options.signal?.throwIfAborted();
       shutdown.signal.throwIfAborted();
       const runLoad = async (): Promise<string> => {
@@ -166,7 +201,10 @@ export async function createSession(
       options: { signal?: AbortSignal; timeoutMs?: number; executor?: ExecutorKind } = {},
     ) {
       const task = (async () => {
-        const programId = `${sessionId}:p${++programSeq}`;
+        const sequence = ++programSeq;
+        const programId = `${sessionId}:p${sequence}`;
+        selected = undefined;
+        recovery.start(programId, programSeq);
         const engine =
           options.executor === undefined ? sessionExecutor : parseExecutor(options.executor);
         const metrics: Metrics = {
@@ -231,7 +269,7 @@ export async function createSession(
             .map((d) => d.slice(0, 1500));
           if (compiled.diagnostics.length) {
             payload.error =
-              "TypeScript compilation failed. No capability calls were executed.";
+              "TypeScript compilation failed. No capability calls were executed by this program.";
             metrics.outcome = "compile-error";
           } else {
             const executionStart = performance.now();
@@ -253,7 +291,7 @@ export async function createSession(
               // them rather than leaving them implicitly incomplete. A late
               // connector completion records the same category via the broker.
               for (const call of metrics.calls) {
-                if (call.invoked && !call.failure) {
+                if (call.invoked && !call.acknowledged && !call.failure) {
                   call.failure = "cancelled";
                   if (!call.durationMs)
                     call.durationMs = performance.now() - start;
@@ -266,6 +304,7 @@ export async function createSession(
             error instanceof Error ? error.message : String(error);
           metrics.outcome = signal.aborted ? "cancelled" : "error";
         }
+        recovery.finish(programId);
         if (payload.error) payload.error = payload.error.slice(0, 1500);
         // Quiet success, loud error (031): only this bounded `text` becomes
         // Pi tool content. Success carries just { result, program } so logs
@@ -287,13 +326,15 @@ export async function createSession(
             logs: report.logs,
             program: programId,
             metrics: finalMetrics,
+            recovery: recovery.summary(turnFloor),
           };
         }
         let text = JSON.stringify(visible);
         if (Buffer.byteLength(text) > 23_900) {
           if (ok) {
-            // Unreachable in practice: worker caps results at 8192 chars.
-            // Still honor the programmatic contract (report.error) below.
+            // A multibyte result can fit the worker's character cap but exceed
+            // this byte cap. It must not remain selectable as a success.
+            finalMetrics.outcome = "error";
             report.result = undefined;
             report.logs = [];
             report.error =
@@ -302,6 +343,7 @@ export async function createSession(
               error: report.error,
               program: programId,
               outcome: finalMetrics.outcome,
+              recovery: recovery.summary(turnFloor),
             };
           } else {
             delete report.result;
@@ -315,18 +357,24 @@ export async function createSession(
               logs: report.logs,
               program: programId,
               metrics: finalMetrics,
+              recovery: { ...recovery.summary(turnFloor), receipts: [] },
             };
           }
           text = JSON.stringify(visible);
         }
+        if (Buffer.byteLength(text) > 23_900) {
+          visible = { error: report.error, program: programId, outcome: finalMetrics.outcome,
+            recovery: { ...recovery.summary(turnFloor), receipts: [] } };
+          text = JSON.stringify(visible);
+        }
         // Converge the self-counted byte metric with its serialized size.
-        if (!ok) {
+        if (visible.metrics) {
           (visible.metrics as Record<string, unknown>).diagnostics = finalMetrics.diagnostics;
           (visible.metrics as Record<string, unknown>).calls = finalMetrics.calls;
         }
         do {
           finalMetrics.bytesExposedToPi = Buffer.byteLength(text);
-          if (!ok) {
+          if (visible.metrics) {
             (visible.metrics as Record<string, unknown>).bytesExposedToPi =
               finalMetrics.bytesExposedToPi;
             text = JSON.stringify(visible);
@@ -337,9 +385,11 @@ export async function createSession(
         metrics.bytesExposedToPi = finalMetrics.bytesExposedToPi;
         finishProgram(finalMetrics.outcome);
         finalMetrics.traceDropped = sink?.dropped ?? 0;
-        // Bounded on-demand history for program_details (no raw result).
+        // Bounded host history; details omit the retained finalization JSON.
         try {
           history.set(programId, {
+            sequence,
+            ...(finalMetrics.outcome === "ok" && !report.error ? { json: JSON.stringify(report.result) } : {}),
             outcome: finalMetrics.outcome,
             ...(report.error ? { error: report.error } : {}),
             logs: [...(report.logs ?? [])],
@@ -367,8 +417,13 @@ export async function createSession(
     async close() {
       closePromise ??= (async () => {
         closed = true;
+        selected = undefined;
+        history.clear();
+        recovery.clear();
         shutdown.abort();
         await Promise.allSettled(active);
+        history.clear();
+        recovery.clear();
         let workspaceError: unknown;
         let hasWorkspaceError = false;
         try {

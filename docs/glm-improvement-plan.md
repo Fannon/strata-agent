@@ -2,13 +2,17 @@
 
 October 1, 2026. Inventory after [054](composition-benchmark.md), subsequently updated with completed [060 tuning results](strata-tuning-results.md). The benchmark implementation/results were pushed as `03e77a6`; the inventory was pushed as `730998c` before tuning. Production defaults remain unchanged.
 
+## Subsequent selected implementation
+
+The user next selected structured finalization and action receipts. [Implemented contracts](results-and-recovery.md) now document these shared features and the narrow inferred-return prerequisite. The earlier tuning measurements remain historical; no paid efficacy comparison ran for these additions. Cross-model confirmation and further discovery remain unselected.
+
 ## What we tested since this inventory
 
 **Design constraint: one shared approach across models.** The recipe is identical for Muse and GLM on a given task; its example is generated from API schema, not model identity. Model names in result rows identify evaluation conditions. Failures observed with GLM can reveal interface friction to fix for everyone; they do not justify a GLM-specific prompt. Preserve freedom to choose code structure and test shared changes against unseen models before claiming broader generalization.
 
 The user selected bounded prototypes of the prompt recipe, typed pagination helper, alias-only declaration deduplication and smaller diagnostics. **Retain the recipe as an experimental profile.** The helper introduced additional usage/inference repairs and did not meet the cost gate; lean declarations failed the correctness gate; smaller feedback never encountered a compile failure, so its benefit is unmeasured. The [report](strata-tuning-results.md#confirmation-on-new-definitions) records sample counts, success/effects, requests, tokens, time, cost and uncertainty for every arm.
 
-This delivered only the narrow prototypes in 060. Full system-prompt replacement, large-catalog search/load changes, canonical finalization and effect receipts remain deferred. For a further concrete business workflow, finalization addresses the remaining GLM formatting gap; prioritize receipts for critical writes. No further work is selected.
+This delivered only the narrow prototypes in 060. Full system-prompt replacement and large-catalog search/load changes remain deferred. Canonical finalization and effect receipts were subsequently selected and implemented as described above. For a further concrete business workflow, finalization addresses the remaining GLM formatting gap; prioritize receipts for critical writes. No further work is selected.
 
 ## Starting evidence
 

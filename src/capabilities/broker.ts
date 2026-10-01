@@ -2,6 +2,7 @@ import type { CapabilityConnector, CapabilityModule } from "./manifest.ts";
 import { DeniedError } from "./manifest.ts";
 import { validator, type ValidatorOptions } from "./schemas.ts";
 import { TRACE_VERSION, type TraceEvent } from "../trace.ts";
+import { evidence, type ActionReceipt } from "../recovery.ts";
 
 export type CallFailure =
   | "policy"
@@ -18,6 +19,8 @@ export interface CallMetric {
   /** Transport/backend identity from the connector, e.g. "mcp". */
   backend: string;
   invoked: boolean;
+  /** An accepted success response arrived before the program ended. */
+  acknowledged?: boolean;
   rawBytes: number;
   /** Monotonic broker-side duration in milliseconds. */
   durationMs: number;
@@ -67,9 +70,11 @@ export class CapabilityBroker {
       allowed: ReadonlySet<string>;
       inputs: Map<string, (value: unknown) => string | undefined>;
       outputs: Map<string, ((value: unknown) => string | undefined) | undefined>;
+      readOnly: Map<string, boolean | undefined>;
     }
   >();
   private tracer: TraceEmit | undefined;
+  private receiptRecorder: ((receipt: ActionReceipt) => void) | undefined;
   private sessionId = "adhoc";
   private callSeq = new Map<string, number>();
   private readonly outputFormats: ValidatorOptions;
@@ -91,6 +96,13 @@ export class CapabilityBroker {
     this.sessionId = sessionId;
     this.tracer = tracer;
   }
+  setReceiptRecorder(recorder: (receipt: ActionReceipt) => void) { this.receiptRecorder = recorder; }
+  get inspectionOperations() {
+    return [...this.modules].map(([capability, module]) => ({
+      capability,
+      operations: [...module.readOnly].filter(([op, readOnly]) => readOnly === true && module.allowed.has(op)).map(([op]) => op).slice(0, 10),
+    })).filter(m => m.operations.length).slice(0, 10);
+  }
   /** Register another capability module in a live session (discovery load). */
   addModule(
     manifest: CapabilityModule,
@@ -108,7 +120,7 @@ export class CapabilityBroker {
         op.outputSchema ? validator(op.outputSchema, this.outputFormats) : undefined,
       );
     }
-    this.modules.set(manifest.id, { connector, allowed, inputs, outputs });
+    this.modules.set(manifest.id, { connector, allowed, inputs, outputs, readOnly: new Map(manifest.operations.map(op => [op.name, op.metadata?.readOnly])) });
   }
   /** Loaded capability surfaces, for worker bindings. */
   get surfaces(): Array<{ capability: string; operations: string[] }> {
@@ -142,6 +154,13 @@ export class CapabilityBroker {
       durationMs: 0,
     };
     metrics.calls.push(record);
+    const readOnly = module?.readOnly.get(operation);
+    const receipt: ActionReceipt | undefined = readOnly === true || !this.receiptRecorder ? undefined : {
+      call: record.callId, program, capability: record.capability, operation: record.operation,
+      effect: readOnly === false ? "write" : "unknown", status: "not-executed", input: evidence(input),
+    };
+    const recordReceipt = () => { if (receipt) this.receiptRecorder?.(receipt); };
+    recordReceipt();
     const started = performance.now();
     const elapsed = () => performance.now() - started;
     const emit = (phase: "start" | "outcome", outcome?: string, detail?: string) =>
@@ -168,6 +187,11 @@ export class CapabilityBroker {
       });
     const fail = (stage: CallMetric["failure"], message: string): never => {
       record.failure = stage;
+      if (receipt) {
+        receipt.status = !record.invoked || stage === "denied" ? "not-executed" : "uncertain";
+        receipt.failure = stage;
+        recordReceipt();
+      }
       record.durationMs = elapsed();
       if (stage === "policy" || stage === "denied") metrics.policyFailures++;
       if (stage === "input" || stage === "output") metrics.validationFailures++;
@@ -183,6 +207,7 @@ export class CapabilityBroker {
     if (inputError) fail("input", inputError);
     signal.throwIfAborted();
     record.invoked = true;
+    if (receipt) { receipt.status = "uncertain"; recordReceipt(); }
     metrics.capabilityCalls++;
     let result;
     try {
@@ -212,6 +237,13 @@ export class CapabilityBroker {
     }
     if (result.isError) fail("transport", "capability returned isError");
     const finishOk = (value: unknown) => {
+      record.acknowledged = true;
+      if (receipt) {
+        receipt.status = "confirmed";
+        receipt.response = evidence(value);
+        receipt.responseValidated = !!outputValidator;
+        recordReceipt();
+      }
       record.durationMs = elapsed();
       emit("outcome", "ok");
       return value;

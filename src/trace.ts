@@ -21,7 +21,7 @@ import { appendFileSync } from "node:fs";
  */
 export const TRACE_VERSION = 1 as const;
 
-export type TraceKind = "program" | "call" | "load";
+export type TraceKind = "program" | "call" | "load" | "finalize";
 export type TracePhase = "start" | "outcome";
 
 export interface TraceEvent {

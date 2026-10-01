@@ -1,6 +1,6 @@
 # 052 — Check the program result contract before effects
 
-Status: DEFERRED — discovered during authorized GLM pilot 051; no implementation selected
+Status: DELIVERED 2026-10-01 — selected implementation complete; model-free production/session/Pi integration verified
 Dependencies: 051 (observed missing-return failures), 021 (scope of semantic checking)
 
 ## Evidence
@@ -18,3 +18,9 @@ Consider a small inferred-return contract check and clear guidance to return the
 ## Acceptance if selected
 
 Demonstrate pre-execution rejection of the observed missing-return example, with no capability invocation; preserve normal inferred JSON returns and useful repair diagnostics. Measure whether model repairs improve on fresh tasks if an efficacy claim is made. Preserve 049/051 frozen sources, grading and raw evidence. This issue does not authorize a production change or another paid experiment.
+
+## Delivered implementation
+
+The user selected structured finalization and action receipts, including this narrow prerequisite. The compiler now checks the inferred awaited root return type and rejects known void/undefined, bigint, symbol or function alternatives before capability calls. Normal inferred JSON returns remain accepted; any/unknown, assertions, nested values, cycles and actual budgets remain runtime responsibilities. Never remains legal. No paid efficacy claim is made.
+
+Regression reproduces the missing-return payment example with zero invocations and covers mixed returning paths, accepted inference and runtime escape cases. [Implemented contracts](../../docs/results-and-recovery.md), [tests](../../test/integration/finalization-recovery.test.ts). Earlier experiment sources/results are preserved; their production hashes refer to their measured revision.
