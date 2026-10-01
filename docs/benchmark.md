@@ -1,5 +1,7 @@
 # Fixture benchmark runner (protocol 009-v2)
 
+**Latest whole-system comparison (2026-10-01):** [054 report](composition-benchmark.md) covers 20 distinct workflows and 240 paired native Pi/checked Strata attempts, plus 16 development attempts. Muse has a measured model-cost advantage; GLM requires more repairs and time. Full requests/tokens/time/cost, effects, output compliance and uncertainty are published. This uses the actual production checked session without changing defaults; earlier measurements below remain dated evidence.
+
 The runner now rejects misleading answer matches and distinguishes task correctness from execution, tool adherence and accounting. It is a deterministic evaluation foundation, not evidence that Strata outperforms another harness. The historical `001-v1` artifacts remain unchanged. See [evaluation design](evaluation.md) for later native tasks and comparisons.
 
 ## Offline first

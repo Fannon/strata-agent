@@ -1,5 +1,7 @@
 # Implemented architecture and investigation notes
 
+**Subsequent comparison (2026-10-01):** [054 report](docs/composition-benchmark.md) covers 20 distinct workflows and 240 paired native Pi/checked Strata attempts, plus 16 development attempts. Muse has a measured model-cost advantage; GLM requires more repairs and time. Full requests/tokens/time/cost, effects, output compliance and uncertainty are published. This uses the actual production checked session without changing defaults; earlier measurements below remain dated evidence.
+
 Wrap-up documentation review: 2026-09-22 against `4e2df5d`. This unfinished research prototype is not intended for productive use; the [review](docs/wrap-up.md) recommends pausing. Historical investigation sections retain their dates. Architectural direction is in [ACD.md](ACD.md); comparative evidence requirements are in [docs/evaluation.md](docs/evaluation.md).
 
 ## Decision

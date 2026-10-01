@@ -8,9 +8,9 @@ An agent often needs to find information, make several related calls, and combin
 
 The prototype is an extension for Pi, a coding agent. The broader research question applies to agents working with local tools and remote services.
 
-**Current finding (2026-10-01): typed composition works across two model families, and early checking can prevent detectable mistakes before tool calls run.** The small Muse Spark comparison also showed an encouraging efficiency signal against native Pi Codemode: matching success with fewer tokens, lower estimated cost and shorter median wall time. GLM did not repeat that efficiency advantage. The measurements below include correctness, model requests, tokens, time and cost; they are development evidence rather than a general performance claim.
+**Current finding (2026-10-01): checked composition now has a measurable cost advantage with Muse Spark on a broader synthetic corpus.** Across 20 workflows repeated three times, checked Strata scored 60/60 versus native Pi Codemode's 58/60, using 28% fewer tokens and 23% lower estimated model cost. Median time was similar. With GLM, checking used fewer tokens but needed more repair turns, cost 6% more and took longer. This is a model-dependent result, not a general performance claim.
 
-Strata keeps checking before execution, returns diagnostics when checking fails, and keeps clean checks out of model context. The September 30/October 1 pilots are complete. The user has selected [broader benchmarking](.work/issues/054-broader-composition-benchmark.md) after this documentation checkpoint is published; it has not run yet. The [September 22 wrap-up](docs/wrap-up.md) remains the historical repository/application checkpoint.
+Strata retains checking before execution, returns diagnostics on errors and keeps clean checks out of model context. The [240-attempt comparison](docs/composition-benchmark.md) is complete, with separate answer, effect and output-format scores. The earlier [checking-policy pilots](docs/checking-policy-comparison.md) and [September 22 wrap-up](docs/wrap-up.md) remain historical evidence. Documentation was pushed as `7b64a4e` before the broader run.
 
 ## The idea: tools as functions
 
@@ -73,7 +73,24 @@ Comparisons need to give the alternatives equivalent access to data and tools. O
 
 **Early checking demonstrated a prevention benefit.** Given deliberately broken scripts, it caught a result-field error before an earlier simulated payment could execute, and caught a field typo that otherwise silently returned an empty answer. Runtime schema validation and permissions stayed enabled under every policy. These are controlled mechanism results within Strata's checking-policy comparison; native Pi was not included in the seeded-recovery arms, and no naturally generated semantic errors appeared in these small tasks.
 
-### Latest comparison with native Pi
+### Latest comparison with native Pi — 20 workflows
+
+Each row covers **20 distinct definitions, three fresh repetitions = 60 attempts**. A turn is one model request; tokens include input, cached input and output without adding reasoning again. Answer + state requires the requested JSON content and exact effects; one unambiguous JSON fence is accepted. Pure JSON success also requires an unwrapped final answer. All-attempt averages, timing and cost per success include failures.
+
+| Model / approach | Answer + state | Pure JSON success | Requests/attempt | Tokens/attempt | Median / P90 seconds | $/attempt | $/scored success |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| Muse, native Pi | 58/60 | 58/60 | 2.12 | 8,614 | 10.46 / 25.88 | $0.000844 | $0.000873 |
+| Muse, checked Strata | 60/60 | 60/60 | 2.13 | 6,207 | 10.87 / 23.12 | $0.000653 | $0.000653 |
+| GLM, native Pi | 56/60 | 49/60 | 2.17 | 6,847 | 6.74 / 21.45 | $0.000858 | $0.000919 |
+| GLM, checked Strata | 59/60 | 36/60 | 2.57 | 6,004 | 13.16 / 29.92 | $0.000910 | $0.000925 |
+
+The Muse cost reduction appears across all five families; its task-block bootstrap cost ratio is 0.774 (95% descriptive interval 0.649–0.907). Reliability intervals include parity. GLM needed 18.5% more requests and roughly twice the median time with checking, and its pure JSON compliance was worse. Its cost difference is uncertain. Both approaches still make semantic business mistakes; types do not replace state verification.
+
+Native Muse overpaid ten simulated invoice payments after using a nonexistent invoice field. Checked Strata made every required effect correctly across both models, but one GLM run then wrongly claimed it had added no payments. The compiler rejected 32 naturally generated programs before calls from those programs ran, including strict typing issues that JavaScript would tolerate. Quiet checking remains the default; the new comparison does not isolate the compiler from interface and runtime differences.
+
+The [full report](docs/composition-benchmark.md) includes task families, failures, token/cache/reasoning breakdowns, P90 time and task-block uncertainty. [Sanitized metrics](docs/evaluations/composition-2026-10-01.json) cover all 240 evaluation and 16 separate development attempts. Total new estimated model cost was **$0.2045**. [055](.work/issues/055-checking-attribution.md) records the deferred experiment to isolate checking itself.
+
+### Earlier small comparison with native Pi
 
 Each row covers **two natural tasks, three fresh repetitions each**. A request is one model turn; tokens include input, cached input and output without adding reasoning again. Averages and cost per success include failed attempts. Dollar amounts are estimates from recorded usage, not provider bills.
 
@@ -102,7 +119,7 @@ The complete [comparison report](docs/checking-policy-comparison.md) includes al
 
 **Checking needs meaningful contracts, and recovery needs correctly interpreted state.** The GLM repeat produced scripts that passed checking but omitted a return; the current compiler permits that return type, so the runtime reported the error after execution. In one recovery, the model treated an old payment as evidence that the requested new payment existed, skipped it and reported success. Types and runtime schemas accepted the program; independent state grading caught the omission. The [second-model report](docs/glm-checking-policy-repeat.md) records these failures and the deferred contract/recovery questions. We retain checking before execution with quiet success and diagnostic feedback.
 
-The repository/application comparisons predominantly used one model; the later synthetic pilots include two model families but only two natural task definitions. Together they demonstrate composition and some prevention benefits, an unconfirmed efficiency signal, and concrete limitations. They leave the size and practical value of those benefits open.
+The repository/application comparisons predominantly used one model; the small checking pilots used two natural task definitions. The latest synthetic comparison expands to 20 definitions and two model families, with a Muse cost advantage and a GLM repair/time penalty. Real-service generalization and the isolated value of semantic checking remain open.
 
 ## Later related work
 

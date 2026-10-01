@@ -1,12 +1,24 @@
 # Next-agent handoff
 
-Subsequent user authorization, October 1: after committing/pushing this documentation checkpoint, improve/extend the benchmark under [054](../.work/issues/054-broader-composition-benchmark.md), run the comparison and report findings. This is the next selected work. Freeze tasks, scoring, limits and accounting before paid calls. Production 052/053 fixes remain deferred; no new benchmark calls occurred while preparing the publication below.
+## Latest delivery — October 1, 2026
 
-Reporting/publication checkpoint, October 1: the user requested committing and pushing the current state before any new benchmark. README now leads with the demonstrated prevention benefit and a cautiously encouraging Muse Spark efficiency observation. The [complete comparison](checking-policy-comparison.md) and [sanitized 72-cell data](evaluations/checking-policy-2026-10-01.json) publish requests, input/output/cache/reasoning tokens, wall time and cost alongside correctness. `examples/checking/compare.ts` regenerates that export from local artifacts without model calls. AGENTS.md requires these metrics in future comparisons. [054](../.work/issues/054-broader-composition-benchmark.md) proposes 20 distinct workflows and a paired 240-cell evaluation; it is not selected and no new model run has started.
+[054](../.work/issues/054-broader-composition-benchmark.md) is complete. The README/docs checkpoint was pushed as `7b64a4e` before benchmark work. Implemented `examples/composition/`, ran four disjoint development definitions (16 attempts), then 20 evaluation definitions × three worlds × native/checked × two models (240 attempts). No failures were replaced. [Report](composition-benchmark.md); [sanitized data](evaluations/composition-2026-10-01.json).
 
-Latest delivery, October 1: [051](../.work/issues/051-glm-checking-policy-repeat.md) repeated 049's frozen 36-cell matrix with OpenRouter `z-ai/glm-5.3-flash`, low reasoning in every profile. **26/36 strict successes**, all processes healthy, estimated cost **$0.01813044**. Eight failures concern answer formatting; two concern payment recovery. All 24 natural attempts had correct content/effects after diagnostic outer-fence removal. Three model-generated scripts logged instead of returning and failed at runtime; no generated semantic diagnostics. Production checking before execution is retained. See the [report](glm-checking-policy-repeat.md). No further run or implementation is selected.
+Muse medium: native 58/60 versus checked 60/60 answer/state success; requests 2.12/2.13, tokens 8614/6207, median time 10.46/10.87 s, cost/attempt $0.000844/$0.000653. Checked model cost is 22.6% lower, with a task-block interval below parity on this corpus. GLM low: native 56/60 versus checked 59/60; requests 2.17/2.57, tokens 6847/6004, median time 6.74/13.16 s, cost/attempt $0.000858/$0.000910. One native GLM primary failure is serialization-only; pure JSON successes were 49/60 native and 36/60 checked. Reliability differences remain uncertain.
 
-051 preserves separate artifacts under `.work/checking-20261001-glm-v1/`; its launcher is `examples/checking/run-glm.ts`. All 049 source hashes and installed-Pi fingerprints stayed unchanged. The summarizer reads version/model/thinking from the matrix, so a GLM aggregate is not mislabeled as 049. [052](../.work/issues/052-main-result-contract.md) records the inferred `main()` return-contract gap; [053](../.work/issues/053-recovery-action-identity.md) records an old payment mistaken for a completed new action. Both are deferred, not selected fixes. Retain independent state grading: one checked recovery returned the expected success answer but omitted the payment.
+Checked effects were correct in all 120 evaluation attempts. Native Muse made ten wrongly valued simulated payments (two repetitions of one task); native GLM omitted five required payments in one runaway program. No duplicate/unintended-target writes. Checked GLM made the correct payments but later denied having added them. Thirty-two compiler rejections preceded any calls from those programs; many were strict typing/inference repairs. Preserve quiet checking; this whole-system comparison does not isolate the semantic gate.
+
+Paid work cost $0.204487 over 576 requests including development; combined with the prior pilots $0.246816. Frozen matrix/source hashes, all results, transcripts, profiles and state are local in `.work/composition-20261001-v1/`. Development controller sources/matrix were archived before usage/resume guard tightening; prompts, tasks, scoring and runtime were unchanged. Both requested reasoning settings were verified from every payload. Sources for 049/051 remain intact. Never run `--prepare` over existing evidence; a future authorized replay requires a fresh output directory/catalog and installed Pi path.
+
+Verification: typecheck; 78 model-free contract/state/session checks; 72 independent SQL answer-oracle checks. Full-suite macOS/Bun baseline failures remain deferred under 050. The benchmark uses the production checked session but an experimental Pi 0.99.1 extension; the project still pins Pi 0.73.1, and full extension compatibility was not certified.
+
+## Next selected work
+
+None. [055 — checking attribution](../.work/issues/055-checking-attribution.md) is newly recorded, deferred: hold declarations/prompts/guards constant while varying only the semantic gate, if the user selects it. Production return-contract 052 and action-identity 053 fixes, catalog scaling, hybrid tools and new models remain unselected. Do not expand scope from this handoff.
+
+## Historical checkpoints
+
+The following dated records explain earlier decisions and environments. Statements about selected work/spend below describe those checkpoints, not the current assignment.
 
 Reviewed 2026-09-22 against `4e2df5d` and accompanying documentation changes. Read [AGENTS.md](../AGENTS.md), [README](../README.md), the [wrap-up review](wrap-up.md) and the [issue board](../.work/issues/index.md). The board owns ordering. Recommendation: pause this unfinished research prototype; no further experiment is selected.
 
@@ -16,7 +28,7 @@ October 1 documentation review of the same run: [expanded lessons](checking-poli
 
 The experiment harness lives in `examples/checking/`; its policies are not production session options. Raw matrices, installed-Pi fingerprints, transcripts and state are ignored under `.work/checking-20260930-v2/`. `--prepare` needs a public OpenRouter catalog at `/tmp/strata-openrouter-models.json`; paid phases are explicitly `--baseline` then `--experiment`, with source hashes and resume-safe cell tracking. Do not rerun paid phases without a newly selected scope. Initial zero-token HTTP 401 artifacts are preserved under `.work/checking-20260930/`.
 
-## Current decision
+## Historical application decision (September 19)
 
 Pilot v2 observed **typed 9/18 strict at $0.0290/success versus direct 15/18 at $0.0069/success** (preserved, confounded). The earlier "healthy negative" interpretation is superseded: a confirmed validation-policy mismatch made v2 an observed negative with a confound, not a clean matched comparison — the typed Pi `sessionFromConfig` MCP path ignored `compat.acceptNaiveDateTime` while the direct-tool extension applied it.
 
@@ -30,7 +42,7 @@ Pilot v2 observed **typed 9/18 strict at $0.0290/success versus direct 15/18 at 
 - Both arms preloaded their app-specific operation sets (54/81/98); lazy discovery was not tested. Direct retained shell/files while typed was strict. Per-cell latency was not measured.
 - Earlier repository trials also found no demonstrated overall advantage; compact declaration development gains did not survive confirmation. See [repository report](repo-trials.md) and [042](../.work/issues/042-matched-application-comparison.md).
 
-## Recommended next assignment
+## Historical recommended assignment
 
 [045](../.work/issues/045-pilot-entrypoint-validation-parity.md) and [046](../.work/issues/046-post-parity-comparison-v3.md) are both delivered 2026-09-19. No new comparison, heavier-compute probe, hybrid 044, REST integration or catalog scaling is selected: Declaration overhead and per-task costs provide no demonstrated winning category; they do not rule out gains on different workloads. The wrap-up recommendation is to pause until a concrete use case justifies a bounded test (including reuse under 047). Narrowing or stopping remains valid. Any future model run needs its own version, frozen matrix and spend cap; preserve v2/v3 with reused tasks as development material.
 
