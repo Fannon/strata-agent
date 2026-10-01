@@ -1,6 +1,6 @@
 # 036 — Prompt-wording ablation for typed instructions
 
-Status: backlog, idea only (do not start with current slices)
+Status: narrow recipe prototype delivered under 060; broader wording/base-prompt ablation remains deferred
 Kind: follow-up experiment design; separated from 004 declaration work
 Source: user discussion 2026-09-06 — prompt repairs for diagnosed failures
 worked (path-prefix echo); general prompt optimization needs its own control.
@@ -58,3 +58,7 @@ Candidate next prompt arms, only if selected: current instructions; terse recipe
 For a separate dedicated business-agent comparison, trimming/replacing Pi's coding-oriented base prompt is another candidate. This would be a new scope beyond the original above, which intentionally holds Pi's base prompt fixed. Compare equivalent base instructions for both native and Strata, preserve the runtime/tool constraints, and record every effective prompt. Do not mix base-prompt changes with new helpers, checking policies or function loading in the same attribution test.
 
 Prompt profiles are currently code constants rather than a shipped, versioned user-selectable Strata prompt configuration. No prompt changes or paid tuning calls were made in this inventory. Suggested priority: a small correct recipe/example alongside 056's helper design, then an isolated wording test; 059 separately captures function presentation and tool search.
+
+## 060 outcome
+
+The user subsequently authorized the bounded prototype only. See [tuning report](../../docs/strata-tuning-results.md) for the full hypotheses, comparisons, selection, confirmation and decisions, including all success/effect/request/token/time/cost evidence. Existing broader scope and acceptance criteria above remain proposals, not newly selected work. Production defaults are unchanged.

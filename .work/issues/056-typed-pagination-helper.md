@@ -1,6 +1,6 @@
 # 056 — Reduce pagination and generic-type repair work
 
-Status: DEFERRED — proposed in the authorized post-054 documentation review; no implementation or paid trial selected
+Status: narrow prototype delivered under 060 — not promoted; broader redesign/integration remains deferred
 Dependencies: 054 evidence; 005 execution limits; 055 if attributing gains to checking
 
 ## Evidence and hypothesis
@@ -18,3 +18,7 @@ Compare a helper with a small correct inline example on disjoint development tas
 ## Acceptance if selected
 
 Verify complete pagination and exact row-type inference, nullable cursor handling, repeated-cursor/record limits and preservation of missing-property diagnostics. Test against fresh tasks with both models, counting answers/effects, formatting, requests, tokens, time and all costs. Preserve 054 as the unchanged baseline; use a new version rather than replacing its failures.
+
+## 060 outcome
+
+The user subsequently authorized the bounded prototype only. See [tuning report](../../docs/strata-tuning-results.md) for the full hypotheses, comparisons, selection, confirmation and decisions, including all success/effect/request/token/time/cost evidence. Existing broader scope and acceptance criteria above remain proposals, not newly selected work. Production defaults are unchanged.

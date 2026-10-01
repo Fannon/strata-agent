@@ -2,6 +2,8 @@
 
 **October 1 broader evidence (2026-10-01):** [054 report](composition-benchmark.md) covers 20 distinct workflows and 240 paired native Pi/checked Strata attempts, plus 16 development attempts. Muse has a measured model-cost advantage; GLM requires more repairs and time. Full requests/tokens/time/cost, effects, output compliance and uncertainty are published. This uses the actual production checked session without changing defaults; earlier measurements below remain dated evidence.
 
+**Later tuning (2026-10-01):** [060 report](strata-tuning-results.md) documents four isolated development hypotheses and fresh confirmation of a short programming recipe. Retain the recipe experimentally; generic helper and alias-only declaration prototypes did not earn promotion, and the smaller-feedback branch was never exercised. Full sample/success/effect/request/token/time/cost comparisons and uncertainty are in the report. Production defaults remain unchanged; no additional run is selected.
+
 *For software developers and architects. No prior knowledge of the internal benchmarks assumed. Historical checkpoint reviewed 2026-09-22; checking-policy interpretation updated 2026-10-01.*
 
 **Recommendation: pause at this research checkpoint.** The mechanism works, but measured task outcomes do not justify further general framework development. No next experiment is selected. See the [wrap-up review](wrap-up.md) for verification and restart criteria.

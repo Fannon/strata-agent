@@ -1,6 +1,6 @@
 # 060 — Bounded prompt/helper/presentation/feedback tuning trials
 
-Status: SELECTED 2026-10-01 — user requested hypotheses, actual tests, overall improvement attempt and a documented report
+Status: DELIVERED 2026-10-01 — four development hypotheses tested and recipe confirmed on new definitions; production defaults unchanged
 Dependencies: 054 frozen baseline; 036 prompt hypothesis; 056 helper; 057 feedback; 059 alias-only presentation
 
 ## Authorized scope
@@ -16,3 +16,15 @@ Freeze sources, actual tasks, prompts, selection rule and limits before paid cal
 Continue the existing €5 allowance, with $0.246816 estimated spend so far. Use a simple $3.75 cap for new work, eight requests/cell, 4096 output tokens/request, 262144 payload bytes/request, 180 seconds/cell and four concurrent workers. Muse medium / GLM low fixed within comparisons; complete usage and source hashes required. Report all development costs separately from confirmation, including failures, formats, effects and practical tradeoffs.
 
 Complete with a reproducible prototype, independent answer/state checks, sanitized results, a retain/narrow/revert recommendation and updated README/report/handoff. Commit/push the documentation inventory first as requested; no paid calls occurred during that inventory.
+
+## Development checkpoint and confirmation selection
+
+Frozen 060-v1 development: 60 attempts, estimated $0.047746. Recipe 6/6 both models; baseline Muse 6/6, GLM 5/6. Recipe mean cost ratios 0.774/0.829, no development compiler rejections. Helper cost ratios 1.008/1.043; lean had a Muse effect regression and a GLM answer regression; smaller feedback never activated its compile-error presentation branch, so its apparent variation cannot establish benefit. Select recipe only for 72 confirmation attempts. Eligibility thresholds and maximum combination size were frozen before development; choosing recipe over the also-eligible feedback arm by lower model-normalized mean cost was specified after development, before confirmation. No holdout result influenced it. Selection.json is frozen separately and recorded in the report. No prompt revision or second development matrix.
+
+## Delivery and decision
+
+132 paid attempts completed: 60 development and 72 confirmation, 350 requests, 1,183,764 reported tokens, estimated $0.135026586. All healthy and usage known; failures retained. [Full report](../../docs/strata-tuning-results.md) and [sanitized metrics](../../docs/evaluations/tuning-2026-10-01.json) record distinct tasks, answers/effects/formatting, requests/tokens/time/cost, uncertainty and observed failure reasons. Recipe is retained as the experimental profile; no production changes. Helper adds usage/typing repair and cost, lean fails an effect-correctness gate, feedback has no activated changed branch and remains inconclusive.
+
+Confirmation has six new definitions and three worlds, not 18 independent tasks. Recipe business/state success is 18/18 per model versus baseline 17/18; strict total remains equal at 31/36 because GLM formatting persists. Both baseline failures concern N2. Report/table owns the complete efficiency comparison; don't present the reliability difference without its uncertainty or imply a new native-Pi advantage.
+
+Verified typecheck and 57 model-free checks, including 18 independent SQL oracle comparisons; audit all 132 raw usage/state records and frozen sources including prior campaigns/installed Pi. README, inventory, reports and canonical handoff updated. Completion criteria fulfilled; no further implementation or paid run selected.

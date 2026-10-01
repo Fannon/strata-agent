@@ -1,6 +1,25 @@
 # Next-agent handoff
 
-## Latest delivery — October 1, 2026
+## Latest delivery — 060 tuning, October 1, 2026
+
+[060](../.work/issues/060-strata-tuning-trials.md) is complete: 60 development attempts across baseline/recipe/helper/lean/feedback, then 72 confirmation attempts on six new definitions × three worlds × two arms × two models. Inventory checkpoint `730998c` was pushed before paid calls. [Report](strata-tuning-results.md), [sanitized 132-cell evidence](evaluations/tuning-2026-10-01.json), prototype in `examples/tuning/`. Retain recipe only as an experimental profile; helper added repairs/cost, lean failed correctness, smaller feedback never activated. Production defaults and earlier frozen sources/results are unchanged.
+
+Every confirmation row covers six distinct definitions and 18 attempts; requests are model turns, tokens include cache/output, failures stay in averages:
+
+| Model/profile | Answer + state | Strict | Effects | Requests/attempt | Tokens/attempt | Median seconds | $/attempt |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| Muse baseline | 17/18 | 17/18 | 17/18 | 3.22 | 14,643 | 25.87 | $0.001459 |
+| Muse recipe | 18/18 | 18/18 | 18/18 | 2.39 | 10,186 | 16.86 | $0.001039 |
+| GLM baseline | 17/18 | 14/18 | 17/18 | 3.00 | 9,791 | 22.30 | $0.001342 |
+| GLM recipe | 18/18 | 13/18 | 18/18 | 2.50 | 7,446 | 16.04 | $0.001009 |
+
+Strict successes stayed 31/36 per arm. Two baseline failures were the same N2 allocation definition; no general reliability superiority. Muse cost ratio interval stays below parity; GLM's includes parity. This compares checked profiles, with shared program_details access, not native Pi or a checking ablation. Selection gates were frozen; the precise cost tie-break was decided after development before confirmation. Do not describe it as fully prespecified. Selection hash and limits are in the report.
+
+Tuning cost $0.135026586 over 350 requests; September 30/October 1 sequence $0.381842432, separate from the historical approximately $1.21. All 132 attempts healthy with complete usage; no paid failures replaced. Raw evidence under ignored `.work/tuning-20261001-v1/`. `bun run check` and 57 model-free preflight checks (including 18 SQL oracle comparisons) pass. Source/usage audit preserves 049/051/054 and installed Pi fingerprints. Do not mutate or prepare over existing evidence; inspected tasks are now development/regression material.
+
+No further work selected. Potential separately selected work: 058 canonical final JSON, 053 action receipts for critical writes, 055 checking attribution, or broader 059 discovery. Recipe integration into the full production extension is separate from this prototype. No additional paid calls are needed to close 060.
+
+## Prior delivery — 054, October 1, 2026
 
 [054](../.work/issues/054-broader-composition-benchmark.md) is complete. The README/docs checkpoint was pushed as `7b64a4e` before benchmark work. Implemented `examples/composition/`, ran four disjoint development definitions (16 attempts), then 20 evaluation definitions × three worlds × native/checked × two models (240 attempts). No failures were replaced. [Report](composition-benchmark.md); [sanitized data](evaluations/composition-2026-10-01.json).
 
@@ -16,9 +35,9 @@ Verification: typecheck; 78 model-free contract/state/session checks; 72 indepen
 
 The user requested updated docs/publication and ideas after the run, then explicitly asked about system prompts, function presentation and tool search. [Inventory/plan](glm-improvement-plan.md) now documents the actual full extension versus the 054 harness. Corrected the report’s “unknown caught errors” wording: the inspected TS18046 diagnostics concern unknown page/row values. Nineteen checked GLM attempts had rejections; sixteen rejected programs declared pagination helpers. Existing scores, sources and shipped runtime stayed unchanged; no paid calls.
 
-## Next selected work
+## Selection record for the delivered tuning
 
-Subsequent user authorization selects [060](../.work/issues/060-strata-tuning-trials.md): test prompt/helper/alias-only-presentation/feedback variants, then report improvements and regressions with fresh confirmation. Freeze the new sources/tasks/selection rule/limits first; preserve prior evidence. The initial inventory recommendation was: a small correct prompt example ([036](../.work/issues/036-prompt-ablation.md)), typed pagination helper [056](../.work/issues/056-typed-pagination-helper.md), smaller feedback [057](../.work/issues/057-actionable-compiler-feedback.md), effect receipts [053](../.work/issues/053-recovery-action-identity.md) (earlier for write-heavy uses), then explicit final JSON [058](../.work/issues/058-canonical-final-json.md). [059](../.work/issues/059-function-surface-and-discovery.md) separately captures alias-only deduplication, presentation and operation-level discovery. [055](../.work/issues/055-checking-attribution.md) remains the separate attribution question; 052’s inferred-result contract is relevant to finalization. Only the experiment prototypes explicitly scoped under 060 are selected; effect receipts/finalization, production policy changes and larger-catalog discovery remain deferred. Do not expand scope from this recommendation.
+Subsequent user authorization selected the narrow prototypes under 060, now delivered above. The inventory's broader prompt/discovery/receipt/finalization suggestions did not authorize additional implementation. Preserve that distinction; do not expand scope from the original working order.
 
 ## Historical checkpoints
 

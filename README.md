@@ -12,6 +12,8 @@ The prototype is an extension for Pi, a coding agent. The broader research quest
 
 Strata retains checking before execution, returns diagnostics on errors and keeps clean checks out of model context. The [240-attempt comparison](docs/composition-benchmark.md) is complete, with separate answer, effect and output-format scores. The earlier [checking-policy pilots](docs/checking-policy-comparison.md) and [September 22 wrap-up](docs/wrap-up.md) remain historical evidence. Documentation was pushed as `7b64a4e` before the broader run.
 
+**Later tuning improved the checked approach on both models.** A short correct programming recipe reduced measured cost and repair work on six new workflows. The helper and shorter declarations did not earn promotion; GLM output formatting remains unresolved. See the [132-attempt tuning report](docs/strata-tuning-results.md). This is a Strata-versus-Strata experiment; production defaults remain unchanged.
+
 ## The idea: tools as functions
 
 A command-line tool, an MCP tool (a tool exposed through the Model Context Protocol), and a REST API all offer operations an agent can call. Could they share a useful programming interface, even though they run in different places?
@@ -90,6 +92,19 @@ Native Muse overpaid ten simulated invoice payments after using a nonexistent in
 
 The [full report](docs/composition-benchmark.md) includes task families, failures, token/cache/reasoning breakdowns, P90 time and task-block uncertainty. [Sanitized metrics](docs/evaluations/composition-2026-10-01.json) cover all 240 evaluation and 16 separate development attempts. Total new estimated model cost was **$0.2045**. [055](.work/issues/055-checking-attribution.md) records the deferred experiment to isolate checking itself.
 
+### Prompt tuning after that comparison
+
+Six new definitions × three generated worlds = **18 attempts per row**, following 60 separate development attempts. Same checked session and full types; the recipe adds a correct pagination example and inference/Map guidance. Requests are model turns; tokens include cached input and output; failures stay in averages. Costs are estimates.
+
+| Model / checked profile | Answer + state | Strict JSON success | Effects correct | Requests/attempt | Tokens/attempt | Median seconds | $/attempt |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| Muse, baseline | 17/18 | 17/18 | 17/18 | 3.22 | 14,643 | 25.87 | $0.001459 |
+| Muse, recipe | 18/18 | 18/18 | 18/18 | 2.39 | 10,186 | 16.86 | $0.001039 |
+| GLM, baseline | 17/18 | 14/18 | 17/18 | 3.00 | 9,791 | 22.30 | $0.001342 |
+| GLM, recipe | 18/18 | 13/18 | 18/18 | 2.50 | 7,446 | 16.04 | $0.001009 |
+
+The recipe's measured cost was 29% lower with Muse and 25% lower with GLM; GLM's uncertainty interval includes parity. Both baseline failures concern the same allocation rule, so broader reliability superiority is unproven. Strict success overall stayed equal because formatting did not improve. The recipe is retained in the experimental profile; the generic helper added repairs/cost, alias deduplication failed a correctness gate, and smaller feedback was never exercised. [Full results](docs/strata-tuning-results.md) include P90 time, cost per success, tokens/cache/reasoning, paired uncertainty and all [132 sanitized attempts](docs/evaluations/tuning-2026-10-01.json). Estimated tuning cost: **$0.1350**.
+
 ### Earlier small comparison with native Pi
 
 Each row covers **two natural tasks, three fresh repetitions each**. A request is one model turn; tokens include input, cached input and output without adding reasoning again. Averages and cost per success include failed attempts. Dollar amounts are estimates from recorded usage, not provider bills.
@@ -123,9 +138,9 @@ The repository/application comparisons predominantly used one model; the small c
 
 ### What can be tuned next?
 
-The full extension already appends custom Strata instructions to Pi’s base prompt and has `search_capabilities`, `load_capability` and `program_details`. Full declarations are the default; compact presentation is opt-in. The latest benchmark used a separate prompt, preloaded task-relevant functions and exposed only `typed_program` in the checked arm. It did not test discovery or optimize prompt wording.
+The full extension already appends custom Strata instructions to Pi’s base prompt and has `search_capabilities`, `load_capability` and `program_details`. Full declarations are the default; compact presentation is opt-in. The 054 comparison used a separate prompt, preloaded task-relevant functions and exposed only `typed_program` in the checked arm. It did not test discovery or optimize prompt wording. The subsequent 060 tuning experiment exposed `program_details` in every arm and varied prompt/helper/presentation/feedback independently before confirmation.
 
-The [inventory and improvement plan](docs/glm-improvement-plan.md) distinguishes existing behavior from proposed tuning: a short correct workflow example/typed pagination helper, smaller diagnostics, action receipts, reliable final serialization, declaration layout and finer discovery. These are deferred ideas; the current compiler/runtime behavior is preserved.
+The [inventory and improvement plan](docs/glm-improvement-plan.md) distinguishes existing behavior, the completed tuning tests and deferred ideas. The recipe is the retained experimental result. Action receipts, reliable final serialization and finer discovery remain deferred; the current production prompt/compiler/runtime behavior is preserved.
 
 ## Later related work
 
@@ -147,7 +162,7 @@ Possible directions include:
 - **Changing contracts and permissions:** investigate how an agent recovers when an API changes or access is revoked between discovering a function and calling it.
 - **Broader workflows:** consider edits, project checks and state across programs where real tasks demonstrate a need.
 
-Both application tool paths now apply the same validation rules, verified through the interfaces agents actually use. That enabled the corrected rerun, where direct tools remained cheaper on every tested task. The later small native-Codemode comparison adds an encouraging Muse Spark efficiency observation, which GLM did not repeat. Whether either pattern generalizes needs more distinct workflows and full efficiency reporting. The [broader benchmark proposal](.work/issues/054-broader-composition-benchmark.md) focuses on that question; catalog scaling, memory and additional adapters remain separate possibilities. The [issue board](.work/issues/index.md) records scope and dependencies.
+Both application tool paths now apply the same validation rules, verified through the interfaces agents actually use. That enabled the corrected rerun, where direct tools remained cheaper on every tested task. The later [broader native-Codemode comparison](docs/composition-benchmark.md) confirms a Muse cost advantage on a synthetic corpus, with a GLM repair/time penalty. The [tuning experiment](docs/strata-tuning-results.md) then improved measured checked-profile efficiency on new synthetic workflows. Real-service generalization remains open; catalog scaling, memory and additional adapters remain separate possibilities. The [issue board](.work/issues/index.md) records scope and dependencies.
 
 ## Try the prototype
 

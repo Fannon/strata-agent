@@ -1,6 +1,12 @@
 # Improving Strata after the GLM comparison
 
-October 1, 2026. These are proposed follow-ups from [054](composition-benchmark.md), not shipped features or authorization for another experiment. The benchmark implementation/results were committed and pushed as `03e77a6`.
+October 1, 2026. Inventory after [054](composition-benchmark.md), subsequently updated with completed [060 tuning results](strata-tuning-results.md). The benchmark implementation/results were pushed as `03e77a6`; the inventory was pushed as `730998c` before tuning. Production defaults remain unchanged.
+
+## What we tested since this inventory
+
+The user selected bounded prototypes of the prompt recipe, typed pagination helper, alias-only declaration deduplication and smaller diagnostics. **Retain the recipe as an experimental profile.** The helper introduced additional usage/inference repairs and did not meet the cost gate; lean declarations failed the correctness gate; smaller feedback never encountered a compile failure, so its benefit is unmeasured. The [report](strata-tuning-results.md#confirmation-on-new-definitions) records sample counts, success/effects, requests, tokens, time, cost and uncertainty for every arm.
+
+This delivered only the narrow prototypes in 060. Full system-prompt replacement, large-catalog search/load changes, canonical finalization and effect receipts remain deferred. For a further concrete business workflow, finalization addresses the remaining GLM formatting gap; prioritize receipts for critical writes. No further work is selected.
 
 ## Starting evidence
 
@@ -11,7 +17,7 @@ GLM low reasoning, 20 distinct definitions × three worlds = 60 attempts per app
 | Native Pi | 56/60 | 49/60 | 59/60 | 2.17 | 6,847 | 6.74 / 21.45 | $0.000858 | $0.000919 |
 | Checked Strata | 59/60 | 36/60 | 60/60 | 2.57 | 6,004 | 13.16 / 29.92 | $0.000910 | $0.000925 |
 
-Reliability differences remain uncertain; one native primary failure is serialization-only. The full report/data preserve input/output/cache/reasoning totals and paired uncertainty. The proposals below have no measured performance benefit yet.
+Reliability differences remain uncertain; one native primary failure is serialization-only. The full report/data preserve input/output/cache/reasoning totals and paired uncertainty. The original proposals below are preserved as hypotheses; the later tuning report supplies the narrow outcomes summarized above.
 
 ## What we already do
 
@@ -47,11 +53,11 @@ The custom instructions already explain imports, main/JSON returns, restricted c
 | Operation-level describe/load | Proposed granularity beyond current whole-capability loading | Keep needed operations/types available, enforce the same grants and count search/load overhead |
 | Better search matching or description caching | Proposed only if retrieval/context measurements show a need | Rank/recall, unrelated loads, stale contracts and long-session growth; embeddings/graphs are not automatically justified |
 
-Function-presentation/discovery candidates are captured in [059](../.work/issues/059-function-surface-and-discovery.md). Compact declarations were explored earlier under [004](../.work/issues/004-harness-tuning.md): an encouraging development result did not survive the cost-per-success confirmation, so compact remains opt-in. It has not been tested against 054's two-model business corpus. Prompt wording has a deferred ablation issue; 054 did not tune it.
+Function-presentation/discovery candidates are captured in [059](../.work/issues/059-function-surface-and-discovery.md). Compact declarations were explored earlier under [004](../.work/issues/004-harness-tuning.md): an encouraging development result did not survive the cost-per-success confirmation, so compact remains opt-in. It has not been tested against 054's two-model business corpus. 054 did not tune prompt wording; 060 subsequently tested the narrow recipe prototype, with results above. Broader prompt wording/base-prompt work remains deferred.
 
 For the present small task-scoped APIs, pagination/inference and prompt clarity are more directly connected to GLM's failures than tool search. Search deserves a separate workload with many irrelevant capabilities; it adds retrieval turns and may miss necessary tools. We should not bundle prompt wording, helper code, declaration layout and discovery into one comparison if we want to identify what helped.
 
-## Recommended working order
+## Original proposed working order before 060
 
 | Priority | Change to investigate | Why | Tracked issue |
 | --- | --- | --- | --- |
@@ -76,7 +82,7 @@ const invoices = await collectPages(api.listInvoices, page => page.invoices);
 
 The helper would handle cursor termination and infer invoice rows. GLM would write the filtering/join/payment rule, with less need to invent generic TypeScript. Each page must still pass the existing broker, validation, permissions and execution budgets. Repeated cursors and excessive records need bounds. Keep types precise: returning `any[]` would weaken the missing-field protection relevant to the native overpayments.
 
-Start with a correct, short inline pagination example or a single helper; measure its declaration/context overhead. More SDK surface is not automatically cheaper. This idea should be tested with Muse as well as GLM.
+060 tested both independently with Muse and GLM: retain the inline recipe experimentally; the generic helper did not earn promotion. More SDK surface was not automatically cheaper. The original helper hypothesis remains useful context, not a recommendation to ship this design.
 
 ### 2. Make checking easier to repair
 

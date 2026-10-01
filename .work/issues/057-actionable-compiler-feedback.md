@@ -1,6 +1,6 @@
 # 057 — Give smaller, actionable compiler feedback
 
-Status: DEFERRED — post-054 proposal; no implementation or benchmark selected
+Status: narrow prototype tested under 060 — inconclusive, changed branch unactivated; further work deferred
 Dependencies: 054; 031 bounded program details; 015 patch proposals remain separately scoped
 
 ## Evidence and hypothesis
@@ -16,3 +16,7 @@ Present the primary diagnostic with source location and the expected API/respons
 ## Acceptance if selected
 
 Demonstrate that diagnostics are understandable without losing relevant errors or effect evidence. Compare unchanged compiler decisions with different feedback on new tasks; report repair requests, tokens, latency, cost, answer/effect correctness and diagnostic retrieval. Keep quiet clean checks and frozen baseline evidence.
+
+## 060 outcome
+
+The user subsequently authorized the bounded prototype only. See [tuning report](../../docs/strata-tuning-results.md) for the full hypotheses, comparisons, selection, confirmation and decisions, including all success/effect/request/token/time/cost evidence. Existing broader scope and acceptance criteria above remain proposals, not newly selected work. Production defaults are unchanged.

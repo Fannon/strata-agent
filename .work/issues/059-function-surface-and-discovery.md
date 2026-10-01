@@ -1,6 +1,6 @@
 # 059 — Compare function presentation and incremental discovery
 
-Status: DEFERRED — user requested an inventory and tuning ideas after 054; no implementation or paid benchmark selected
+Status: alias-only prototype tested under 060 — not promoted; broader presentation/discovery work remains deferred
 Dependencies: 003/029 implemented catalog search/load; 004 declaration presentation; 054 current baseline
 
 ## What exists
@@ -20,3 +20,7 @@ Default full declarations duplicate the API body for `@c/` and `@cap/` aliases. 
 ## Scope and acceptance if selected
 
 Choose one factor per comparison, freeze grants/data/prompts/checking/limits, and retain native Pi's equivalent access. Use both models, disjoint development material and new task definitions. Measure retrieval recall and wrong/extra loads as well as task answer/effects, requests, tokens/cache, median/P90 time and all costs. Include retrieval failures and added round trips. Keep 054 unchanged. Larger catalog adapters and ranking engines require their own selected scope; this inventory does not authorize them.
+
+## 060 outcome
+
+The user subsequently authorized the bounded prototype only. See [tuning report](../../docs/strata-tuning-results.md) for the full hypotheses, comparisons, selection, confirmation and decisions, including all success/effect/request/token/time/cost evidence. Existing broader scope and acceptance criteria above remain proposals, not newly selected work. Production defaults are unchanged.
