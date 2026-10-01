@@ -1,16 +1,35 @@
 # Next-agent handoff
 
+## Latest delivery — 061 third-model portability, October 1, 2026
+
+User selected adding cheaper Ling Flash VL. Completed a bounded 108-attempt repeat: existing six N1–N6 definitions × three worlds × baseline/exact 060 recipe × Muse/GLM/Ling. Current 052/053/058 session behavior in both arms via the installed Pi 0.99.1 fixture adapter; no production changes or model-specific recipes. [Report](third-model-portability.md), [sanitized data](evaluations/portability-2026-10-01.json), `examples/portability/`. Task/API holdout, native arm and causal feature ablations remain unselected.
+
+| Model / shared Strata profile | Answer + state | Strict success | Effects correct | Requests/attempt | Tokens/attempt | Median / P90 seconds | $/attempt | $/success |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| Muse, baseline | 18/18 | 18/18 | 18/18 | 3.89 | 19,360 | 27.57 / 36.22 | $0.001964 | $0.001964 |
+| Muse, recipe | 18/18 | 18/18 | 18/18 | 3.11 | 15,049 | 22.54 / 54.85 | $0.001622 | $0.001622 |
+| GLM, baseline | 16/18 | 16/18 | 18/18 | 3.22 | 10,086 | 11.09 / 17.28 | $0.001084 | $0.001219 |
+| GLM, recipe | 17/18 | 17/18 | 18/18 | 3.22 | 10,712 | 11.94 / 34.46 | $0.001136 | $0.001203 |
+| Ling, baseline | 14/18 | 14/18 | 16/18 | 3.72 | 19,630 | 11.22 / 23.56 | $0.000360 | $0.000462 |
+| Ling, recipe | 15/18 | 15/18 | 16/18 | 4.17 | 24,107 | 12.27 / 27.75 | $0.000407 | $0.000488 |
+
+Total $0.118309037, 384 requests, 98/108 business/strict successes. Muse recipe cost −17.4%; GLM +4.9%; Ling +13.2%, with all cost intervals including parity. Ling cheaper but less reliable, 16/18 effect-correct attempts in both arms. Recipe remains experimental; do not select prompts by model name. Both Ling recipe N3 failures return correct credit amounts without calling the write. Host delivery audited exact in 105 attempts; 36 compile rejections had zero calls. Receipt tool used nine times, but no lost-write task in this corpus. No causal comparison of individual new features.
+
+Preflight typecheck, 57 model-free checks/18 SQL answers and 18 integration tests/111 assertions; full 108-attempt replay/prompt/source/usage/price/delivery audit passed. Original/final frozen matrices retain budget-only $0.75→$1.25→$2 reservation amendments (after 3/45 attempts, no model-facing changes or replacement). Actual cost $0.1183. Ling Pi thinking off omits API reasoning; provider still reports reasoning tokens, so never call it reasoning-disabled. All reported reasoning is a subset of output.
+
+New deferred issues: 062 accidental extra main invocation; 063 caller-defined required effect completion. Consider 062 before stronger effectful claims, then 063 only if a concrete critical workflow is selected. Broader 061 proposal remains deferred. No further work or spend selected; raw artifacts remain ignored. Historical 060/054 sources/results are untouched.
+
 ## Latest implementation — structured results and recovery, October 1, 2026
 
 User selected recommendations 2 and 3: 058 explicit structured finalization, 053 action receipts, plus the narrow 052 prerequisite. Shared production implementation is complete, without model-specific branches or paid calls. [Contracts, usage and limits](results-and-recovery.md).
 
-`typed_program` accepts optional `finalize:true`; `finalize_result(program)` explicitly selects the latest successful completed program in the current request. Session retains immutable bounded JSON; Pi message_end replaces final answer text while preserving provider usage/thinking. Completed events/state/persistence agree. New programs, other external actions, new user/steering requests and abnormal completions invalidate selection. Existing program_details/program_effects inspection preserves it. Inline selection has no separate selection turn; explicit selection adds one tool call; normal final model completion is still required. No real-model cost/completion improvement measured yet.
+`typed_program` accepts optional `finalize:true`; `finalize_result(program)` explicitly selects the latest successful completed program in the current request. Session retains immutable bounded JSON; Pi message_end replaces final answer text while preserving provider usage/thinking. Completed events/state/persistence agree. New programs, other external actions, new user/steering requests and abnormal completions invalidate selection. Existing program_details/program_effects inspection preserves it. Inline selection has no separate selection turn; explicit selection adds one tool call; normal final model completion is still required. At implementation delivery no real-model performance had been measured; the subsequent 061 repeat above includes this mechanism in both arms without isolating its cost/completion effect.
 
 Broker receipts separately store bounded arguments/responses and accepted/not-executed/uncertain status for write/unknown operations, with output-schema provenance. Known reads skip payload copying. Errors include a small current-request retained recovery summary; program_effects pages evidence and allowed operations declared read-only. Earlier accepted calls remain acknowledged after later failures/cancellation, fixing the previous blanket cancellation classification. No auto-retry, rollback, durable resume ledger or new backend idempotency support. 20-program retention and evidence truncation/eviction are explicit.
 
 Compiler rejects known invalid awaited root returns before effects; any/unknown/assertions/nested serialization still require runtime checks. Real payment/invalid-reply recovery verifies the backend ledger without replay. Typecheck passed; 73 focused tests/495 assertions across 11 files passed, including 18 new regressions. The final touched-source run passed 40 tests/187 assertions across runtime and both new integration files, including thinking preservation. Expanded coverage reproduced one known direct-Bun temporary-import failure under 050; no claim of a green full suite or full installed Pi 0.99.1 certification. Tests use pinned Pi 0.73.1 and scripted local responses, with no external provider access.
 
-README/ARCHITECTURE/board updated. Frozen benchmark examples, published metrics and raw evidence remain unchanged; older matrices' production fingerprints intentionally differ now. Reproduce earlier campaigns from their recorded commits. Current recommendation: no new work selected; 061 cross-model/fair-native confirmation remains deferred.
+README/ARCHITECTURE/board updated. Frozen benchmark examples, published metrics and raw evidence remain unchanged; older matrices' production fingerprints intentionally differ now. Reproduce earlier campaigns from their recorded commits. The subsequent bounded 061 delivery is recorded above; broader new-task/fair-native confirmation remains deferred.
 
 ## Prior delivery — 060 tuning, October 1, 2026
 

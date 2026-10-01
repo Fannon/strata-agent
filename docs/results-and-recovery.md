@@ -83,3 +83,9 @@ Model-free tests exercise the production session, compiler, broker, QuickJS work
 Tests: [session/recovery](../test/integration/finalization-recovery.test.ts), [actual Pi SDK/MCP](../test/integration/pi-finalization.test.ts). These prove implementation behavior, not improved LLM task outcomes. The SDK test uses scripted local responses without provider access; mock token counts are not benchmark measurements. Package Pi remains pinned to 0.73.1. Installed Pi 0.99.1 benchmark compatibility was previously tested with experiment extensions, not certified for every full-extension feature here.
 
 Earlier 049/051/054/060 source hashes and metrics describe their measured revisions. Production source changes here intentionally alter the compiler/session; reproduce an earlier campaign from its recorded revision rather than running its old matrix against today's changed sources. Frozen experiment definitions, published metrics and raw evidence are preserved.
+
+## Subsequent real-model evidence
+
+The [061 repeat](third-model-portability.md) ran 108 attempts across Muse, GLM and Ling with these features available in both arms. The audit verified exact selected JSON delivery in 105 attempts; `program_effects` was inspected nine times. This proves use in the measured experiment adapter, not a causal improvement versus an arm without these features or full Pi 0.99.1 extension certification.
+
+Two Ling attempts returned the right credit answer without executing the credit action. Exact delivery and receipt visibility therefore remain distinct from verification of required business effects. The six reused workflows include invalid reads, not lost write replies; the model-free MCP/cancellation regressions above remain the stronger evidence for uncertain-write handling. [063](../.work/issues/063-effectful-completion-evidence.md) records a deferred caller-defined completion study. No new production behavior was selected by this run.

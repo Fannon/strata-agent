@@ -1,6 +1,6 @@
 # 061 — Confirm shared improvements across unseen models
 
-Status: DEFERRED — captured from the user's post-060 design clarification; no new run or implementation selected
+Status: DELIVERED — bounded third-model repeat completed; broader new-task/native proposal remains DEFERRED
 Dependencies: 060 shared recipe/prototype and frozen evidence; 055 only if checking attribution is also selected
 
 ## Requirement and hypothesis
@@ -32,3 +32,23 @@ This is a proposal recorded from the next-step discussion, not selection of a ru
 ## Subsequent implementation order
 
 The user chose recommendations 2 and 3 first: 058 finalization, 053 action evidence and the narrow 052 prerequisite are now implemented with model-free checks. The preceding ranked order describes the earlier proposal. A future selected 061 run must freeze the new shipped revision and decide explicitly which shared features each arm receives, including fair recovery evidence/finalization for the native comparison. No new benchmark is selected by that implementation delivery.
+
+## Selected third-model repeat (2026-10-01)
+
+User requested a third cheaper model, suggesting `inclusionai/ling-3.0-flash-vl`. Selected scope: six existing N1–N6 definitions × three existing data variants × three models × baseline/shared recipe = **108 attempts**. Rerun Muse and GLM on the current shipped 052/053/058 implementation so cross-model rows are contemporaneous. This is an unseen-model test, not an unseen-task confirmation; broader new-API/new-task work remains deferred. No native Pi arm or overall-superiority claim.
+
+Fixed provider settings: Muse medium and GLM low as before; Ling Pi thinking off (Pi emits no reasoning parameter; provider default reasoning is uncontrolled). One shared prompt/tool contract, declaration set and checking policy across models. Each setting remains identical within that model's arms. Both arms receive optional explicit finalization and bounded recovery evidence. Neither feature is ablated; differences from historical 060 cannot be assigned causally to them. Candidate recipe is the exact 060 recipe, with examples derived only from public schema. No changes after inspecting failures.
+
+Freeze matrix, source hashes, model catalog and selection before calls. First data world baseline first within each model/task block; rotate models and alternate arm order afterward. Eight requests/4096 output tokens/262144 payload bytes/180 seconds per attempt; four concurrent workers; **$2 campaign cap** within remaining authorization. Keep failures, never replace paid attempts, stop new dispatch if usage is unaccounted. Raw context/state stays ignored under `.work/portability-20261001-v1/`; publish sanitized metrics and report. Models are custom-profile entries; production dependencies/defaults remain unchanged.
+
+Preflight: `bun run check`; 57 model-free tuning checks including 18 independent SQL answers; 18 finalization/recovery integration tests, 111 assertions. Report all per-model success/effect/format counts, requests, input/output/cache/reasoning tokens, elapsed time and total/per-success estimated cost including failures. API catalog snapshot rather than stale public price page supplies the rates.
+
+Budget-only amendment after three completed attempts: initial $0.75 reservation ceiling could not fit four concurrent worst-case reservations. Actual spend $0.0028151038. Preserved original matrix and all attempts, raised only ceiling to $1.25 before resuming; source hashes/prompt/provider/scoring unchanged.
+
+Second budget-only amendment after 45 attempts: actual spend $0.051923345; four simultaneous GLM worst-case reservations can exceed $1.25. Ceiling raised to $2 within prior authorization. Preserve both preceding matrices, all attempts and settings. No model-facing adaptation.
+
+## Delivered outcome
+
+Completed all 108 attempts, 384 requests, cost $0.118309037; 98 business/strict successes. Muse baseline/recipe 18/18, GLM 16/18→17/18, Ling 14/18→15/18. Recipe cost −17.4%/+4.9%/+13.2% respectively, all cost intervals include parity. Ling much cheaper but not evidence of universal recipe efficiency. Keep one shared production interface, recipe experimental. [Report](../../docs/third-model-portability.md) and [sanitized full metrics](../../docs/evaluations/portability-2026-10-01.json) include sample/tasks/effects/strict format, turns/tokens/reasoning/cache, time/P90, cost per success and every failure.
+
+Audit passed all grades/usage/catalog-price arithmetic/shared prompt equality/source hashes; exact selected host delivery verified in 105 attempts; 36 type-check rejections before calls, nine effects queries. Preflight passed as recorded. No source/model-facing change or paid failure replacement during execution. New discoveries 062/063 deferred; no new work or spend selected. Previously proposed new workflows/two unseen families/native arms remain outside this bounded delivery.

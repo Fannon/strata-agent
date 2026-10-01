@@ -2,13 +2,17 @@
 
 October 1, 2026. Issue [060](../.work/issues/060-strata-tuning-trials.md), protocol **060-v1**. [Sanitized results](evaluations/tuning-2026-10-01.json) include all 132 attempts; [prototype](../examples/tuning/extension.ts) uses the unchanged production checked session. The documentation inventory was committed and pushed as `730998c` before paid trials. Earlier 049/051/054 sources and results remain unchanged.
 
+## Subsequent evidence
+
+The [third-model repeat](third-model-portability.md) reran the same recipe with Muse/GLM and added cheaper Ling on current finalization/recovery code. It did not repeat a universal cost benefit: Muse cost fell 17%, GLM rose 5% and Ling rose 13%. The recipe stays experimental, shared across models. This report preserves 060's original measurements; changed implementation/provider/cache conditions prevent causal historical comparisons. Broader new-task/native confirmation remains deferred.
+
 ## Decision
 
 **Retain the short recipe as an experimental prompt profile.** On six new workflow definitions, repeated in three generated worlds, it reduced measured requests, tokens, estimated model cost and median time with both models. Answers and final state were correct in all 36 recipe attempts, versus 34/36 baseline attempts. The two baseline failures occurred on the same allocation definition, so they are one structural reliability finding rather than evidence across two independent task families.
 
 Do not promote the helper or shorter declaration presentation from this development screen. Smaller diagnostic feedback remains unmeasured because its changed branch never ran. Production prompt, full declarations, quiet checking before execution, compiler, broker and runtime defaults are unchanged; the retained profile lives in the experiment extension. Generalizing it into the full extension would be separate work. This compares Strata against Strata: it does not establish a new advantage over native Pi or isolate the value of type checking.
 
-**Formatting did not improve.** Strict successes were 31/36 in both confirmation arms. GLM had 14/18 baseline versus 13/18 recipe strict successes, despite recipe answers/effects being correct in all 18. Canonical finalization remains a separate deferred issue [058](../.work/issues/058-canonical-final-json.md).
+**Formatting did not improve.** Strict successes were 31/36 in both confirmation arms. GLM had 14/18 baseline versus 13/18 recipe strict successes, despite recipe answers/effects being correct in all 18. Canonical finalization was deferred at that measured revision and was subsequently implemented under [058](../.work/issues/058-canonical-final-json.md).
 
 ## Four hypotheses
 
@@ -23,7 +27,7 @@ Do not promote the helper or shorter declaration presentation from this developm
 
 **This is one model-independent recipe, not a Muse recipe and a GLM recipe.** Both receive the same guidance for a given task. Its operation/array field varies with the public API schema, never the model name. Selection chose one shared feature set across both models. Per-model rows report how different models respond to the same approach.
 
-The user subsequently clarified the design requirement: improve a shared interface that generalizes across models and leaves each model free to compose its own solution; do not introduce model-specific prompts, helpers or checking policies. Two tested models provide portability evidence, not proof of generalization to unseen models. [061](../.work/issues/061-cross-model-generalization.md) captures a possible separately selected test.
+The user subsequently clarified the design requirement: improve a shared interface that generalizes across models and leaves each model free to compose its own solution; do not introduce model-specific prompts, helpers or checking policies. Two tested models provide portability evidence, not proof of generalization to unseen models. [061](../.work/issues/061-cross-model-generalization.md) subsequently delivered the bounded third-model repeat linked above; broader new-task/native tests remain deferred.
 
 It adds about **564 UTF-8 bytes** to the initial system prompt, varying slightly by enabled operation/array field. It uses the task's public API shape, never expected answers. The advice is: write ordinary JavaScript-style TypeScript, let API calls infer row types, prefer `Map` for lookups, avoid inventing generic page interfaces, use real response fields, return the requested answer shape, and remember completed writes if later code fails. The example is:
 

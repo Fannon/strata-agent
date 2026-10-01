@@ -12,9 +12,9 @@ The prototype is an extension for Pi, a coding agent. The broader research quest
 
 Strata retains checking before execution, returns diagnostics on errors and keeps clean checks out of model context. The [240-attempt comparison](docs/composition-benchmark.md) is complete, with separate answer, effect and output-format scores. The earlier [checking-policy pilots](docs/checking-policy-comparison.md) and [September 22 wrap-up](docs/wrap-up.md) remain historical evidence. Documentation was pushed as `7b64a4e` before the broader run.
 
-**Later tuning improved the checked approach on both models.** A short correct programming recipe reduced measured cost and repair work on six new workflows. The helper and shorter declarations did not earn promotion; GLM output formatting remains unresolved. See the [132-attempt tuning report](docs/strata-tuning-results.md). This is a Strata-versus-Strata experiment; production defaults remain unchanged.
+**Later tuning improved the checked approach on both models.** A short correct programming recipe reduced measured cost and repair work on six new workflows. The helper and shorter declarations did not earn promotion; GLM output formatting remained unresolved at that measured revision; subsequent finalization and a third-model repeat are documented below. See the [132-attempt tuning report](docs/strata-tuning-results.md). This is a Strata-versus-Strata experiment; production defaults remain unchanged.
 
-**Implemented since those measurements:** explicit final-result selection and action receipts now work in the shared production extension. Set `finalize: true` on the final `typed_program`, or select its id with `finalize_result`; the host delivers the computed JSON. `program_effects` distinguishes acknowledged, rejected and uncertain actions after failures and lists allowed inspection operations. Known missing/invalid root returns are rejected before execution. [Usage and limits](docs/results-and-recovery.md). These changes have model-free integration coverage; their LLM performance has not yet been benchmarked.
+**Implemented since those measurements:** explicit final-result selection and action receipts now work in the shared production extension. Set `finalize: true` on the final `typed_program`, or select its id with `finalize_result`; the host delivers the computed JSON. `program_effects` distinguishes acknowledged, rejected and uncertain actions after failures and lists allowed inspection operations. Known missing/invalid root returns are rejected before execution. [Usage and limits](docs/results-and-recovery.md). These changes have model-free integration coverage and now appear in both arms of the [third-model repeat](docs/third-model-portability.md); their individual performance effects are not isolated.
 
 ## The idea: tools as functions
 
@@ -109,6 +109,21 @@ Six new definitions × three generated worlds = **18 attempts per row**, followi
 
 The recipe's measured cost was 29% lower with Muse and 25% lower with GLM; GLM's uncertainty interval includes parity. Both baseline failures concern the same allocation rule, so broader reliability superiority is unproven. Strict success overall stayed equal because formatting did not improve. The recipe is retained in the experimental profile; the generic helper added repairs/cost, alias deduplication failed a correctness gate, and smaller feedback was never exercised. [Full results](docs/strata-tuning-results.md) include P90 time, cost per success, tokens/cache/reasoning, paired uncertainty and all [132 sanitized attempts](docs/evaluations/tuning-2026-10-01.json). Estimated tuning cost: **$0.1350**.
 
+### Third-model repeat on the current implementation
+
+Added `inclusionai/ling-3.0-flash-vl` and reran Muse/GLM with finalization and recovery available in both arms. **Six existing workflows × three data variants × three models × two profiles = 108 attempts.** Same shared recipe, no model-specific tuning. Failures are included in turns/tokens/time/cost.
+
+| Model / shared Strata profile | Answer + state | Strict success | Effects correct | Requests/attempt | Tokens/attempt | Median / P90 seconds | $/attempt | $/success |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| Muse, baseline | 18/18 | 18/18 | 18/18 | 3.89 | 19,360 | 27.57 / 36.22 | $0.001964 | $0.001964 |
+| Muse, recipe | 18/18 | 18/18 | 18/18 | 3.11 | 15,049 | 22.54 / 54.85 | $0.001622 | $0.001622 |
+| GLM, baseline | 16/18 | 16/18 | 18/18 | 3.22 | 10,086 | 11.09 / 17.28 | $0.001084 | $0.001219 |
+| GLM, recipe | 17/18 | 17/18 | 18/18 | 3.22 | 10,712 | 11.94 / 34.46 | $0.001136 | $0.001203 |
+| Ling, baseline | 14/18 | 14/18 | 16/18 | 3.72 | 19,630 | 11.22 / 23.56 | $0.000360 | $0.000462 |
+| Ling, recipe | 15/18 | 15/18 | 16/18 | 4.17 | 24,107 | 12.27 / 27.75 | $0.000407 | $0.000488 |
+
+Ling is much cheaper at the captured rates, but less reliable here. The recipe lowers Muse cost 17%, while GLM cost rises 5% and Ling cost rises 13%; it remains experimental, with no universal efficiency claim. Exact host JSON delivery worked in 105 attempts, but correct-looking output sometimes omitted the required write. [Full report](docs/third-model-portability.md) includes token/reasoning/cache totals, latency tails, all failures and uncertainty; [sanitized data](docs/evaluations/portability-2026-10-01.json). Total cost **$0.1183**, 384 model requests. This tests a new model on existing synthetic tasks, with no native-Pi arm or causal feature ablation.
+
 ### Earlier small comparison with native Pi
 
 Each row covers **two natural tasks, three fresh repetitions each**. A request is one model turn; tokens include input, cached input and output without adding reasoning again. Averages and cost per success include failed attempts. Dollar amounts are estimates from recorded usage, not provider bills.
@@ -144,7 +159,7 @@ The repository/application comparisons predominantly used one model; the small c
 
 The full extension already appends custom Strata instructions to Pi’s base prompt and has `search_capabilities`, `load_capability` and `program_details`. Full declarations are the default; compact presentation is opt-in. The 054 comparison used a separate prompt, preloaded task-relevant functions and exposed only `typed_program` in the checked arm. It did not test discovery or optimize prompt wording. The subsequent 060 tuning experiment exposed `program_details` in every arm and varied prompt/helper/presentation/feedback independently before confirmation.
 
-The [inventory and improvement plan](docs/glm-improvement-plan.md) distinguishes existing behavior, the completed tuning tests and deferred ideas. The recipe is the retained experimental result. Action receipts and explicit final JSON selection are now implemented and [documented separately](docs/results-and-recovery.md); finer discovery and cross-model benchmarking remain deferred. The runtime still checks before execution. Earlier frozen benchmark results remain unchanged.
+The [inventory and improvement plan](docs/glm-improvement-plan.md) distinguishes existing behavior, the completed tuning tests and deferred ideas. The recipe is the retained experimental result. Action receipts and explicit final JSON selection are now implemented and [documented separately](docs/results-and-recovery.md); finer discovery and broader new-task/native comparisons remain deferred; the [third-model repeat](docs/third-model-portability.md) is complete. The runtime still checks before execution. Earlier frozen benchmark results remain unchanged.
 
 ## Later related work
 
@@ -187,6 +202,7 @@ The [prototype guide](docs/prototype-guide.md) covers Pi usage, connecting an MC
 
 ## Read further
 
+- [Third-model portability](docs/third-model-portability.md) — Ling/Muse/GLM on the current checked interface; full correctness and efficiency metrics.
 - [Broader composition comparison](docs/composition-benchmark.md) — 20 workflows, two models, full correctness/efficiency data and uncertainty.
 - [Tuning inventory and GLM improvement plan](docs/glm-improvement-plan.md) — what already exists and what we could test next.
 - [Evaluation summary](docs/evaluation-summary.md) — plain-language rundown of what works, what doesn't, and the numbers.

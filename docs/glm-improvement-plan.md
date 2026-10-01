@@ -4,7 +4,7 @@ October 1, 2026. Inventory after [054](composition-benchmark.md), subsequently u
 
 ## Subsequent selected implementation
 
-The user next selected structured finalization and action receipts. [Implemented contracts](results-and-recovery.md) now document these shared features and the narrow inferred-return prerequisite. The earlier tuning measurements remain historical; no paid efficacy comparison ran for these additions. Cross-model confirmation and further discovery remain unselected.
+The user next selected structured finalization and action receipts. [Implemented contracts](results-and-recovery.md) now document these shared features and the narrow inferred-return prerequisite. The earlier tuning measurements remain historical. The subsequent [third-model repeat](third-model-portability.md) includes these additions in both arms on the current implementation, without isolating their causal effect. Muse recipe cost fell 17%, while GLM/Ling cost rose 5%/13%; keep the recipe experimental. Broader new-task/native confirmation and further discovery remain unselected.
 
 ## What we tested since this inventory
 
@@ -12,7 +12,7 @@ The user next selected structured finalization and action receipts. [Implemented
 
 The user selected bounded prototypes of the prompt recipe, typed pagination helper, alias-only declaration deduplication and smaller diagnostics. **Retain the recipe as an experimental profile.** The helper introduced additional usage/inference repairs and did not meet the cost gate; lean declarations failed the correctness gate; smaller feedback never encountered a compile failure, so its benefit is unmeasured. The [report](strata-tuning-results.md#confirmation-on-new-definitions) records sample counts, success/effects, requests, tokens, time, cost and uncertainty for every arm.
 
-This delivered only the narrow prototypes in 060. Full system-prompt replacement and large-catalog search/load changes remain deferred. Canonical finalization and effect receipts were subsequently selected and implemented as described above. For a further concrete business workflow, finalization addresses the remaining GLM formatting gap; prioritize receipts for critical writes. No further work is selected.
+This delivered only the narrow prototypes in 060. Full system-prompt replacement and large-catalog search/load changes remain deferred. Canonical finalization and effect receipts were subsequently selected and implemented as described above. Explicit finalization delivers selected JSON exactly when used. The third-model repeat also found correct credit answers without executed credits; [063](../.work/issues/063-effectful-completion-evidence.md) captures caller-defined action completion evidence as a deferred critical-workflow question. No further work is selected.
 
 ## Starting evidence
 
