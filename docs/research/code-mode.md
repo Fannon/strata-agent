@@ -2,6 +2,8 @@
 
 Research date: 2026-09-05. External source links below describe the versions inspected that day; GitHub `main` links can change. This informs the [ACD](../../ACD.md), without authorizing a runtime replacement.
 
+Later related work added 2026-09-30: [Pi's September 29 MCP/Codemode announcement](pi-codemode-2026-09.md) overlaps with this composition mechanism and came after Strata's recorded experiments. Keep Cloudflare's earlier precedent, Pi's later announcement and Strata's measured outcomes distinct.
+
 ## Relationship
 
 Cloudflare's September 2025 article describes converting MCP schemas into TypeScript APIs, asking models to compose calls in code, and keeping intermediate results outside model context. That is the same central mechanism Strata explores. Its reported improvement concerns MCP use; it does not establish superiority over coding agents composing Bash or IPython. [Original article](https://blog.cloudflare.com/code-mode/)

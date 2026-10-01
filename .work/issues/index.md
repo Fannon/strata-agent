@@ -1,8 +1,34 @@
 # Strata issue board
 
+**Next selected work (2026-10-01): [054 — broader composition benchmark](054-broader-composition-benchmark.md).** The user authorized improving/extending and rerunning the benchmark after README/documentation are committed and pushed, followed by a report. Implement distinct workflow coverage and full efficiency accounting, freeze the matrix, then run. Production changes under 052/053 and other backlog items remain unselected.
+
+**Latest delivery (2026-10-01): [051 — GLM checking-policy repeat](051-glm-checking-policy-repeat.md).** Baseline first, then the same frozen 36-cell matrix with GLM low reasoning: **26/36 strict successes**, estimated cost **$0.01813044**. Eight failures concern answer formatting, two concern payment recovery/business meaning. All natural answer content and final effects were correct after diagnostic outer-fence removal; there were no naturally generated semantic diagnostics. Keep production checking before execution. [Report](../../docs/glm-checking-policy-repeat.md); [052](052-main-result-contract.md) and [053](053-recovery-action-identity.md) capture substantial discoveries as deferred. No further work is selected.
+
+**Reporting checkpoint (2026-10-01):** the user requested requests/turns, tokens, time and cost in every comparison and a broader task scope. The [combined report](../../docs/checking-policy-comparison.md) and [sanitized data](../../docs/evaluations/checking-policy-2026-10-01.json) publish all 72 recorded attempts, without new model calls. Checked Strata's Muse Spark natural sample has an encouraging token/cost/time signal at equal success, not repeated on GLM. [054](054-broader-composition-benchmark.md) captures a proposed paired comparison over 20 distinct workflows (240 evaluation cells), not a selected run. The user requested committing/pushing this checkpoint before any further benchmark.
+
+**Prior delivery (2026-09-30): [049 — updated Pi baseline and checking-policy pilot](049-checking-policy-pilot.md).** Baseline first, then always/never/after-failure checking: 36/36 strict successes, estimated model cost $0.024197942 under the €5 batch authorization. Always-check rejected no naturally generated programs; seeded controls showed early prevention of partial effects and silent field mistakes. No default or dependency change. See the [report](../../docs/checking-policy-pilot.md). [050](050-macos-bun-baseline.md) records environment failures as deferred follow-up.
+
+**Documentation review (2026-10-01):** expanded the [lessons from this run](../../docs/checking-policy-pilot.md#what-we-learned-from-the-run), with no new model calls or production changes. Declarations and checking have separate roles; skipping checking retained declaration overhead. Unchecked partial-effect recovery inspected existing payments rather than replaying the script. Silent wrong results remain outside a failure-only checking trigger. The review selects no follow-up work.
+
 Reviewed 2026-09-22 against `4e2df5d` and accompanying documentation changes, including 045 entry-point fix, 046 post-parity v3 and the deferred 047 reuse question. This board owns next-work ordering; [handoff](../../docs/handoff.md) owns the concise implementation handoff, [trial report](../../docs/repo-trials.md) owns repository evidence, and [AppWorld](../../docs/appworld-spike.md)/[BFCL](../../docs/bfcl-diagnostic.md) own enterprise diagnostic reports. [ACD](../../ACD.md) owns architectural direction. Issue Markdown is tracked; raw `.work/` artifacts and local notes remain ignored.
 
 **Wrap-up recommendation: pause at the current research checkpoint.** No further implementation or experiment is selected. Existing backlog items remain deferred possibilities, not requirements for closing this research round. The [review](../../docs/wrap-up.md) records the assessment and restart criteria. Current model-free Windows/Bun 1.4.2 verification: typecheck and demo pass; full suite reproduces 163 pass / 12 fail, 175 tests and 1,292 assertions with subprocess access. Known Windows gaps remain in 041; no new model spend.
+
+Documentation update 2026-09-30: [Pi's later MCP/Codemode announcement and HN discussion](../../docs/research/pi-codemode-2026-09.md) are linked with explicit chronology. The September 22 checkpoint and Pi 0.73.1 measurements remain historical evidence. [048](048-modern-pi-codemode-baseline.md) captures a possible modern comparison; no experiment or dependency upgrade is selected.
+
+Subsequent 049 delivery completed the bounded 021 policy pilot and narrow 048 native baseline described above. The candidate order below now reflects that delivery; confirmation, production policy changes and recurrence/retrieval under 047 remain unselected.
+
+### Candidate order if research is reopened
+
+051's new discoveries are deferred prerequisites to a stronger critical-task claim: consider **052**'s inferred result contract first, then **053**'s action-identity/recovery evidence if a concrete effectful workflow justifies it, before another checking-policy confirmation under 021. Neither is selected, and neither authorizes a broader framework build.
+
+For the user's broader comparison question, **054** owns the next proposed design: choose distinct useful workflows and scoring, decide whether separately selected 052/053 changes are included, preflight on development tasks, then freeze and run a native-Pi/checked-Strata matrix only after selection. The latest reporting update does not activate this order.
+
+1. **021, checking-policy confirmation:** the bounded probe and model repair trials are delivered in 049. Further work needs a concrete task family where naturally occurring mistakes or partial effects make the tradeoff worth measuring; retain identical declarations and runtime controls and use untouched confirmation tasks. Declarations' own value remains a separate unmeasured question. No confirmation or production policy change is selected.
+2. **047, recurring workflow reuse:** only if a concrete recurring task exists. Compare stored parameterized programs with stored scripts, including authoring, retrieval and adaptation. Does not depend on a positive 021 result or require a production memory system.
+3. **048, wider modern Pi Codemode comparison:** narrow 0.99.1 inspection and the synthetic baseline are delivered in 049. A broader whole-system branch needs a relevant real workflow, pinned versions, fair capabilities and untouched confirmation tasks; no mandatory dependency upgrade. Independent of 021/047 and currently unselected.
+
+Large-catalog work (035) and a hybrid comparison (044) remain separate questions with their existing gates. This proposed order does not activate the backlog or authorize model spend.
 
 ## Goal and evidence path
 
@@ -50,6 +76,13 @@ On September 14 the user selected documentation reconciliation and the recommend
 | [045 — Pilot entry-point validation parity](045-pilot-entrypoint-validation-parity.md) | DELIVERED 2026-09-19: compat forwarded in `sessionFromConfig` for all transports; permanent real-entry regression (`pi-entry-parity` 4/4, real MCP probe server); `bun run check` green, full suite 163/12 (baseline 159/12 + 4 new, same Windows classes); no paid work, v2 unchanged |
 | [046 — Post-parity comparison v3](046-post-parity-comparison-v3.md) | DELIVERED: 36 cells, 15–15 strict success, typed cost/success ~53% higher; no confirmation selected |
 | [047 — Stored program reuse](047-stored-program-reuse.md) | deferred research question; requires recurring workflows and a stored-script baseline; no implementation selected |
+| [048 — Modern Pi Codemode baseline](048-modern-pi-codemode-baseline.md) | narrow 0.99.1 inspection and native baseline delivered in 049 (6/6); broader comparison deferred |
+| [049 — Checking-policy pilot](049-checking-policy-pilot.md) | delivered 2026-09-30: 36/36 strict, ~$0.0242; no natural semantic rejections, early checking prevents seeded effects; no default change |
+| [051 — GLM checking-policy repeat](051-glm-checking-policy-repeat.md) | delivered 2026-10-01: 26/36 strict, ~$0.0181; eight format failures, two recovery mistakes; production checking retained |
+| [052 — Program result contract](052-main-result-contract.md) | deferred; GLM scripts can pass checking but omit a return, then fail after effects; no fix selected |
+| [053 — Recovery action identity](053-recovery-action-identity.md) | deferred; distinguish old payments from the requested new action; incorrect claims can pass types/schemas |
+| [054 — Broader composition benchmark](054-broader-composition-benchmark.md) | selected after documentation publication; 20 distinct workflows, paired native/checked comparison, full efficiency reporting; freeze before paid calls |
+| [050 — macOS/Bun baseline failures](050-macos-bun-baseline.md) | deferred; baseline 168/28, affected Bun/setup paths outside the QuickJS pilot |
 | [039 — Typed REST operations via client generation](039-typed-rest-operations.md) | idea only: explore generated REST clients within the broader local/CLI/MCP/REST function hypothesis; not a prerequisite for 037 |
 | [004 — Attribute and reduce typed-context cost](004-harness-tuning.md) | A/B delivered; slice C confirmation on fresh R-CALL family ran 2026-09-13: negative/inconclusive (compact 2/4 vs full 3/4, $0.0037 vs $0.0032/success) — compact stays opt-in, no change |
 | [009 — Baseline hardening: variance, warm sessions, wider tasks](009-baseline-hardening.md) | fixture hardening, repo-2 trials and reproducibility fingerprints delivered; evidence-quality follow-ups remain open; 004 confirmation ran and was negative/inconclusive |
@@ -110,7 +143,7 @@ On September 14 the user selected documentation reconciliation and the recommend
 | [017 — Dependencies, related tools and supersession](017-capability-relationships.md) | deferred |
 | [018 — Sandbox the bash escape hatch (prime-agent pattern)](018-sandbox-bash.md) | backlog |
 | [019 — Harness-state snapshots and rollback for catalog loads](019-harness-snapshots.md) | deferred (until wrong-load/restart costs justify it) |
-| [021 — Cloudflare Code Mode prior art and semantic-checking ablation](021-code-mode-checking.md) | backlog for experiment; primary-source relationship research complete |
+| [021 — Cloudflare Code Mode prior art and semantic-checking ablation](021-code-mode-checking.md) | bounded 049 checking-policy pilot delivered; wider confirmation and actual Cloudflare comparison deferred |
 | [030 — Optional agent memory outside typed runs](030-optional-memory.md) | backlog, idea only (do not implement with current slices) |
 
 ## Scope rules

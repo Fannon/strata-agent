@@ -5,6 +5,8 @@ Dependencies: 046 (cost mechanism: declaration context dominates per-request cos
 
 ## Question
 
+September 30 observation: [049](049-checking-policy-pilot.md) replayed the same manually authored workflow on five reordered/numerically changed worlds under checked and unchecked execution, 10/10 passing. This is model-free reuse feasibility, not the recurring-task, retrieval, model-authoring or amortized-cost comparison proposed here. The fuller question remains unselected. [Report](../../docs/checking-policy-pilot.md)
+
 Writing a typed program is expensive the first time (read declarations, draft, fix errors), but re-running a stored, parameterized program should be cheap. Could a library of proven programs turn the tradeoff around — from "write a program per task" into "retrieve and re-run a known-good workflow" — and amortize the authoring cost over many uses?
 
 This is an amortization hypothesis, distinct from per-task composition efficiency (042/046). It directly targets the measured cost driver: if authoring happens once and reuse is cheap, the per-request declaration overhead matters less in aggregate.

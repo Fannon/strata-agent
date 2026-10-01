@@ -7,7 +7,7 @@ Dependencies: [001](001-benchmark.md) baseline (done); T3 rewording pairs with [
 
 ## Current decision
 
-028 delivered repository runner integration and four trial stages; [reviewed evidence](../../docs/repo-trials.md) separates exact answers, audit failures and accounting. Current priority is 004 context-cost attribution, then independent confirmation with new task material. The stages/checklists below preserve the original plan, not instructions to rebuild delivered work. No hardened evaluator isolation or paid fixture-v2 campaign is implied by the repo-2 results.
+028 delivered repository runner integration and four trial stages; [reviewed evidence](../../docs/repo-trials.md) separates exact answers, audit failures and accounting. The earlier 004 attribution priority and its negative/inconclusive confirmation are delivered. The later 049/051 checking-policy pilots add two-model development evidence; [complete efficiency metrics](../../docs/checking-policy-comparison.md) and the [054 broader scope proposal](054-broader-composition-benchmark.md) record the October 1 direction. No new benchmark is selected. The stages/checklists below preserve the original plan, not instructions to rebuild delivered work. No hardened evaluator isolation or paid fixture-v2 campaign is implied by the repo-2 results.
 
 ## Confirmed observations (baseline `baseline-2026-09-05T08-37-15Z`, n=1/cell)
 

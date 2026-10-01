@@ -1,14 +1,16 @@
 # strata-agent
 
-> **Work in progress — research proof of concept.** Strata is unfinished and is not intended for productive or production use.
-
-**Research checkpoint (2026-09-22): ready to pause.** The mechanism works, but the tested tasks show no overall advantage over capable direct tools. No further experiment is selected. The [wrap-up review](docs/wrap-up.md) records the evidence, verification limits and conditions for revisiting the project; remaining ideas are deferred research, not a delivery commitment.
+> **Research prototype.** Strata is unfinished and is not production-ready.
 
 Strata explores a simple idea: **what if an AI agent could use its tools as typed functions in a small program?**
 
 An agent often needs to find information, make several related calls, and combine the results. Strata lets it express that work in TypeScript. The program can fetch data, filter it, and pass results between tools before returning a summary to the model. Types describe what each function accepts and returns, so some mistakes can be caught before anything runs.
 
 The prototype is an extension for Pi, a coding agent. The broader research question applies to agents working with local tools and remote services.
+
+**Current finding (2026-10-01): typed composition works across two model families, and early checking can prevent detectable mistakes before tool calls run.** The small Muse Spark comparison also showed an encouraging efficiency signal against native Pi Codemode: matching success with fewer tokens, lower estimated cost and shorter median wall time. GLM did not repeat that efficiency advantage. The measurements below include correctness, model requests, tokens, time and cost; they are development evidence rather than a general performance claim.
+
+Strata keeps checking before execution, returns diagnostics when checking fails, and keeps clean checks out of model context. The September 30/October 1 pilots are complete. The user has selected [broader benchmarking](.work/issues/054-broader-composition-benchmark.md) after this documentation checkpoint is published; it has not run yet. The [September 22 wrap-up](docs/wrap-up.md) remains the historical repository/application checkpoint.
 
 ## The idea: tools as functions
 
@@ -69,13 +71,42 @@ Comparisons need to give the alternatives equivalent access to data and tools. O
 
 **The basic mechanism works.** The prototype can check programs, compose tool calls, reject invalid results, and process large responses before returning a small answer. The demonstration reduces roughly two megabytes of intermediate data to a few hundred bytes of output. That demonstrates local filtering, not an overall cost saving.
 
+**Early checking demonstrated a prevention benefit.** Given deliberately broken scripts, it caught a result-field error before an earlier simulated payment could execute, and caught a field typo that otherwise silently returned an empty answer. Runtime schema validation and permissions stayed enabled under every policy. These are controlled mechanism results within Strata's checking-policy comparison; native Pi was not included in the seeded-recovery arms, and no naturally generated semantic errors appeared in these small tasks.
+
+### Latest comparison with native Pi
+
+Each row covers **two natural tasks, three fresh repetitions each**. A request is one model turn; tokens include input, cached input and output without adding reasoning again. Averages and cost per success include failed attempts. Dollar amounts are estimates from recorded usage, not provider bills.
+
+| Model / approach | Strict success | Requests/attempt | Tokens/attempt | Median seconds | $/attempt | $/strict success |
+| --- | --- | --- | --- | --- | --- | --- |
+| Muse Spark, native Pi | 6/6 | 2.17 | 8,323 | 17.72 | $0.000735 | $0.000735 |
+| Muse Spark, checked Strata | 6/6 | 2.17 | 5,849 | 11.66 | $0.000635 | $0.000635 |
+| GLM 5.3 Flash, native Pi | 4/6 | 2.00 | 5,575 | 9.26 | $0.000493 | $0.000740 |
+| GLM 5.3 Flash, checked Strata | 4/6 | 2.50 | 5,440 | 10.32 | $0.000706 | $0.001059 |
+
+In the Muse Spark sample, checked Strata used approximately **30% fewer reported tokens, 14% less estimated model cost and 34% lower median wall time** than native Pi. GLM had equal strict success with more model requests, about 43% higher cost and 11% higher median time for checked Strata. All natural GLM answer content and final effects were correct after diagnostic removal of outer Markdown fences; primary strict grading still rejects those answers. Muse Spark used medium reasoning and GLM low; caches, provider timing and small samples limit interpretation.
+
+The complete [comparison report](docs/checking-policy-comparison.md) includes all four profiles, separate seeded-recovery results, input/output/cache/reasoning breakdowns, tail latency and [sanitized metrics for all 72 attempts](docs/evaluations/checking-policy-2026-10-01.json). The Muse Spark pilot passed 36/36 strict overall; GLM passed 26/36, with eight formatting failures and two substantive recovery mistakes. These results motivate a broader test; they do not establish a generally superior approach.
+
+### Earlier application and repository evidence
+
 **The repository experiments have not shown an advantage.** On the tasks tested, typed programs used fewer agent tool calls but more model tokens and greater estimated cost than ordinary Pi. Shorter type descriptions helped in an initial experiment, but a follow-up did not confirm the improvement. There is no established overall win in task success, cost or speed. The [repository trial report](docs/repo-trials.md) contains the measurements and limitations.
 
 **The application comparison now runs clean, and still favors direct tools on cost.** The first pilot had a flaw: across six tasks repeated three times per approach, typed programs completed 9 of 18 attempts versus 15 for direct tools, at roughly four times the cost per success — but the typed path rejected some timestamps the direct path accepted. After fixing that mismatch through both agent-facing entry points, a versioned 36-cell rerun reached completion parity (15–15) while direct tools remained cheaper (about 1.5× lower cost per success). The mechanism is measured: typed programs need half the model round trips but cost about three times more per request, with type definitions dominating the context — and direct tools were cheaper on every task, including aggregation. One task has zero strict successes in both approaches, although individual failure causes differ. So typed composition earns back completion but not its cost on the tasks tested. See the [pilot report and review](.work/issues/042-matched-application-comparison.md) and the [post-parity rerun](.work/issues/046-post-parity-comparison-v3.md).
 
 **Small tool-use diagnostics are encouraging, but narrow.** In a small BFCL-based exercise, the model selected functions, supplied arguments and abstained when no function fit. Corrected grading accepted all recorded calls, but some sessions stopped at a request limit. This was neither an official benchmark score nor a comparison proving Strata was better. See the [diagnostic report](docs/bfcl-diagnostic.md).
 
-These results come from limited experiments, largely on one model. They leave room for a useful application, but also for a narrower outcome—or a well-supported conclusion that the added complexity does not pay off.
+### Contracts and recovery
+
+**Declarations and semantic checking can be evaluated separately.** The September 30 pilot kept the same TypeScript descriptions while varying when checking ran. Each policy passed 6/6 small natural attempts without needing semantic diagnostics; native Pi Codemode also passed 6/6. Early checking prevented seeded partial effects and caught a typo that silently returned no records. Checking after failure missed that silent error, and recovery from a partial payment required inspecting state rather than replaying the failed script. Skipping the compiler did not remove declaration tokens or demonstrate a clear cost saving. The [pilot's lessons](docs/checking-policy-pilot.md#what-we-learned-from-the-run), expanded October 1, explain the evidence and its limits.
+
+**Checking needs meaningful contracts, and recovery needs correctly interpreted state.** The GLM repeat produced scripts that passed checking but omitted a return; the current compiler permits that return type, so the runtime reported the error after execution. In one recovery, the model treated an old payment as evidence that the requested new payment existed, skipped it and reported success. Types and runtime schemas accepted the program; independent state grading caught the omission. The [second-model report](docs/glm-checking-policy-repeat.md) records these failures and the deferred contract/recovery questions. We retain checking before execution with quiet success and diagnostic feedback.
+
+The repository/application comparisons predominantly used one model; the later synthetic pilots include two model families but only two natural task definitions. Together they demonstrate composition and some prevention benefits, an unconfirmed efficiency signal, and concrete limitations. They leave the size and practical value of those benefits open.
+
+## Later related work
+
+Earendil's [“You Said No MCP!”](https://earendil.com/posts/you-said-no-mcp/) (2026-09-29) describes Pi adopting MCP and JavaScript tool orchestration in its core. This announcement came **after Strata's initial September experiments and September 22 research checkpoint**. It overlaps with the composition mechanism explored here; it does not establish a performance advantage or imply that Strata influenced Pi. Earlier code-composition precedents already existed. The [comparison note](docs/research/pi-codemode-2026-09.md) connects the announcement and HN discussion to Strata's evidence and open questions. Historical repository/application measurements used Pi 0.73.1; the subsequent [September 30 pilot](docs/checking-policy-pilot.md) tested native Codemode in installed Pi 0.99.1 on a separate small synthetic fixture.
 
 ## Where the research could go
 
@@ -93,11 +124,11 @@ Possible directions include:
 - **Changing contracts and permissions:** investigate how an agent recovers when an API changes or access is revoked between discovering a function and calling it.
 - **Broader workflows:** consider edits, project checks and state across programs where real tasks demonstrate a need.
 
-Both tool paths now apply the same validation rules, verified through the interfaces agents actually use. The bounded rerun above is the comparison that step enabled. Still untested: whether selective discovery or substantially heavier local data processing earns the added cost; those possibilities need concrete tasks and fair baselines, not an assumption that larger workloads will produce a win — and per-task costs so far give no hint of a category where typed composition pulls ahead. Larger catalog experiments come after that. These directions are research possibilities, not committed product features; the [issue board](.work/issues/index.md) records priorities and dependencies.
+Both application tool paths now apply the same validation rules, verified through the interfaces agents actually use. That enabled the corrected rerun, where direct tools remained cheaper on every tested task. The later small native-Codemode comparison adds an encouraging Muse Spark efficiency observation, which GLM did not repeat. Whether either pattern generalizes needs more distinct workflows and full efficiency reporting. The [broader benchmark proposal](.work/issues/054-broader-composition-benchmark.md) focuses on that question; catalog scaling, memory and additional adapters remain separate possibilities. The [issue board](.work/issues/index.md) records scope and dependencies.
 
 ## Try the prototype
 
-The local demonstration requires Bun and uses bundled test data; it needs no model API key or external service. Linux is the tested environment. Windows support remains limited.
+The local demonstration requires Bun and uses bundled test data; it needs no model API key or external service. A historical Linux full-suite pass is recorded; the latest macOS/Bun baseline and Windows runs have [documented verification gaps](docs/handoff.md#verification-and-environment).
 
 ```sh
 git clone https://github.com/Fannon/strata-agent.git
@@ -115,6 +146,9 @@ The [prototype guide](docs/prototype-guide.md) covers Pi usage, connecting an MC
 ## Read further
 
 - [Evaluation summary](docs/evaluation-summary.md) — plain-language rundown of what works, what doesn't, and the numbers.
+- [Checking-policy comparison](docs/checking-policy-comparison.md) — success, requests, tokens, time and cost for both models and all profiles.
+- [Checking-policy pilot](docs/checking-policy-pilot.md) — updated Pi baseline and always/never/after-failure checking on small synthetic tasks.
+- [GLM repeat](docs/glm-checking-policy-repeat.md) — second-model results, output-format failures and payment-recovery mistakes.
 - [Wrap-up review](docs/wrap-up.md) — assessment of the stopping point, remaining gaps and restart criteria.
 - [How it works](docs/how-it-works.md) explains the execution flow.
 - [Architecture](ARCHITECTURE.md) describes the implementation and its trust boundaries.

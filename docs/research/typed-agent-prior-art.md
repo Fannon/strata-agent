@@ -2,6 +2,8 @@
 
 Research date: 2026-09-05. This is an architectural research note, not a performance result. Public primary sources and installed Pi source were inspected; no live model evaluation or private session analysis was performed.
 
+Later related work added 2026-09-30: [Pi's September 29 MCP/Codemode announcement](pi-codemode-2026-09.md) came after Strata's experiments and wrap-up. The Pi observations below remain pinned to 0.73.1; the announcement is not a source for the initial design or a tested comparison.
+
 ## Conclusion
 
 The useful experiment is whether a small, coherent TypeScript capability library improves coding outcomes and total resource use. Replacing shell punctuation alone does not establish that. Stock Pi can already execute scripts, and Prime Agent already composes actions in code. Strata's proposed distinction is checked TypeScript composition, purpose-designed structured contracts, and authorization at each external effect. This is a hypothesis to test, not an established advantage.

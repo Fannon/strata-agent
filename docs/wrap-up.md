@@ -2,6 +2,8 @@
 
 Reviewed 2026-09-22 against `4e2df5d` and the accompanying documentation changes. This is a local implementation/evidence review, not a new benchmark campaign or survey of competing products.
 
+Historical checkpoint: the assessment below describes the September 22 repository/application evidence. Subsequently selected 049/051 pilots tested native Pi Codemode and checking policies on two models. They demonstrated prevention of supplied field mistakes and an encouraging Muse Spark token/cost/time observation, not repeated on GLM; see the [complete comparison](checking-policy-comparison.md). Those small synthetic results do not replace the earlier application measurements. The [054 broader scope](../.work/issues/054-broader-composition-benchmark.md) is a proposal, not an active run. Current reporting/publication state is in the [handoff](handoff.md).
+
 ## Assessment
 
 **Ready to pause as a research prototype.** The implemented mechanism and the bounded evaluation provide a useful result: checked typed composition works, but has not earned its extra context and complexity on the tasks tested. No further experiment is selected. This checkpoint does not make the prototype production-ready or promise ongoing maintenance.
