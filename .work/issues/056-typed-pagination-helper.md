@@ -13,7 +13,7 @@ Hypothesis: a tested helper with inference from the actual API response removes 
 
 Prototype a bounded read helper, for example `collectPages(api.listInvoices, page => page.invoices)`, with inferred invoice rows. This spelling is a proposal, not a shipped API. Use declared pagination contracts; do not assume every remote service has this response shape. Keep every underlying invocation in the existing broker, grants, schemas, trace and program budgets. Detect repeated cursors, stop on the declared terminal cursor and enforce page/record bounds. No automatic retries of writes or general untyped result escape.
 
-Compare a helper with a small correct inline example on disjoint development tasks. Account for helper declaration/context cost, implementation complexity and any changed call limits. A model-independent helper is preferable to different prompt policies selected per model unless evidence supports the latter.
+Compare a helper with a small correct inline example on disjoint development tasks. Account for helper declaration/context cost, implementation complexity and any changed call limits. The user subsequently requires a model-independent approach: any helper must serve the shared API contracts without model-specific prompts or implementation branches.
 
 ## Acceptance if selected
 

@@ -2,6 +2,8 @@
 
 ## Latest delivery — 060 tuning, October 1, 2026
 
+**User constraint:** optimize a model-independent Strata interface, not individual models. 060 selected one shared recipe, with no model-name branching; examples vary only by API schema. Muse/GLM rows identify the model using that profile. Keep model-specific prompts/helpers/policies out of future tuning; unseen-model confirmation is proposed in deferred 061, not selected.
+
 [060](../.work/issues/060-strata-tuning-trials.md) is complete: 60 development attempts across baseline/recipe/helper/lean/feedback, then 72 confirmation attempts on six new definitions × three worlds × two arms × two models. Inventory checkpoint `730998c` was pushed before paid calls. [Report](strata-tuning-results.md), [sanitized 132-cell evidence](evaluations/tuning-2026-10-01.json), prototype in `examples/tuning/`. Retain recipe only as an experimental profile; helper added repairs/cost, lean failed correctness, smaller feedback never activated. Production defaults and earlier frozen sources/results are unchanged.
 
 Every confirmation row covers six distinct definitions and 18 attempts; requests are model turns, tokens include cache/output, failures stay in averages:

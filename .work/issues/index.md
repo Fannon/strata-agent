@@ -36,6 +36,8 @@ Large-catalog work (035) and a hybrid comparison (044) remain separate questions
 
 ## Goal and evidence path
 
+**User design constraint after 060:** one shared Strata approach across models; no model-specific recipes/prompts/helpers/checking policies. 060 already used the same recipe with Muse and GLM. [061 — cross-model generalization](061-cross-model-generalization.md) captures a possible unseen-model confirmation; deferred, no new calls or implementation selected. Apply this constraint before choosing further shared-interface tuning; existing 053/055/058/059 scopes remain separate.
+
 Find out whether giving an agent typed functions that it can compose into programs improves useful task completion compared with equally capable direct tools and ordinary scripts. Functions may represent local tools, MCP operations or REST calls; local computation and remote effects can share an interface without sharing an execution location. Demonstrating that this interface works is a feasibility result. Demonstrating that it earns its complexity requires a fair comparison.
 
 The completed research round tested real application composition through the existing MCP path. Building every transport, a large catalog or a production sandbox is not a prerequisite for this checkpoint. Success includes identifying a narrow useful setting or a supported negative result.

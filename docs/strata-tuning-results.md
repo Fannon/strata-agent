@@ -21,6 +21,10 @@ Do not promote the helper or shorter declaration presentation from this developm
 
 ### What the recipe actually adds
 
+**This is one model-independent recipe, not a Muse recipe and a GLM recipe.** Both receive the same guidance for a given task. Its operation/array field varies with the public API schema, never the model name. Selection chose one shared feature set across both models. Per-model rows report how different models respond to the same approach.
+
+The user subsequently clarified the design requirement: improve a shared interface that generalizes across models and leaves each model free to compose its own solution; do not introduce model-specific prompts, helpers or checking policies. Two tested models provide portability evidence, not proof of generalization to unseen models. [061](../.work/issues/061-cross-model-generalization.md) captures a possible separately selected test.
+
 It adds about **564 UTF-8 bytes** to the initial system prompt, varying slightly by enabled operation/array field. It uses the task's public API shape, never expected answers. The advice is: write ordinary JavaScript-style TypeScript, let API calls infer row types, prefer `Map` for lookups, avoid inventing generic page interfaces, use real response fields, return the requested answer shape, and remember completed writes if later code fails. The example is:
 
 ```ts
@@ -39,7 +43,7 @@ The code uses TypeScript syntax only where helpful; it does not require manually
 
 **Six previously inspected definitions, one fresh attempt per model/profile: 60 attempts.** J1, A1, A4, W1, W2 and R2 from 054 are development material, not fresh confirmation. Every row below covers six distinct definitions. Muse uses medium reasoning; GLM uses low. The feedback arm did not receive its intended treatment.
 
-| Model / profile | Answer + state | Strict JSON success | Effects correct | Requests/attempt | Tokens/attempt | Median / P90 seconds | $/attempt | $/business success | $/strict success |
+| Model / shared profile | Answer + state | Strict JSON success | Effects correct | Requests/attempt | Tokens/attempt | Median / P90 seconds | $/attempt | $/business success | $/strict success |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
 | Muse / baseline | 6/6 | 6/6 | 6/6 | 2.50 | 9,240 | 28.49 / 41.57 | $0.000984 | $0.000984 | $0.000984 |
 | Muse / recipe | 6/6 | 6/6 | 6/6 | 2.17 | 7,257 | 10.44 / 21.33 | $0.000762 | $0.000762 | $0.000762 |
@@ -79,7 +83,7 @@ Local `selection.json` SHA-256: `38d879790ed4489cbaa30fd4fc42f964ffc56ad2c91e1a2
 | N5: fulfillable value | Subtract existing reservations from demand, clamp by stock, rank five products by fulfillable value |
 | N6: invalid read then credit | Recover from one schema-invalid read, select a product and add the specifically requested credit without duplication |
 
-| Model / profile | Answer + state | Strict JSON success | Effects correct | Requests/attempt | Tokens/attempt | Median / P90 seconds | $/attempt | $/business success | $/strict success |
+| Model / shared profile | Answer + state | Strict JSON success | Effects correct | Requests/attempt | Tokens/attempt | Median / P90 seconds | $/attempt | $/business success | $/strict success |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
 | Muse / baseline | 17/18 | 17/18 | 17/18 | 3.22 | 14,643 | 25.87 / 44.93 | $0.001459 | $0.001545 | $0.001545 |
 | Muse / recipe | 18/18 | 18/18 | 18/18 | 2.39 | 10,186 | 16.86 / 40.22 | $0.001039 | $0.001039 | $0.001039 |
@@ -117,7 +121,7 @@ The added prompt was more than paid back by smaller generated programs and fewer
 
 Tokens below are totals over 18 confirmation attempts per row. Reported tokens are input + cache read + cache write + output; reasoning is already within output and is **not added again**. Cache write is zero throughout. Cost uses the frozen October 1 OpenRouter public catalog and recorded usage, not a reconciled provider invoice.
 
-| Model / profile | Input | Cache read | Output | Reasoning (within output) | Reported total | Requests | Total estimated $ |
+| Model / shared profile | Input | Cache read | Output | Reasoning (within output) | Reported total | Requests | Total estimated $ |
 | --- | --- | --- | --- | --- | --- | --- | --- |
 | Muse / baseline | 183,354 | 40,986 | 39,227 | 13,511 | 263,567 | 58 | $0.026262772 |
 | Muse / recipe | 124,661 | 27,786 | 30,908 | 11,781 | 183,355 | 43 | $0.018703272 |

@@ -94,9 +94,11 @@ The [full report](docs/composition-benchmark.md) includes task families, failure
 
 ### Prompt tuning after that comparison
 
+**One shared recipe was tested with both models.** “Muse, recipe” and “GLM, recipe” identify the model running that same profile; there are no separate model-specific recipes. Only the example’s operation and response field come from the task’s public API schema.
+
 Six new definitions × three generated worlds = **18 attempts per row**, following 60 separate development attempts. Same checked session and full types; the recipe adds a correct pagination example and inference/Map guidance. Requests are model turns; tokens include cached input and output; failures stay in averages. Costs are estimates.
 
-| Model / checked profile | Answer + state | Strict JSON success | Effects correct | Requests/attempt | Tokens/attempt | Median seconds | $/attempt |
+| Model / shared checked profile | Answer + state | Strict JSON success | Effects correct | Requests/attempt | Tokens/attempt | Median seconds | $/attempt |
 | --- | --- | --- | --- | --- | --- | --- | --- |
 | Muse, baseline | 17/18 | 17/18 | 17/18 | 3.22 | 14,643 | 25.87 | $0.001459 |
 | Muse, recipe | 18/18 | 18/18 | 18/18 | 2.39 | 10,186 | 16.86 | $0.001039 |

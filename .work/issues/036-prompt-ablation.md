@@ -53,7 +53,7 @@ belong in this experiment or a separate discovery one (separate — see 004).
 
 The user explicitly asked whether we have a custom system prompt and what could be tuned. The answer is yes: `src/pi/extension.ts` appends fixed Strata instructions and loaded declarations to Pi's base system prompt and supplies tool descriptions/prompt snippets. The separate 054 extension adds task-specific pagination/units/effect-recovery instructions and a clearer return-from-main instruction. That latest experiment did not vary prompts.
 
-Candidate next prompt arms, only if selected: current instructions; terse recipe plus one correct pagination example; a GLM-oriented example emphasizing inference, concrete response fields and `Map` rather than invented generic wrappers. Examples add tokens and must earn them back. Prefer a common prompt unless a model-specific policy wins on untouched tasks.
+Candidate next prompt arms, only if selected: current instructions; terse recipe plus one correct pagination example; a shared example emphasizing inference, concrete response fields and `Map` rather than invented generic wrappers. Examples add tokens and must earn them back. The user subsequently requires a model-independent approach; do not select separate prompts by model.
 
 For a separate dedicated business-agent comparison, trimming/replacing Pi's coding-oriented base prompt is another candidate. This would be a new scope beyond the original above, which intentionally holds Pi's base prompt fixed. Compare equivalent base instructions for both native and Strata, preserve the runtime/tool constraints, and record every effective prompt. Do not mix base-prompt changes with new helpers, checking policies or function loading in the same attribution test.
 
