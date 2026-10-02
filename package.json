@@ -22,6 +22,9 @@
     ]
   },
   "dependencies": {
+    "@earendil-works/chord": "^1.0.0",
+    "@earendil-works/pi-ai": "^1.0.0",
+    "@earendil-works/pi-durable": "^1.0.0",
     "@mariozechner/pi-coding-agent": "0.73.1",
     "@modelcontextprotocol/sdk": "1.30.0",
     "@sinclair/typebox": "0.34.52",
