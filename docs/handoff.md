@@ -1,5 +1,9 @@
 # Next-agent handoff
 
+## Latest documentation review — README proposition, October 2, 2026
+
+[064](../.work/issues/064-readme-proposition-review.md) delivers the user-requested README review. The front page now leads with experimental learning/proofs of concept, intended value and costs, implemented scope, promising mechanisms and shortcomings. Dated comparison tables and expandable accounting retain positive and negative evidence, primary/effect grading and explicit measurement limits. The shared recipe remains experimental; current features are distinct from historical measured revisions. Source reports, runtime and frozen evidence are unchanged. Links/figures/whitespace checked without model calls; no further implementation or spend selected.
+
 ## Latest delivery — 061 third-model portability, October 1, 2026
 
 User selected adding cheaper Ling Flash VL. Completed a bounded 108-attempt repeat: existing six N1–N6 definitions × three worlds × baseline/exact 060 recipe × Muse/GLM/Ling. Current 052/053/058 session behavior in both arms via the installed Pi 0.99.1 fixture adapter; no production changes or model-specific recipes. [Report](third-model-portability.md), [sanitized data](evaluations/portability-2026-10-01.json), `examples/portability/`. Task/API holdout, native arm and causal feature ablations remain unselected.

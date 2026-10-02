@@ -1,39 +1,29 @@
 # strata-agent
 
-> **Research prototype.** Strata is unfinished and is not production-ready.
+> **Experimental research project.** Strata is built to learn, test ideas and establish proofs of concept. It is unfinished and not production-ready. Negative and inconclusive results are part of the output.
 
-Strata explores a simple idea: **what if an AI agent could use its tools as typed functions in a small program?**
+Strata asks: **can an AI agent work more reliably or efficiently when its tools are typed functions it can compose into a program?**
 
-An agent often needs to find information, make several related calls, and combine the results. Strata lets it express that work in TypeScript. The program can fetch data, filter it, and pass results between tools before returning a summary to the model. Types describe what each function accepts and returns, so some mistakes can be caught before anything runs.
+Instead of sending every tool response back to the model, the agent writes a small TypeScript program that calls tools, passes data between them, filters or joins the results, and returns a compact answer. Types describe each function's inputs and outputs; checking can catch some mistakes before the program takes any actions.
 
-The prototype is an extension for Pi, a coding agent. The broader research question applies to agents working with local tools and remote services.
+The intended value is less raw data in model context, fewer model round trips for dependent work, and earlier feedback on contract errors. Writing code, reading declarations and repairing type errors also cost tokens and time. The experiment is whether those benefits earn the extra machinery against equally capable direct tools and ordinary scripts.
 
-**Current finding (2026-10-01): checked composition now has a measurable cost advantage with Muse Spark on a broader synthetic corpus.** Across 20 workflows repeated three times, checked Strata scored 60/60 versus native Pi Codemode's 58/60, using 28% fewer tokens and 23% lower estimated model cost. Median time was similar. With GLM, checking used fewer tokens but needed more repair turns, cost 6% more and took longer. This is a model-dependent result, not a general performance claim.
+Today this is a **Pi extension hosted by Bun**, with a shared capability layer and a restricted QuickJS execution environment. The broader idea is one composable interface over local tools and remote services. Code-based tool orchestration already has [prior art](docs/research/typed-agent-prior-art.md); Strata's particular experiment combines schema-derived TypeScript functions, checking before execution, runtime validation and explicit result/action evidence.
 
-Strata retains checking before execution, returns diagnostics on errors and keeps clean checks out of model context. The [240-attempt comparison](docs/composition-benchmark.md) is complete, with separate answer, effect and output-format scores. The earlier [checking-policy pilots](docs/checking-policy-comparison.md) and [September 22 wrap-up](docs/wrap-up.md) remain historical evidence. Documentation was pushed as `7b64a4e` before the broader run.
+**Current assessment (October 2, 2026): the mechanism works; its task-level value is conditional.** There is a promising cost result with Muse Spark on synthetic service workflows, but no general speed, cost or reliability advantage. GLM incurs more repair work in the native-Pi comparison, earlier repository/application work did not establish an overall win, and a third-model repeat still produced correct-looking answers that omitted required actions. The evidence below separates working mechanisms from demonstrated performance and remaining hypotheses.
 
-**Later tuning improved the checked approach on both models.** A short correct programming recipe reduced measured cost and repair work on six new workflows. The helper and shorter declarations did not earn promotion; GLM output formatting remained unresolved at that measured revision; subsequent finalization and a third-model repeat are documented below. See the [132-attempt tuning report](docs/strata-tuning-results.md). This is a Strata-versus-Strata experiment; production defaults remain unchanged.
+## What exists, and what remains a hypothesis
 
-**Implemented since those measurements:** explicit final-result selection and action receipts now work in the shared production extension. Set `finalize: true` on the final `typed_program`, or select its id with `finalize_result`; the host delivers the computed JSON. `program_effects` distinguishes acknowledged, rejected and uncertain actions after failures and lists allowed inspection operations. Known missing/invalid root returns are rejected before execution. [Usage and limits](docs/results-and-recovery.md). These changes have model-free integration coverage and now appear in both arms of the [third-model repeat](docs/third-model-portability.md); their individual performance effects are not isolated.
-
-## The idea: tools as functions
-
-A command-line tool, an MCP tool (a tool exposed through the Model Context Protocol), and a REST API all offer operations an agent can call. Could they share a useful programming interface, even though they run in different places?
-
-| Kind of operation | What a typed function could represent | Where the work happens |
+| Area | Implemented scope | Limit or open question |
 | --- | --- | --- |
-| Local tool or CLI | Search files, inspect Git history, run a project check | On the local machine, through an approved adapter |
-| MCP tool | Query a service or invoke an operation described by its tool schema | In the connected tool server, locally or remotely |
-| REST API | Fetch records or update an external application | In a remote service, through an API client |
-| Local computation | Filter, join, sort or summarize the returned data | Inside the program's execution sandbox |
+| Typed composition | Schema-derived functions, checked TypeScript modules, local filtering/joins and bounded JSON results | Types cannot establish business correctness or complete pagination |
+| Tool connections | MCP connector, a process-based CLI demonstration and read-only repository capabilities | General REST generation, broad CLI/filesystem coverage and repository editing/checks remain unimplemented ideas |
+| Discovery | Policy-aware search/load for the local capability catalog; full declarations by default, compact presentation opt-in | Large dynamic service-catalog discovery has not been validated; recent comparisons preload task-relevant functions |
+| Feedback and results | Quiet successful checks, error diagnostics, on-demand program details and explicit final JSON selection | Exact delivery preserves a selected result; it cannot make a wrong result correct |
+| Action evidence | Bounded receipts distinguish broker-acknowledged, not-executed and uncertain actions; inspection tools support recovery | No automatic retry, rollback, durable replay ledger or synthesized backend idempotency |
+| Execution and access | QuickJS by default; broker checks permissions and schemas; direct Bun executor opt-in | Trusted adapters run on the host; ordinary Pi tools retain their own access. This is not a hardened security boundary for the whole agent; direct Bun leaves ambient host APIs reachable |
 
-The hypothesis is that the agent could compose these functions without having to handle a different calling convention for each tool. Some functions would make remote calls; others would perform local work inside the sandbox. Access to files, processes and external services would still need explicit permissions.
-
-The broader goal is that every operation available to the agent can be expressed as a typed function, including CLI and filesystem operations underneath. One risk is familiarity: models may already be better at established Bash/Linux workflows than at a new set of function names and schemas. Strata could lose that advantage while adding more definitions to read. This is a counter-hypothesis to test, not an established explanation of the results; comparisons must retain the baseline's ordinary CLI and scripting abilities.
-
-The working hypothesis is that this tradeoff depends on familiarity: a typed wrapper may add friction for a tool the model already knows, yet provide useful structure for an unfamiliar API it must learn anyway. A uniform interface could also make entire workflows easier to compose, even when some individual calls become more expensive. A hybrid—typed functions alongside familiar shell tools—might work better still. Whether uniform composition outweighs the benefit of choosing between interfaces is an open research question.
-
-That is the direction being explored, not a description of a finished universal tool system. Today, Strata has an MCP connection, a small CLI demonstration, and read-only repository tools. General REST integration and broad tool coverage remain ideas to investigate. In the current prototype, local tool adapters run in the trusted host; the generated program's computation runs in a restricted environment. This is not yet a hardened security sandbox.
+The long-term hypothesis is a shared typed interface for CLI, filesystem, MCP and REST operations, while keeping their execution locations and permissions explicit. It may be useful for unfamiliar APIs that an agent must learn anyway. Familiar shell workflows may be better served by existing tools; a hybrid interface may work better than universal wrappers. Large-catalog discovery, recurring program reuse and real-service generalization remain questions, not proven value or an implementation commitment.
 
 ## A small example
 
@@ -58,62 +48,51 @@ This example uses the included demonstration data. Intermediate customer and inv
 
 Types cannot tell the agent whether it chose the right business rule. They are only as useful as the underlying descriptions and schemas.
 
-## What are we trying to find out?
+## What worked, and why it seems promising
 
-The main question is whether this approach helps agents complete real tasks more reliably, cheaply or quickly. Fewer tool calls alone would not be enough: writing programs, reading type definitions and fixing errors also consume time and model context.
+- **Composition keeps intermediate data outside the conversation.** Programs can combine calls and reduce large responses before the model sees them. The bundled demonstration reduces roughly two megabytes of intermediate data to a few hundred bytes of output. This establishes the mechanism; total savings also depend on declarations, generated code and repairs.
+- **Checking can prevent contract mistakes before effects.** Controlled broken-script tests caught a nonexistent result field before an earlier simulated payment ran, and a typo that otherwise silently returned an empty answer. Later models also generated programs rejected before any calls from those programs. The useful property is early feedback on the whole program, including mistakes after a planned write. Some rejections concern strict typing that JavaScript would tolerate; the net benefit of the compiler alone has not been isolated. [Checking-policy lessons](docs/checking-policy-pilot.md#what-we-learned-from-the-run).
+- **The shared capability layer works across transports.** MCP and CLI connectors use the same declaration/compiler/broker path. Runtime schemas and permissions remain enforced independently of static types. This supports the feasibility of a common interface; it does not establish that every tool should be wrapped or that integration is effortless. [Architecture](ARCHITECTURE.md).
+- **Computed results and action evidence are useful explicit contracts.** `typed_program` with `finalize: true`, or `finalize_result`, lets the host deliver selected JSON without model reconstruction. `program_effects` exposes retained action receipts for inspection after errors. Tests verify these behaviors, and the latest real-model repeat used them. A broker-accepted reply is an acknowledgement, not independent proof of the requested business outcome. [Usage, verification and limits](docs/results-and-recovery.md).
 
-The research focuses on four questions:
+The clearest measured efficiency signal is Muse's synthetic composition result below. A short shared programming recipe also helped in an initial tuning experiment, but its efficiency benefit did not generalize across all models on the current implementation. It remains an experimental profile, with no model-specific branches. [Tuning report](docs/strata-tuning-results.md).
 
-- **Composition:** When does combining calls and processing data in a program beat individual tool calls or ordinary shell scripts?
-- **Useful feedback:** Do type errors help agents correct mistakes before taking actions, enough to justify the extra machinery?
-- **Discovery:** Could an agent find and load just the functions it needs from a large tool catalog, without reading every tool definition first?
-- **Shared interfaces:** How much integration effort can existing MCP schemas and REST API descriptions save, and where do local tools still need custom adapters?
+## Where Strata falls short
 
-Comparisons need to give the alternatives equivalent access to data and tools. Ordinary agents can already write scripts, and direct tools can also be discovered on demand. Strata needs to earn its place against those alternatives.
+**Fewer interactions do not guarantee lower cost or faster completion.** Declarations consume context, generated programs consume output tokens, and repairs add model requests. In earlier repository work there was no demonstrated overall advantage; initial gains from compact declarations did not survive confirmation. The corrected application pilot reached equal completion with direct tools but retained a cost penalty. Those negative results remain relevant alongside the later positive synthetic signal. [Repository evidence](docs/repo-trials.md); [application evidence](.work/issues/046-post-parity-comparison-v3.md).
 
-## What we have learned so far
+**Type-safe code can still do the wrong work.** Models can fetch only the first page, apply the wrong business rule, omit required writes, or return extra fields. `any` and assertions can erase useful checks. In the latest repeat, two Ling attempts computed the correct credit answer without issuing the credit action. Exact JSON delivery faithfully delivered those answers; receipts did not force completion. Independent answer and final-state grading are necessary.
 
-**The basic mechanism works.** The prototype can check programs, compose tool calls, reject invalid results, and process large responses before returning a small answer. The demonstration reduces roughly two megabytes of intermediate data to a few hundred bytes of output. That demonstrates local filtering, not an overall cost saving.
+**Recovery is assisted, not solved.** Receipts help distinguish acknowledged actions from uncertain ones, but a model must choose to inspect and correctly interpret state before retrying. Evidence is bounded and in memory; restarting clears it. Stronger caller-defined completion evidence and accidental extra entry-point invocation are recorded as deferred issues [063](.work/issues/063-effectful-completion-evidence.md) and [062](.work/issues/062-top-level-main-invocation.md).
 
-**Early checking demonstrated a prevention benefit.** Given deliberately broken scripts, it caught a result-field error before an earlier simulated payment could execute, and caught a field typo that otherwise silently returned an empty answer. Runtime schema validation and permissions stayed enabled under every policy. These are controlled mechanism results within Strata's checking-policy comparison; native Pi was not included in the seeded-recovery arms, and no naturally generated semantic errors appeared in these small tasks.
+**The evidence is limited.** Recent workflows are synthetic, task-relevant functions are preloaded, and model/provider/cache behavior varies. Older application trials reuse development tasks. Whole-system comparisons do not isolate checking from declaration rendering, prompts, runtime limits or feedback. The newest repeat adds a model, but reuses tasks and has no native-Pi arm. We have not established a general advantage on real services, large catalogs or arbitrary coding tasks.
 
-### Latest comparison with native Pi — 20 workflows
+## Evidence at the current checkpoint
 
-Each row covers **20 distinct definitions, three fresh repetitions = 60 attempts**. A turn is one model request; tokens include input, cached input and output without adding reasoning again. Answer + state requires the requested JSON content and exact effects; one unambiguous JSON fence is accepted. Pure JSON success also requires an unwrapped final answer. All-attempt averages, timing and cost per success include failures.
+A **turn means one model request**; capability invocations are counted separately. All-attempt averages, elapsed times and cost per success include failures. Tokens sum uncached input, cached input and output; reasoning is already within output and is never added again. Costs are estimates from captured usage and catalog rates, not provider bills.
 
-| Model / approach | Answer + state | Pure JSON success | Requests/attempt | Tokens/attempt | Median / P90 seconds | $/attempt | $/scored success |
-| --- | --- | --- | --- | --- | --- | --- | --- |
-| Muse, native Pi | 58/60 | 58/60 | 2.12 | 8,614 | 10.46 / 25.88 | $0.000844 | $0.000873 |
-| Muse, checked Strata | 60/60 | 60/60 | 2.13 | 6,207 | 10.87 / 23.12 | $0.000653 | $0.000653 |
-| GLM, native Pi | 56/60 | 49/60 | 2.17 | 6,847 | 6.74 / 21.45 | $0.000858 | $0.000919 |
-| GLM, checked Strata | 59/60 | 36/60 | 2.57 | 6,004 | 13.16 / 29.92 | $0.000910 | $0.000925 |
+Primary **answer + state** success requires completion, the requested JSON content and exact resulting effects; one unambiguous JSON fence is accepted. **Strict JSON** additionally requires an unwrapped answer. Separate effect scores do not replace primary grading: an unchanged read-only world can be effect-correct while its answer is wrong.
 
-The Muse cost reduction appears across all five families; its task-block bootstrap cost ratio is 0.774 (95% descriptive interval 0.649–0.907). Reliability intervals include parity. GLM needed 18.5% more requests and roughly twice the median time with checking, and its pure JSON compliance was worse. Its cost difference is uncertain. Both approaches still make semantic business mistakes; types do not replace state verification.
+### Native Pi Codemode versus checked Strata
 
-Native Muse overpaid ten simulated invoice payments after using a nonexistent invoice field. Checked Strata made every required effect correctly across both models, but one GLM run then wrongly claimed it had added no payments. The compiler rejected 32 naturally generated programs before calls from those programs ran, including strict typing issues that JavaScript would tolerate. Quiet checking remains the default; the new comparison does not isolate the compiler from interface and runtime differences.
+October 1 comparison: **20 distinct workflows × three fresh repetitions = 60 attempts per row, 240 evaluation attempts total**, plus 16 separate development attempts. This measured the earlier implementation, before explicit finalization/action receipts were added; it is not a benchmark of every current feature.
 
-The [full report](docs/composition-benchmark.md) includes task families, failures, token/cache/reasoning breakdowns, P90 time and task-block uncertainty. [Sanitized metrics](docs/evaluations/composition-2026-10-01.json) cover all 240 evaluation and 16 separate development attempts. Total new estimated model cost was **$0.2045**. [055](.work/issues/055-checking-attribution.md) records the deferred experiment to isolate checking itself.
+| Model / approach | Answer + state | Strict JSON | Effects correct | Requests/attempt | Tokens/attempt | Median / P90 seconds | $/attempt | $/success |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| Muse, native Pi | 58/60 | 58/60 | 58/60 | 2.12 | 8,614 | 10.46 / 25.88 | $0.000844 | $0.000873 |
+| Muse, checked Strata | 60/60 | 60/60 | 60/60 | 2.13 | 6,207 | 10.87 / 23.12 | $0.000653 | $0.000653 |
+| GLM, native Pi | 56/60 | 49/60 | 59/60 | 2.17 | 6,847 | 6.74 / 21.45 | $0.000858 | $0.000919 |
+| GLM, checked Strata | 59/60 | 36/60 | 60/60 | 2.57 | 6,004 | 13.16 / 29.92 | $0.000910 | $0.000925 |
 
-### Prompt tuning after that comparison
+Muse used 28% fewer tokens and 23% lower estimated model cost with checked Strata, at similar median time. Its task-block cost-ratio interval excludes parity on this corpus; reliability intervals include parity. GLM used fewer tokens but more requests, roughly twice the median time and 6% higher cost; its cost difference is uncertain. Its strict JSON compliance was also worse at this revision. These are model-dependent whole-system results.
 
-**One shared recipe was tested with both models.** “Muse, recipe” and “GLM, recipe” identify the model running that same profile; there are no separate model-specific recipes. Only the example’s operation and response field come from the task’s public API schema.
+The compiler rejected 32 generated programs before calls from those programs ran. Native Muse overpaid ten simulated payments using a nonexistent field; checked effects were correct in all 120 attempts, although one GLM answer wrongly denied making payments. This supports early contract feedback and independent effect grading without proving that the compiler alone caused the difference. [Full report](docs/composition-benchmark.md); [sanitized evidence](docs/evaluations/composition-2026-10-01.json).
 
-Six new definitions × three generated worlds = **18 attempts per row**, following 60 separate development attempts. Same checked session and full types; the recipe adds a correct pagination example and inference/Map guidance. Requests are model turns; tokens include cached input and output; failures stay in averages. Costs are estimates.
+### Shared recipe on the current implementation, across three models
 
-| Model / shared checked profile | Answer + state | Strict JSON success | Effects correct | Requests/attempt | Tokens/attempt | Median seconds | $/attempt |
-| --- | --- | --- | --- | --- | --- | --- | --- |
-| Muse, baseline | 17/18 | 17/18 | 17/18 | 3.22 | 14,643 | 25.87 | $0.001459 |
-| Muse, recipe | 18/18 | 18/18 | 18/18 | 2.39 | 10,186 | 16.86 | $0.001039 |
-| GLM, baseline | 17/18 | 14/18 | 17/18 | 3.00 | 9,791 | 22.30 | $0.001342 |
-| GLM, recipe | 18/18 | 13/18 | 18/18 | 2.50 | 7,446 | 16.04 | $0.001009 |
+October 1 repeat: **six existing workflows × three data variants = 18 attempts per row, 108 total**. Both profiles have finalization and recovery; the recipe adds a correct pagination example and inference/Map guidance. It is the same recipe across models. There is no native-Pi arm or individual-feature ablation.
 
-The recipe's measured cost was 29% lower with Muse and 25% lower with GLM; GLM's uncertainty interval includes parity. Both baseline failures concern the same allocation rule, so broader reliability superiority is unproven. Strict success overall stayed equal because formatting did not improve. The recipe is retained in the experimental profile; the generic helper added repairs/cost, alias deduplication failed a correctness gate, and smaller feedback was never exercised. [Full results](docs/strata-tuning-results.md) include P90 time, cost per success, tokens/cache/reasoning, paired uncertainty and all [132 sanitized attempts](docs/evaluations/tuning-2026-10-01.json). Estimated tuning cost: **$0.1350**.
-
-### Third-model repeat on the current implementation
-
-Added `inclusionai/ling-3.0-flash-vl` and reran Muse/GLM with finalization and recovery available in both arms. **Six existing workflows × three data variants × three models × two profiles = 108 attempts.** Same shared recipe, no model-specific tuning. Failures are included in turns/tokens/time/cost.
-
-| Model / shared Strata profile | Answer + state | Strict success | Effects correct | Requests/attempt | Tokens/attempt | Median / P90 seconds | $/attempt | $/success |
+| Model / Strata profile | Answer + state | Strict JSON | Effects correct | Requests/attempt | Tokens/attempt | Median / P90 seconds | $/attempt | $/success |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- |
 | Muse, baseline | 18/18 | 18/18 | 18/18 | 3.89 | 19,360 | 27.57 / 36.22 | $0.001964 | $0.001964 |
 | Muse, recipe | 18/18 | 18/18 | 18/18 | 3.11 | 15,049 | 22.54 / 54.85 | $0.001622 | $0.001622 |
@@ -122,66 +101,66 @@ Added `inclusionai/ling-3.0-flash-vl` and reran Muse/GLM with finalization and r
 | Ling, baseline | 14/18 | 14/18 | 16/18 | 3.72 | 19,630 | 11.22 / 23.56 | $0.000360 | $0.000462 |
 | Ling, recipe | 15/18 | 15/18 | 16/18 | 4.17 | 24,107 | 12.27 / 27.75 | $0.000407 | $0.000488 |
 
-Ling is much cheaper at the captured rates, but less reliable here. The recipe lowers Muse cost 17%, while GLM cost rises 5% and Ling cost rises 13%; it remains experimental, with no universal efficiency claim. Exact host JSON delivery worked in 105 attempts, but correct-looking output sometimes omitted the required write. [Full report](docs/third-model-portability.md) includes token/reasoning/cache totals, latency tails, all failures and uncertainty; [sanitized data](docs/evaluations/portability-2026-10-01.json). Total cost **$0.1183**, 384 model requests. This tests a new model on existing synthetic tasks, with no native-Pi arm or causal feature ablation.
+The recipe reduced Muse's measured cost 17%, but increased GLM's 5% and Ling's 13%; all three cost intervals include parity. Muse's median improved while its P90 worsened. Ling is cheaper at the captured rates but less reliable here. No universal efficiency improvement is established.
 
-### Earlier small comparison with native Pi
+Exact host delivery was verified in 105 attempts, and action evidence was inspected nine times. That demonstrates use of the mechanisms, not an isolated performance benefit. Missing required writes persisted. [Full report and failures](docs/third-model-portability.md); [sanitized evidence](docs/evaluations/portability-2026-10-01.json).
 
-Each row covers **two natural tasks, three fresh repetitions each**. A request is one model turn; tokens include input, cached input and output without adding reasoning again. Averages and cost per success include failed attempts. Dollar amounts are estimates from recorded usage, not provider bills.
+<details>
+<summary>Token breakdowns and separate capability invocations for the two comparisons</summary>
 
-| Model / approach | Strict success | Requests/attempt | Tokens/attempt | Median seconds | $/attempt | $/strict success |
+These are totals per row, including failures. Input excludes cache reads. Cache writes were zero; reasoning is a subset of output. Capability invocations include unsuccessful calls and repeated work; they are not model turns.
+
+| Experiment / model / profile | Input | Cache read | Output | Reasoning within output | Capability invocations |
+| --- | --- | --- | --- | --- | --- |
+| Native comparison / Muse / native | 385,402 | 71,567 | 59,861 | 19,213 | 570 |
+| Native comparison / Muse / checked | 259,209 | 47,232 | 65,956 | 24,510 | 553 |
+| Native comparison / GLM / native | 227,040 | 158,464 | 25,324 | 1,174 | 1,209 |
+| Native comparison / GLM / checked | 204,101 | 115,136 | 41,027 | 2,492 | 664 |
+| Current repeat / Muse / baseline | 264,368 | 39,925 | 44,189 | 16,554 | 368 |
+| Current repeat / Muse / recipe | 212,975 | 18,616 | 39,287 | 15,257 | 326 |
+| Current repeat / GLM / baseline | 61,029 | 106,176 | 14,337 | 170 | 248 |
+| Current repeat / GLM / recipe | 58,344 | 118,144 | 16,322 | 796 | 258 |
+| Current repeat / Ling / baseline | 151,964 | 158,976 | 42,408 | 11,215 | 248 |
+| Current repeat / Ling / recipe | 160,791 | 224,320 | 48,821 | 13,192 | 354 |
+
+</details>
+
+<details>
+<summary>Earlier application pilot: completion parity with a cost penalty</summary>
+
+September 19 corrected AppWorld pilot: **six development tasks × three repetitions = 18 attempts per approach, 36 total**. Both paths used the same validation policy after fixing a timestamp-compatibility mismatch in the first pilot. Preserve upstream strict grading; one direct attempt passed task grading but stopped at a budget guard and remains a strict failure.
+
+| Approach | Strict success | Requests/attempt | Tokens | Elapsed time | Total estimated $ | $/strict success |
 | --- | --- | --- | --- | --- | --- | --- |
-| Muse Spark, native Pi | 6/6 | 2.17 | 8,323 | 17.72 | $0.000735 | $0.000735 |
-| Muse Spark, checked Strata | 6/6 | 2.17 | 5,849 | 11.66 | $0.000635 | $0.000635 |
-| GLM 5.3 Flash, native Pi | 4/6 | 2.00 | 5,575 | 9.26 | $0.000493 | $0.000740 |
-| GLM 5.3 Flash, checked Strata | 4/6 | 2.50 | 5,440 | 10.32 | $0.000706 | $0.001059 |
+| Direct tools | 15/18 | 12.3 | Not available in the published v3 summary | Not measured per attempt | $0.1380 | $0.0092 |
+| Checked Strata | 15/18 | 6.1 | Not available in the published v3 summary | Not measured per attempt | $0.2113 | $0.0141 |
 
-In the Muse Spark sample, checked Strata used approximately **30% fewer reported tokens, 14% less estimated model cost and 34% lower median wall time** than native Pi. GLM had equal strict success with more model requests, about 43% higher cost and 11% higher median time for checked Strata. All natural GLM answer content and final effects were correct after diagnostic removal of outer Markdown fences; primary strict grading still rejects those answers. Muse Spark used medium reasoning and GLM low; caches, provider timing and small samples limit interpretation.
+Typed composition halved model requests but cost more per success. Declaration overhead is a plausible explanation, not an isolated causal result. Separate exact effect-correctness and complete backend-invocation counts are unavailable in the published v3 summary; metadata/policy logs do not prove all effects were task-authorized. Earlier v2 counts must not be substituted for v3. These reused development tasks do not establish generalization. [Versioned results and limits](.work/issues/046-post-parity-comparison-v3.md).
 
-The complete [comparison report](docs/checking-policy-comparison.md) includes all four profiles, separate seeded-recovery results, input/output/cache/reasoning breakdowns, tail latency and [sanitized metrics for all 72 attempts](docs/evaluations/checking-policy-2026-10-01.json). The Muse Spark pilot passed 36/36 strict overall; GLM passed 26/36, with eight formatting failures and two substantive recovery mistakes. These results motivate a broader test; they do not establish a generally superior approach.
+</details>
 
-### Earlier application and repository evidence
+<details>
+<summary>Earlier repository trials: no demonstrated overall advantage</summary>
 
-**The repository experiments have not shown an advantage.** On the tasks tested, typed programs used fewer agent tool calls but more model tokens and greater estimated cost than ordinary Pi. Shorter type descriptions helped in an initial experiment, but a follow-up did not confirm the improvement. There is no established overall win in task success, cost or speed. The [repository trial report](docs/repo-trials.md) contains the measurements and limitations.
+The historical held-out stage used **six task instances × two repetitions = 12 attempts per profile, 36 total**, with Muse Spark and reasoning off. These tasks are now inspected regression material. Primary overall success includes answer, policy and harness requirements; exact answer correctness is supplementary. The tasks are read-only, and no separate final-state effect score was recorded.
 
-**The application comparison now runs clean, and still favors direct tools on cost.** The first pilot had a flaw: across six tasks repeated three times per approach, typed programs completed 9 of 18 attempts versus 15 for direct tools, at roughly four times the cost per success — but the typed path rejected some timestamps the direct path accepted. After fixing that mismatch through both agent-facing entry points, a versioned 36-cell rerun reached completion parity (15–15) while direct tools remained cheaper (about 1.5× lower cost per success). The mechanism is measured: typed programs need half the model round trips but cost about three times more per request, with type definitions dominating the context — and direct tools were cheaper on every task, including aggregation. One task has zero strict successes in both approaches, although individual failure causes differ. So typed composition earns back completion but not its cost on the tasks tested. See the [pilot report and review](.work/issues/042-matched-application-comparison.md) and the [post-parity rerun](.work/issues/046-post-parity-comparison-v3.md).
+| Profile | Overall success | Exact answers | Requests/attempt | Tokens/attempt | Median seconds | $/attempt | $/success |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| Stock Pi | 12/12 | 12/12 | 4.17 | 11,682 | 9.37 | $0.000842 | $0.000842 |
+| Typed QuickJS | 12/12 | 12/12 | 3.92 | 31,397 | 12.25 | $0.001892 | $0.001892 |
+| Typed Bun | 11/12 | 11/12 | 4.25 | 34,932 | 12.60 | $0.002081 | $0.002271 |
 
-**Small tool-use diagnostics are encouraging, but narrow.** In a small BFCL-based exercise, the model selected functions, supplied arguments and abstained when no function fit. Corrected grading accepted all recorded calls, but some sessions stopped at a request limit. This was neither an official benchmark score nor a comparison proving Strata was better. See the [diagnostic report](docs/bfcl-diagnostic.md).
+Total input/cache-read/output tokens were 63,724/58,370/18,088 for stock, 182,880/173,517/20,368 for QuickJS and 196,749/197,905/24,536 for Bun. Cache writes were zero; separate reasoning counts are unavailable in this export. Capability invocations were unmeasured for stock, 108 for QuickJS and 106 for Bun. Failed attempts remain in every average and cost per success.
 
-### Contracts and recovery
+The full report records other stages, policy/harness limitations and an accounting discrepancy between estimated ledger spend and account-level usage. Later compact-declaration development gains did not survive confirmation. [Repository report](docs/repo-trials.md); [sanitized stage/cell evidence](docs/evaluations/repo-2-2026-09-06.json).
 
-**Declarations and semantic checking can be evaluated separately.** The September 30 pilot kept the same TypeScript descriptions while varying when checking ran. Each policy passed 6/6 small natural attempts without needing semantic diagnostics; native Pi Codemode also passed 6/6. Early checking prevented seeded partial effects and caught a typo that silently returned no records. Checking after failure missed that silent error, and recovery from a partial payment required inspecting state rather than replaying the failed script. Skipping the compiler did not remove declaration tokens or demonstrate a clear cost saving. The [pilot's lessons](docs/checking-policy-pilot.md#what-we-learned-from-the-run), expanded October 1, explain the evidence and its limits.
+</details>
 
-**Checking needs meaningful contracts, and recovery needs correctly interpreted state.** The GLM repeat produced scripts that passed checking but omitted a return; the compiler at that measured revision permitted that return type, so the runtime reported the error after execution. In one recovery, the model treated an old payment as evidence that the requested new payment existed, skipped it and reported success. Types and runtime schemas accepted the program; independent state grading caught the omission. The [second-model report](docs/glm-checking-policy-repeat.md) records these historical failures. The subsequent [implementation](docs/results-and-recovery.md) rejects known invalid root returns and supplies action evidence; it does not certify business rules. We retain checking before execution with quiet success and diagnostic feedback.
+## What would justify further work?
 
-The repository/application comparisons predominantly used one model; the small checking pilots used two natural task definitions. The latest synthetic comparison expands to 20 definitions and two model families, with a Muse cost advantage and a GLM repair/time penalty. Real-service generalization and the isolated value of semantic checking remain open.
+A concrete workflow where unfamiliar APIs, substantial intermediate data or recurring composition make the tradeoff worth testing. A fair comparison should retain the baseline's ordinary scripts and direct tools, measure discovery separately, verify actual effects, and confirm on untouched tasks. Uniform versus hybrid interfaces, large-catalog discovery, stored-program reuse and checking attribution remain separate hypotheses on the [issue board](.work/issues/index.md).
 
-### What can be tuned next?
-
-The full extension already appends custom Strata instructions to Pi’s base prompt and has `search_capabilities`, `load_capability` and `program_details`. Full declarations are the default; compact presentation is opt-in. The 054 comparison used a separate prompt, preloaded task-relevant functions and exposed only `typed_program` in the checked arm. It did not test discovery or optimize prompt wording. The subsequent 060 tuning experiment exposed `program_details` in every arm and varied prompt/helper/presentation/feedback independently before confirmation.
-
-The [inventory and improvement plan](docs/glm-improvement-plan.md) distinguishes existing behavior, the completed tuning tests and deferred ideas. The recipe is the retained experimental result. Action receipts and explicit final JSON selection are now implemented and [documented separately](docs/results-and-recovery.md); finer discovery and broader new-task/native comparisons remain deferred; the [third-model repeat](docs/third-model-portability.md) is complete. The runtime still checks before execution. Earlier frozen benchmark results remain unchanged.
-
-## Later related work
-
-Earendil's [“You Said No MCP!”](https://earendil.com/posts/you-said-no-mcp/) (2026-09-29) describes Pi adopting MCP and JavaScript tool orchestration in its core. This announcement came **after Strata's initial September experiments and September 22 research checkpoint**. It overlaps with the composition mechanism explored here; it does not establish a performance advantage or imply that Strata influenced Pi. Earlier code-composition precedents already existed. The [comparison note](docs/research/pi-codemode-2026-09.md) connects the announcement and HN discussion to Strata's evidence and open questions. Historical repository/application measurements used Pi 0.73.1; the subsequent [September 30 pilot](docs/checking-policy-pilot.md) tested native Codemode in installed Pi 0.99.1 on a separate small synthetic fixture.
-
-## Where the research could go
-
-A more interesting fit may be agents with a programmable execution environment: a runtime such as Bun, CLI tools and filesystem access, combined with many APIs and MCP tools. For familiar local coding tasks, shell tools and ordinary scripts are already effective; Strata's extra type definitions and checking may not earn their cost. The repository experiments so far support that caution, without establishing that typed composition can never help coding agents.
-
-With many unfamiliar services, the proposition changes: discover a small set of typed functions, call them from a program, and combine remote results with local work. A function might query an API, invoke a CLI tool or read a file; the program can then join responses, transform data and calculate an answer. The potential benefit comes from one composable interface over those different operations, backed by a general-purpose execution environment. Whether it earns its cost remains a research hypothesis. Execution location and filesystem, network and process permissions remain explicit design choices.
-
-A promising setting may be an agent working across many unfamiliar business services. Existing API descriptions could supply the types; the agent could discover a few relevant functions, combine their results locally, and return an answer without filling its conversation with raw records. Whether that helps more than good direct tools remains an open question.
-
-Possible directions include:
-
-- **More tools through one interface:** explore typed functions for CLI operations, MCP tools and REST APIs, reusing existing schemas and generated clients where practical.
-- **Local and remote composition:** combine remote service calls with local sandboxed computation, while keeping execution location and permissions explicit.
-- **Larger catalogs:** discover a small relevant set of functions from many available operations, then measure discovery separately from program execution.
-- **Changing contracts and permissions:** investigate how an agent recovers when an API changes or access is revoked between discovering a function and calling it.
-- **Broader workflows:** consider edits, project checks and state across programs where real tasks demonstrate a need.
-
-Both application tool paths now apply the same validation rules, verified through the interfaces agents actually use. That enabled the corrected rerun, where direct tools remained cheaper on every tested task. The later [broader native-Codemode comparison](docs/composition-benchmark.md) confirms a Muse cost advantage on a synthetic corpus, with a GLM repair/time penalty. The [tuning experiment](docs/strata-tuning-results.md) then improved measured checked-profile efficiency on new synthetic workflows. Real-service generalization remains open; catalog scaling, memory and additional adapters remain separate possibilities. The [issue board](.work/issues/index.md) records scope and dependencies.
+The project is at a research checkpoint. The goal is to learn which pieces are useful and where they earn their complexity, rather than complete a universal agent platform. No additional implementation or paid experiment is selected by this documentation review.
 
 ## Try the prototype
 
@@ -196,25 +175,20 @@ bun test
 bun run demo
 ```
 
+The package pins Pi 0.73.1. Recent benchmarks used installed Pi 0.99.1 with experiment adapters; they do not certify every full-extension feature on that version.
+
 To try the extension with a model, configure Pi's model credentials and run `bun run pi`. Model use may incur provider charges.
 
 The [prototype guide](docs/prototype-guide.md) covers Pi usage, connecting an MCP server, configuration, tests and benchmark commands.
 
 ## Read further
 
-- [Third-model portability](docs/third-model-portability.md) — Ling/Muse/GLM on the current checked interface; full correctness and efficiency metrics.
-- [Broader composition comparison](docs/composition-benchmark.md) — 20 workflows, two models, full correctness/efficiency data and uncertainty.
-- [Tuning inventory and GLM improvement plan](docs/glm-improvement-plan.md) — what already exists and what we could test next.
-- [Evaluation summary](docs/evaluation-summary.md) — plain-language rundown of what works, what doesn't, and the numbers.
-- [Checking-policy comparison](docs/checking-policy-comparison.md) — success, requests, tokens, time and cost for both models and all profiles.
-- [Checking-policy pilot](docs/checking-policy-pilot.md) — updated Pi baseline and always/never/after-failure checking on small synthetic tasks.
-- [GLM repeat](docs/glm-checking-policy-repeat.md) — second-model results, output-format failures and payment-recovery mistakes.
-- [Wrap-up review](docs/wrap-up.md) — assessment of the stopping point, remaining gaps and restart criteria.
-- [How it works](docs/how-it-works.md) explains the execution flow.
-- [Architecture](ARCHITECTURE.md) describes the implementation and its trust boundaries.
-- [Architectural direction](ACD.md) develops the longer-term design.
-- [Evaluation plan](docs/evaluation.md) explains how the hypotheses should be tested.
-- [Related research](docs/research/typed-agent-prior-art.md) places the experiment alongside other tools-as-code approaches.
-- [Issue board](.work/issues/index.md) and [handoff](docs/handoff.md) track ongoing work.
+- [How it works](docs/how-it-works.md), [architecture](ARCHITECTURE.md) and [prototype guide](docs/prototype-guide.md) — execution, trust boundaries and setup.
+- [Results and recovery](docs/results-and-recovery.md) — final JSON selection, action receipts and their limits.
+- [Composition comparison](docs/composition-benchmark.md), [tuning results](docs/strata-tuning-results.md) and [third-model repeat](docs/third-model-portability.md) — measured results and sanitized evidence.
+- [Repository trials](docs/repo-trials.md) and [corrected application pilot](.work/issues/046-post-parity-comparison-v3.md) — earlier negative/inconclusive results.
+- [Checking-policy comparison](docs/checking-policy-comparison.md) — declarations versus checking, controlled prevention and recovery tests.
+- [Architectural direction](ACD.md), [evaluation principles](docs/benchmarking-principles.md) and [related research](docs/research/typed-agent-prior-art.md) — hypotheses and comparison design.
+- [Issue board](.work/issues/index.md) and [handoff](docs/handoff.md) — decisions, deferred work and current state.
 
 Plans and issues live in the tracked `.work/issues/` directory. Raw experiment transcripts, credentials, downloaded datasets and generated artifacts stay local.
