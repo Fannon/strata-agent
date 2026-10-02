@@ -1,5 +1,7 @@
 # Next-agent handoff
 
+**Project paused by user decision (2026-10-02).** The user confirmed the pause after delivery of the AppWorld study and README updates at `f6b3e36`. No active assignment or further model spend remains. Preserve the evidence and leave backlog items deferred until the user explicitly selects new work.
+
 ## Latest delivery — 065 AppWorld against Pi 1.0, October 2
 
 User selected the existing AppWorld integration for a bounded continuation. Completed 72 evaluation attempts: six new task definitions × three existing sibling worlds × two models × two approaches, plus four separate calibration attempts. Implementation frozen/pushed at `c8d9acb`; [report](application-study.md), [sanitized evidence](evaluations/application-2026-10-02.json), [issue](../.work/issues/065-conditional-continuation.md). Recommend retaining the pause: no general benefit; no further work or spend selected.

@@ -1,5 +1,7 @@
 # Strata issue board
 
+**Project paused by user decision (2026-10-02).** The completed 065 study and README review are committed and pushed at `f6b3e36`. No further implementation, research or model spend is selected. Keep the backlog deferred until the user explicitly selects a new bounded task.
+
 **Latest delivery (2026-10-02): [065 — AppWorld against Pi 1.0](065-conditional-continuation.md).** Completed the selected 72-attempt evaluation plus four calibration attempts; [report](../../docs/application-study.md). Substantial checked cost penalty in both models, Muse completion parity and lower GLM completion. Two interrupted attempts retained; one request's usage bounded, two timings unavailable; original-server state grades recovered and unchanged. Estimated total $0.940859–$0.982228 under $2. Recommend retaining the pause; no further implementation or model campaign selected. This is simulated application evidence, not live-service recurrence validation.
 
 New deferred follow-up: [066 — rebuilt AppWorld macOS environment baseline](066-appworld-macos-environment-baseline.md). Broad upstream dependency/date and sandbox-server failures need separate diagnosis if selected; 065 paths use dedicated model-free controls. [067 — caller-defined final-answer shape](067-caller-defined-final-answer-shape.md) records observed selected-object/submitted-scalar mismatches; not selected. [068 — detached server ownership on timeout](068-appworld-timeout-process-ownership.md) is also deferred; study orphan servers were cleaned up.
