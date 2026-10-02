@@ -40,6 +40,10 @@ For the user's broader comparison question, **054** owns the next proposed desig
 
 Large-catalog work (035) and a hybrid comparison (044) remain separate questions with their existing gates. This proposed order does not activate the backlog or authorize model spend.
 
+## Current conditional continuation proposal
+
+[065 — Conditional continuation](065-conditional-continuation.md) records the October 2 recommendation, **not selected work**. Preferred order: concrete recurring read-only service workflow → fair native-Pi/script versus Strata evaluation → 047 reuse only if recurrence exists. Investigate 062 before stronger effectful claims; 063 is conditional on caller-defined critical effects. 055 is a separate research route for compiler attribution, not a mandatory gate; 044 hybrid follows observed workflow friction, not an assumed product outcome. Retain the pause if no concrete need or selected research question exists. No new code or model spend authorized.
+
 ## Goal and evidence path
 
 **Historical proposal before the subsequent 052/053/058 implementation selection:** 061 shared-recipe portability on unseen model families/new API workflows, with a fair native-Pi arm if claiming an overall Strata advantage → 058 explicit structured finalization (052 prerequisite) → 053 action receipts, moved earlier for critical writes. 059 catalog discovery and 055 checking attribution remain separate experiments. Details in each issue; this recommendation selects no implementation or paid run.

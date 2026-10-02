@@ -2,6 +2,8 @@
 
 ## Latest documentation review — README proposition, October 2, 2026
 
+Assessment follow-up: README now explicitly acknowledges narrow observed value and the existing isolated checking-policy pilot. [065](../.work/issues/065-conditional-continuation.md) records conditional continuation: a real recurring read-only service workflow and fair comparison first; 047 reuse if relevant; 055 as a separate research route; 062/063 conditional on effectful scope; hybrid unproven. Recommendation only, no implementation or spend selected.
+
 [064](../.work/issues/064-readme-proposition-review.md) delivers the user-requested README review. The front page now leads with experimental learning/proofs of concept, intended value and costs, implemented scope, promising mechanisms and shortcomings. Dated comparison tables and expandable accounting retain positive and negative evidence, primary/effect grading and explicit measurement limits. The shared recipe remains experimental; current features are distinct from historical measured revisions. Source reports, runtime and frozen evidence are unchanged. Links/figures/whitespace checked without model calls; no further implementation or spend selected.
 
 ## Latest delivery — 061 third-model portability, October 1, 2026
