@@ -1,5 +1,11 @@
 # Next-agent handoff
 
+## Selected work — 065 AppWorld continuation, October 2
+
+User authorized the bounded continuation and selected the existing AppWorld integration. [Protocol/report](application-study.md); [issue](../.work/issues/065-conditional-continuation.md). Rebuilt pinned ignored source/data/venv under `.work/appworld`; installed Pi 1.0.0 is the comparator, production Pi remains pinned 0.73.1. Native and checked adapters use the same read/auth/submission MCP operations and validation. Planned 72 evaluation attempts on six new task families × three existing sibling worlds × two models × two arms, with four separate calibration attempts; $2 estimated-cost cap including failures/calibration. Freeze sources/data/catalog before paid calls. No reuse, discovery, model-specific prompt tuning or unrelated 062/063 implementation selected. Raw evidence stays ignored.
+
+Historical “no work selected” paragraphs below describe their dated checkpoints. Selected-path model-free checks pass; the full upstream AppWorld suite is not green, and full production Pi 1.0 compatibility is not certified.
+
 ## Latest documentation review — README proposition, October 2, 2026
 
 Assessment follow-up: README now explicitly acknowledges narrow observed value and the existing isolated checking-policy pilot. [065](../.work/issues/065-conditional-continuation.md) records conditional continuation: a real recurring read-only service workflow and fair comparison first; 047 reuse if relevant; 055 as a separate research route; 062/063 conditional on effectful scope; hybrid unproven. Recommendation only, no implementation or spend selected.

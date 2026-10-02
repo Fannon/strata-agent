@@ -1,0 +1,35 @@
+# AppWorld application study against Pi 1.0
+
+Issue [065](../.work/issues/065-conditional-continuation.md), selected October 2, 2026. Status: protocol and model-free preflight; no paid results yet.
+
+The user selected the existing AppWorld integration as a bounded continuation. The question is whether checked Strata earns its declaration/code/repair overhead on new read-only application tasks against current native Pi Codemode. This can resolve a research uncertainty; it does not establish a real recurring caller need or live-service usefulness.
+
+## Frozen design
+
+Six training-task definitions, three existing sibling world instances per definition: **18 task instances per model/arm, 72 evaluation attempts total**. These are different existing worlds, not three repeats of one world or freshly generated data. Four calibration attempts use a separate development definition. Selected families do not overlap prior AppWorld comparison families. Public task instructions were inspected to select read-only scope; evaluation solutions/ground truth are unavailable to the agent and were not used to design solving instructions.
+
+Two models: Muse Spark 1.3 Contributor with medium reasoning and GLM 5.3 Flash with low reasoning. Same approach instructions across models; no model-specific recipes. Preloaded schemas for relevant apps, not large-catalog discovery. No reuse arm. Task families: oldest library item, playlist duration, roommate payment reconciliation, ranked genre list, deduplicated library count and transaction-like aggregation.
+
+Both approaches use the real AppWorld MCP connector, the same input/output schemas, the same broker validation (`acceptNaiveDateTime` compatibility), and the same operation grants. Business writes are unavailable; login/authentication and supervisor task submission are allowed. Native Pi **1.0.0** runs its actual Codemode extension through a matched experimental adapter; it can compose scripts, filter results and retain native Codemode state. Checked Strata uses the current production session, full declarations, QuickJS and exact result selection. Neither arm has filesystem/shell access. This is a whole-system comparison: prompts, declaration rendering, runtime/result presentation and finalization differ. It is not a compiler ablation or unrestricted stock-Pi benchmark. The project's production dependency remains Pi 0.73.1; these probes do not certify the full production extension against 1.0.
+
+AppWorld source pin `42b5bcf3cd334fee33f0c37c02070a9f5807add5`; Python 3.11.16, package 0.2.0.dev0, data 0.2.0, MCP 2.2.0. Environment lock, source hashes, selected task/input hashes, installed Pi code and current public OpenRouter prices are retained locally with the matrix. Raw task instructions, generated schemas, databases, credentials and model transcripts stay ignored.
+
+Bounds: **$2 estimated model cost**, including calibration and failed attempts; 12 model requests per attempt; 4,096 output tokens/request; 262,144-byte request payload; 180-second agent limit. Both arms have 32,768-byte program sources, 100 capability calls/script and 30-second script limits. Two concurrent cells; full-context reservations guard dispatch. Missing usage, infrastructure/grading errors or the spend guard stop new dispatch; timeouts/request limits are failures. Never replace a paid failure. A resumed campaign must reconcile prior attempts first.
+
+## Grading and accounting
+
+Primary success requires a healthy completed run, upstream task completion, every upstream evaluation check passing, and unchanged domain state. The independent state comparison includes every AppWorld domain app, beyond the exposed apps. The independent comparison excludes supervisor task metadata and internal record hashes. It compares actual SQL rows without upstream model-hash shortcuts, including admin and domain models beyond the exposed tools. An unchanged world is effect-correct even if the answer is wrong. Report answer and effect scores separately; exact final JSON delivery does not certify either.
+
+Supplementary strict success also requires pure JSON and a final value identical to the submitted answer. Preserve upstream task grading as primary; final-format diagnostics must not substitute for business correctness. Upstream oracles are accessed only by the grader, after the agent finishes. Model-free positive/negative controls use private oracle values in a disposable development world; no oracle values reach a model.
+
+A turn means a model request. Report separate capability invocations/attempts, all-attempt input/output/cache/reasoning tokens, elapsed time and estimated cost per attempt/success. Reasoning is within output and is never added twice. End-to-end time includes AppWorld server initialization, adapter startup, model/tool work and grading; agent time separately measures Pi startup/execution. Startup and concurrent provider routing/cache limit cross-campaign timing comparisons. Prices are catalog estimates, not provider bills. Missing measurements are explicit.
+
+Continue only if useful value appears on both models and at least two families without a correctness loss. Otherwise pause; no evaluation-driven prompt tuning or additional adapter/catalog machinery. Even a positive result needs appropriate untouched-task confirmation before a general advantage claim.
+
+## Preflight
+
+Typecheck and focused production finalization/recovery/entry-parity tests passed: 22 tests, 151 assertions. Actual installed Pi 1.0 scripted adapters and live AppWorld MCP reads pass for the Spotify and Venmo/Phone surfaces, with zero paid calls. Full upstream AppWorld verification is not green on this macOS environment: dependency/date failures and sandbox restrictions on local servers remain; selected-path checks are the acceptance gate here.
+
+Preflight exposed harness defects before paid calls. Materializing `.db` snapshots beside AppWorld task-input `.jsonl` logs changes upstream input selection and loses initial change tracking in subsequent saved outputs. Grading now uses separate in-memory copies and refuses unexpected input snapshots. AppWorld freezes Python clocks; real-clock function defaults and the outer Bun process timer provide elapsed times. Original failed preflight artifacts are retained locally. A mutation control also exposed upstream hash shortcuts that can miss direct SQL changes; the independent comparison now bypasses them. The prepared v1 matrix had no paid attempts and is retained as a superseded preflight artifact; v2 freezes the corrected harness. No historical benchmark sources or results changed.
+
+Source: `examples/application/`. Model-free grader controls: `.work/appworld/venv/bin/python examples/application/preflight.py --root .work/appworld`. Campaign phases: `bun examples/application/run.ts --prepare`, then `--dev`, then `--run`; replay accounting audit: `bun examples/application/audit.ts`. Preparation needs a newly captured public catalog at the documented local path and a fresh output directory; do not overwrite historical matrices or rerun paid phases without selected scope.

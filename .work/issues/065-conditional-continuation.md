@@ -1,7 +1,7 @@
 # 065 — Decide whether and how to continue from the research checkpoint
 
-Status: DEFERRED — recommendation captured 2026-10-02; no implementation or experiment selected
-Authorization: user asked whether continuing is worthwhile and what to continue with; this authorizes assessment/documentation, not the proposed runs or fixes.
+Status: SELECTED 2026-10-02 — bounded AppWorld study; environment/preflight and protocol freeze underway
+Authorization: user subsequently said “ok, go ahead with it,” selecting the bounded continuation. Begin workflow selection and environment/preflight work. User chose the existing AppWorld integration as the fallback. This selects simulated application tasks, not live services or recurring-workflow/product validation. No service writes or unrelated backlog work selected.
 Dependencies: current evidence under 054/060/061; existing scope under 047/055/062/063/044
 
 ## Assessment and hypotheses
@@ -31,3 +31,15 @@ Continue only when the bounded result reveals useful task-level value or resolve
 ## Completion criteria if selected
 
 A concrete workflow or research question, versioned protocol and caller-approved bounds; completed comparison with independently checked outcomes; explicit continue/narrow/stop decision. Capturing this issue does not authorize service writes, new adapters, additional model spend or any deferred implementation.
+
+## Selected preflight, October 2
+
+Workspace has no AppWorld environment/data, despite the historical integration code. Installed Pi is 1.0.0, not the historical 0.99.1 comparator; production dependency remains 0.73.1. Typecheck and 22 focused finalization/recovery/entry-parity tests passed (151 assertions). This is not full-suite or Pi 1.0 compatibility certification.
+
+Asked the user to identify a real recurring workflow/services, with the existing AppWorld integration offered as a bounded application-study fallback. AppWorld would be simulated application evidence, not a live-service recurrence/product validation. Check environment feasibility while that choice is pending. Any selected paid matrix needs new source/version pins, independent grading, frozen scope and a conservative campaign cap; preserve all prior evidence.
+
+## Selected application study
+
+Use installed Pi 1.0.0 native Codemode versus the current checked session, sharing the MCP surface, broker schema validation and read/auth/submission grants. Six new training-task families, three existing sibling worlds each, two models and two approaches: 72 evaluation attempts plus four separate calibration attempts. Conservative estimated model-cost cap: $2 including calibration. Source/data/environment hashes and protocol are frozen before paid calls. No reuse/discovery arm or shared-recipe tuning. See [protocol/report](../../docs/application-study.md).
+
+Rebuilt ignored AppWorld source/environment/data at upstream `42b5bcf3cd334fee33f0c37c02070a9f5807add5`, Python 3.11.16, package 0.2.0.dev0, data 0.2.0, MCP 2.2.0. Model-free Pi 1.0 adapters and live MCP reads work for Spotify and Venmo/Phone. Initial grader controls exposed two harness mistakes: materializing task-input snapshots altered subsequent change-log saving, and AppWorld's frozen clock distorted timing. Fixed before paid calls; prior preflight artifacts preserved. Full upstream environment suite is not green (dependency/date and sandbox local-server failures); selected-path probes and independent grader controls must pass. This is not production extension certification.

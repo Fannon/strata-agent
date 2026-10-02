@@ -1,5 +1,9 @@
 # Strata issue board
 
+**Selected continuation (2026-10-02): [065 — bounded AppWorld study](065-conditional-continuation.md).** User chose the existing AppWorld integration. Rebuilt the pinned local environment; compare installed Pi 1.0.0 native Codemode with checked Strata on six new read-only task families. Freeze 72 evaluation + four calibration attempts under a $2 estimated-cost cap. This is simulated application evidence, not live-service recurrence validation. Historical proposals retain their dated authorization boundaries.
+
+New deferred follow-up: [066 — rebuilt AppWorld macOS environment baseline](066-appworld-macos-environment-baseline.md). Broad upstream dependency/date and sandbox-server failures need separate diagnosis if selected; selected 065 paths use dedicated model-free controls.
+
 **Latest documentation review (2026-10-02): [064 — README proposition, scope and lessons](064-readme-proposition-review.md).** Reframed the front page around experimental learning, implemented scope, promising mechanisms and shortcomings. Preserved dated positive/negative evidence with full accounting and limits. Documentation only; no additional implementation or model spend selected.
 
 **Latest benchmark delivery (2026-10-01): [061 — third-model portability](061-cross-model-generalization.md).** Added Ling Flash VL; 108 matched attempts across Muse/GLM/Ling with current finalization/recovery and unchanged shared recipe. Muse baseline/recipe 18/18; GLM 16/18→17/18; Ling 14/18→15/18. Cost $0.1183, 384 requests; recipe cost −17%/+5%/+13%, so no universal efficiency claim or model-specific tuning. [Full report](../../docs/third-model-portability.md) and [sanitized metrics](../../docs/evaluations/portability-2026-10-01.json). Verification/audit passed; 062/063 new discoveries deferred. Broader new-task/native 061 work remains deferred; no further work or spend selected.
@@ -42,7 +46,7 @@ Large-catalog work (035) and a hybrid comparison (044) remain separate questions
 
 ## Current conditional continuation proposal
 
-[065 — Conditional continuation](065-conditional-continuation.md) records the October 2 recommendation, **not selected work**. Preferred order: concrete recurring read-only service workflow → fair native-Pi/script versus Strata evaluation → 047 reuse only if recurrence exists. Investigate 062 before stronger effectful claims; 063 is conditional on caller-defined critical effects. 055 is a separate research route for compiler attribution, not a mandatory gate; 044 hybrid follows observed workflow friction, not an assumed product outcome. Retain the pause if no concrete need or selected research question exists. No new code or model spend authorized.
+[065 — Conditional continuation](065-conditional-continuation.md) records the October 2 recommendation, **subsequently selected for workflow/environment preflight**. Preferred order: concrete recurring read-only service workflow → fair native-Pi/script versus Strata evaluation → 047 reuse only if recurrence exists. Investigate 062 before stronger effectful claims; 063 is conditional on caller-defined critical effects. 055 is a separate research route for compiler attribution, not a mandatory gate; 044 hybrid follows observed workflow friction, not an assumed product outcome. Retain the pause if no concrete need or selected research question exists. Actual workflow and paid matrix remain to be frozen; no live writes or unrelated implementation selected.
 
 ## Goal and evidence path
 

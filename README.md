@@ -10,6 +10,8 @@ The intended value is less raw data in model context, fewer model round trips fo
 
 Today this is a **Pi extension hosted by Bun**, with a shared capability layer and a restricted QuickJS execution environment. The broader idea is one composable interface over local tools and remote services. Code-based tool orchestration already has [prior art](docs/research/typed-agent-prior-art.md); Strata's particular experiment combines schema-derived TypeScript functions, checking before execution, runtime validation and explicit result/action evidence.
 
+**Pi now covers much of the composition idea itself.** Native Codemode can compose tool calls in JavaScript, retain intermediate data and return structured results; Pi 1.0 adds leaner prompts and better recovery feedback. Strata's remaining research question is whether its shared typed contracts, checking before execution and explicit evidence earn their overhead over that native path. The older results below use dated comparators; the selected [AppWorld study](docs/application-study.md) compares against Pi 1.0. [Pi 1.0 release notes](https://pi.dev/changelog/releases/1.0.0).
+
 **Current assessment (October 2, 2026): the mechanism is demonstrated; narrow value is observed; general advantage is unproven.** There is a promising cost result with Muse Spark on synthetic service workflows, but no general speed, cost or reliability advantage. GLM incurs more repair work in the native-Pi comparison, earlier repository/application work did not establish an overall win, and a third-model repeat still produced correct-looking answers that omitted required actions. The evidence below separates working mechanisms from demonstrated performance and remaining hypotheses.
 
 ## What exists, and what remains a hypothesis
