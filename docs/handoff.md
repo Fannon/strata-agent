@@ -1,10 +1,27 @@
 # Next-agent handoff
 
-## Selected work — 065 AppWorld continuation, October 2
+## Latest delivery — 065 AppWorld against Pi 1.0, October 2
 
-User authorized the bounded continuation and selected the existing AppWorld integration. [Protocol/report](application-study.md); [issue](../.work/issues/065-conditional-continuation.md). Rebuilt pinned ignored source/data/venv under `.work/appworld`; installed Pi 1.0.0 is the comparator, production Pi remains pinned 0.73.1. Native and checked adapters use the same read/auth/submission MCP operations and validation. Planned 72 evaluation attempts on six new task families × three existing sibling worlds × two models × two arms, with four separate calibration attempts; $2 estimated-cost cap including failures/calibration. Freeze sources/data/catalog before paid calls. No reuse, discovery, model-specific prompt tuning or unrelated 062/063 implementation selected. Raw evidence stays ignored.
+User selected the existing AppWorld integration for a bounded continuation. Completed 72 evaluation attempts: six new task definitions × three existing sibling worlds × two models × two approaches, plus four separate calibration attempts. Implementation frozen/pushed at `c8d9acb`; [report](application-study.md), [sanitized evidence](evaluations/application-2026-10-02.json), [issue](../.work/issues/065-conditional-continuation.md). Recommend retaining the pause: no general benefit; no further work or spend selected.
 
-Historical “no work selected” paragraphs below describe their dated checkpoints. Selected-path model-free checks pass; the full upstream AppWorld suite is not green, and full production Pi 1.0 compatibility is not certified.
+| Model / approach | Primary success | Strict delivery | Domain state | Requests/attempt | Tokens/attempt | Measured median / P90 seconds | $/attempt | $/primary success |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| Muse, native | 15/18 | 15/18 | 18/18 | 8.50 | 110,677 | 62.34 / 89.47 | $0.008891 | $0.010669 |
+| Muse, checked | 15/18 | 15/18 | 18/18 | 8.78 | 271,144 | 74.00 / 103.28† | $0.023632 | $0.028359 |
+| GLM, native | 15/18 | 14/18 | 18/18 | 6.89 | 66,380 | 43.02 / 76.05 | $0.005360 | $0.006432 |
+| GLM, checked | 11/18 | 4/18 | 18/18 | 6.61 | ≥194,043 | 62.23 / 101.59† | $0.012850–$0.015148 | $0.021027–$0.024787 |
+
+Each row is 18 attempts/instances across six definitions. Turns are model requests. Capability invocations: Muse native/checked 784/869, GLM 782/972. Token/cache/reasoning breakdowns are in the report; output already includes reasoning. Both arms share read/auth/submission MCP operations, output schemas and broker validation; native uses actual Pi 1.0 Codemode through an experimental adapter. Production still pins Pi 0.73.1; no production runtime change or full 1.0 certification. No reuse/discovery arm or model-specific recipe.
+
+† One checked timing per model is unavailable after interruption/suspension. State grades were recovered from the original surviving API servers without rerunning agents; all 72 are unchanged. Both interrupted tasks remain primary failures. One GLM request's usage is unreported; costs bounded from frozen limits/rates, token totals lower bounds. The zero-request Muse attempt cost zero. Both remain primary failures and were not replaced. Original bytes and accounting amendments preserved; resumed only remaining cells with unchanged sources. Paired sensitivity excluding that instance from both arms/models retains the cost penalty.
+
+Total 575 requests and estimated $0.940859–$0.982228 under $2, including calibration/failures. Replay audit covers 74 fully accounted attempts plus two reconciled, original source/input hashes unchanged, three schema groups and six cross-model prompt contracts. Twenty evaluation compiler rejections preceded calls; 32 exact host deliveries plus two calibration. Seven primary-successful checked GLM attempts selected objects while submitting scalar/string answers: faithful delivery does not enforce caller intent.
+
+Ignored environment `.work/appworld`: upstream `42b5bcf3cd334fee33f0c37c02070a9f5807add5`, Python 3.11.16, package 0.2.0.dev0/data 0.2.0/MCP 2.2.0. Selected real API probes and positive/negative answer/state controls pass. Full upstream suite is not green; [066](../.work/issues/066-appworld-macos-environment-baseline.md) is deferred. [067](../.work/issues/067-caller-defined-final-answer-shape.md) records final-selection constraints, also deferred. [068](../.work/issues/068-appworld-timeout-process-ownership.md) records detached-server cleanup on timeout; orphaned study servers were stopped. No 062/063 or other backlog implementation selected.
+
+Raw evidence `.work/application-20261002-v2/`; v1 is superseded preflight-only with zero paid attempts. Complete audit: `bun examples/benchmark/audit-application.ts`; export: `python3 examples/benchmark/publish-application.py --publish`. Original `examples/application/audit.ts` expects fully accounted cells, so the wrapper separately verifies reconciliation and runs it over the 74-cell subset. Never prepare over historical matrices or rerun paid cells without new scope. Publication helpers live outside frozen application sources; no prompts/tasks/runtime changed.
+
+Historical “no work selected” paragraphs below describe their dated checkpoints.
 
 ## Latest documentation review — README proposition, October 2, 2026
 

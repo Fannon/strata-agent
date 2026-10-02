@@ -1,8 +1,56 @@
 # AppWorld application study against Pi 1.0
 
-Issue [065](../.work/issues/065-conditional-continuation.md), selected October 2, 2026. Status: protocol and model-free preflight; no paid results yet.
+**Completed October 2, 2026. No general advantage observed; retain the pause.** On this read-only application corpus, checked Strata costs more in both models. Muse reaches completion parity; GLM completes fewer tasks. The typed mechanism works, but its overhead is not earned here. This does not erase the earlier narrow positive synthetic result or prove types cannot help another workflow.
 
-The user selected the existing AppWorld integration as a bounded continuation. The question is whether checked Strata earns its declaration/code/repair overhead on new read-only application tasks against current native Pi Codemode. This can resolve a research uncertainty; it does not establish a real recurring caller need or live-service usefulness.
+The user selected AppWorld as the bounded continuation under [065](../.work/issues/065-conditional-continuation.md). This is simulated application-task evidence, not live-service usefulness or a real recurring caller need. [Sanitized 76-attempt evidence](evaluations/application-2026-10-02.json); implementation frozen at `c8d9acb`. No evaluation-driven prompt tuning, paid replacement attempts, production runtime changes or dependency upgrades.
+
+## Results
+
+**Six task definitions × three existing sibling worlds = 18 task instances per model/arm; 72 evaluation attempts total.** Four separate calibration attempts use one development definition. Turns mean model requests; capability invocations are separate. All failures remain in success, request/token and cost accounting. Primary success requires a healthy completed run, upstream task completion/all checks and unchanged domain state. Supplementary strict success also requires pure JSON identical to the submitted answer; it does not replace upstream grading.
+
+| Model / approach | Primary success | Strict delivery | Domain state | Requests/attempt | Tokens/attempt | Measured median / P90 seconds | $/attempt | $/primary success |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| Muse, native | 15/18 | 15/18 | 18/18 | 8.50 | 110,677 | 62.34 / 89.47 | $0.008891 | $0.010669 |
+| Muse, checked | 15/18 | 15/18 | 18/18 | 8.78 | 271,144 | 74.00 / 103.28† | $0.023632 | $0.028359 |
+| GLM, native | 15/18 | 14/18 | 18/18 | 6.89 | 66,380 | 43.02 / 76.05 | $0.005360 | $0.006432 |
+| GLM, checked | 11/18 | 4/18 | 18/18 | 6.61 | ≥194,043 | 62.23 / 101.59† | $0.012850–$0.015148 | $0.021027–$0.024787 |
+
+† One timing is unavailable in each checked row following interruption/suspension. Both interrupted state grades were recovered from the original servers without restarting agents: both show unchanged domain state. Medians/P90 use the other 17 timings, including ordinary failed attempts; a complete all-attempt latency average is unavailable for these rows. One GLM request has unreported usage: its token totals are lower bounds and its costs are intervals. Muse's interrupted attempt made zero model requests and cost zero. Neither attempt was replaced.
+
+Muse checked model cost is **2.66× native** (descriptive six-family block interval 2.06–3.36); GLM is **2.40–2.83× native**, with the unknown request bounded conservatively (descriptive interval including that uncertainty 1.89–3.47). These intervals describe this corpus, not a population. Completion differences have small, correlated samples. Native and checked effect grades are all unchanged where available, as expected from the restricted read/auth/submission surface; this is not an effectful-completion study.
+
+Excluding the interrupted task instance from **both arms and both models** gives 17 attempts per row across the same six definitions. Muse native/checked: 14/17 vs 15/17 primary, requests 8.41/9.29, tokens 109,659/287,093, measured median 61.98/74.00 s, cost/attempt $0.008779/$0.025022 and cost/success $0.010660/$0.028359. GLM: 14/17 vs 11/17, requests 6.76/6.88, tokens 64,652/203,706, median 42.77/62.23 s, cost/attempt $0.005109/$0.013341 and cost/success $0.006204/$0.020618. Every effect grade in this supplementary subset is unchanged. This does not overturn the cost conclusion or promote supplementary scores over the primary matrix.
+
+Totals, including failures; cache writes are zero. Reasoning is within output and is never added again. Native broker-recorded attempts do not include errors rejected by Pi before the registered operation executes; invocation counts remain separate from model turns.
+
+| Model / approach | Input | Cache read | Output | Reasoning within output | Capability invocations | Broker-recorded attempts |
+| --- | --- | --- | --- | --- | --- | --- |
+| Muse, native | 1,469,317 | 461,961 | 60,914 | 21,148 | 784 | 784 |
+| Muse, checked | 4,090,276 | 715,710 | 74,601 | 31,572 | 869 | 887 |
+| GLM, native | 424,579 | 749,632 | 20,620 | 5,320 | 782 | 782 |
+| GLM, checked | ≥879,100 | ≥2,568,960 | ≥44,718 | ≥6,067 | 972 | 998 |
+
+Calibration: four attempts, one definition/instance, all primary/strict/effect-correct; 21 model requests, 34 capability invocations, 406,072 tokens (190,850 input + 212,601 cache read + 2,621 output; 390 reasoning within output), median/P90 24.27/25.48 s, estimated $0.027662 total, $0.006916/attempt and /success. Calibration is excluded from evaluation comparisons. Full campaign: **575 logged requests**, estimated model cost **$0.940859–$0.982228**, below the $2 cap. This is not reconciled billing.
+
+## What this adds to the checkpoint
+
+The real application path works: schema generation, TypeScript checking, broker validation, live MCP calls and selected JSON delivery operate end-to-end. The compiler rejected **20 evaluation programs before any capability invocation**: 19 GLM and one Muse. Diagnostics include missing/union fields, indexing, unknown values, callback typing and a syntax error. Some are useful contract feedback; others are strict-typing work JavaScript would tolerate. This read-only study does not demonstrate prevention of harmful writes, and the whole-system design cannot attribute outcomes to checking alone.
+
+The performance penalty persists even when checked GLM uses slightly fewer model requests. Large declarations, generated programs, repairs and repeated work consume more context. Native Codemode can keep small intermediate values with `store`/`load`; Strata's programs start with fresh interpreter state. Native's declared operations were verified as present, and schema/grant parity was audited. These are possible contributors, not isolated causal measurements. Neither approach's runtime speed establishes a model-latency advantage here.
+
+Task failures remain visible: 11 completed runs submitted wrong answers, three hit the model-request guard, and two were interrupted. Two guarded checked attempts had already passed upstream grading; they remain primary failures because the run did not complete normally. All available independent domain-state checks pass, so a correct state does not imply a correct answer.
+
+Exact host delivery was audited in **32 evaluation attempts**, plus two calibration attempts. Seven of the 11 primary-successful checked GLM attempts selected an object while submitting a scalar/string answer. The host delivered that object exactly; it did not establish the caller's intended answer shape. One primary-successful native GLM attempt returned non-JSON text. Preserve all these primary successes and report delivery diagnostics separately. Optional caller-defined final-answer constraints are captured under [067](../.work/issues/067-caller-defined-final-answer-shape.md), not implemented here.
+
+**Recommendation:** pause broader Strata work. Keep the typed capability layer, broker, compiler/recovery contracts and research evidence. Pi now supplies much of the orchestration idea, including tool declarations, script composition, intermediate storage and discovery; 1.0 improves prompts and recovery feedback. [Native Codemode](https://pi.dev/docs/latest/codemode); [1.0 release notes](https://pi.dev/changelog/releases/1.0.0). If a concrete caller later needs stronger checking, test that layer against native Pi with declarations and controls held constant under separately selected 055, or evaluate real recurrence under 047. This study does not justify another generic adapter/catalog/memory effort or establish hybrid value.
+
+## Limits and interruption accounting
+
+The tasks are new relative to prior repository AppWorld comparisons, but existing public training worlds were inspected for scope. APIs are familiar from prior work; app-relevant schemas are preloaded. There is no live service, untouched data generation, large-catalog discovery, reuse test, native Pi version ablation or compiler isolation. Model routing/cache and concurrent provider latency are uncontrolled. The native arm uses actual Pi 1.0 Codemode with a matched experimental broker/MCP adapter, not unrestricted stock Pi or its default MCP wiring. Both approaches receive the same `{response: ...}` values through the adapter; native MCP's default wrapper can differ. Production still pins Pi 0.73.1.
+
+The interruption coincided with two outer timeouts. One GLM cell logged two requests but only one completed response; one Muse cell emitted only the CLI session header and made no provider requests. The precise suspension/timeout cause is not established, and their elapsed-time measurements are unavailable. Original result bytes are preserved beside accounting amendments. The known GLM response costs $0.0044954; the unreported request is bounded at $0.0413696 using frozen payload/output limits and rates. Dispatch stopped, accounting was conservatively reconciled, then remaining cells resumed with unchanged sources/prompts/tasks. Final cleanup found their original API servers still alive. Saved those states without reinitializing the servers, recovered upstream/full-row grades (both tasks incomplete/wrong, unchanged domain state), then stopped the four owned server processes. Primary failures remain. Receipts were not substituted for independent grading. [068](../.work/issues/068-appworld-timeout-process-ownership.md) records the deferred process-ownership fix; the frozen controller's outer-group ownership comment is too broad for detached servers.
+
+Final audit covers 74 fully accounted attempts plus the two reconciled attempts, all source/input hashes unchanged, recovered-grade replay, three schema groups and six shared cross-model prompt contracts. No paid failures were rerun. The full upstream AppWorld suite is not green in this environment; selected live API paths and positive/negative answer/state controls pass. [066](../.work/issues/066-appworld-macos-environment-baseline.md) owns deferred dependency/sandbox baseline work. This is not production Pi 1.0 certification.
 
 ## Frozen design
 
@@ -32,4 +80,4 @@ Typecheck and focused production finalization/recovery/entry-parity tests passed
 
 Preflight exposed harness defects before paid calls. Materializing `.db` snapshots beside AppWorld task-input `.jsonl` logs changes upstream input selection and loses initial change tracking in subsequent saved outputs. Grading now uses separate in-memory copies and refuses unexpected input snapshots. AppWorld freezes Python clocks; real-clock function defaults and the outer Bun process timer provide elapsed times. Original failed preflight artifacts are retained locally. A mutation control also exposed upstream hash shortcuts that can miss direct SQL changes; the independent comparison now bypasses them. The prepared v1 matrix had no paid attempts and is retained as a superseded preflight artifact; v2 freezes the corrected harness. No historical benchmark sources or results changed.
 
-Source: `examples/application/`. Model-free grader controls: `.work/appworld/venv/bin/python examples/application/preflight.py --root .work/appworld`. Campaign phases: `bun examples/application/run.ts --prepare`, then `--dev`, then `--run`; replay accounting audit: `bun examples/application/audit.ts`. Preparation needs a newly captured public catalog at the documented local path and a fresh output directory; do not overwrite historical matrices or rerun paid phases without selected scope.
+Source: `examples/application/`. Model-free grader controls: `.work/appworld/venv/bin/python examples/application/preflight.py --root .work/appworld`. Campaign phases: `bun examples/application/run.ts --prepare`, then `--dev`, then `--run`; complete replay/accounting audit: `bun examples/benchmark/audit-application.ts`; sanitized export: `python3 examples/benchmark/publish-application.py --publish`. Preparation needs a newly captured public catalog at the documented local path and a fresh output directory; do not overwrite historical matrices or rerun paid phases without selected scope.

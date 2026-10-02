@@ -28,3 +28,5 @@ Verified with model-free link/table/accounting checks against the tracked report
 ## Assessment follow-up, October 2
 
 Sharpened the verdict to mechanism demonstrated / narrow value observed / general advantage unproven. Corrected the attribution wording to acknowledge 049/051's existing isolated policy pilot; larger whole-system comparisons do not isolate checking. Added conditional restart paths, with 047 reuse only for real recurrence, 055 as an independent research question, 062 before stronger effectful claims and 063 only for caller-defined workflow needs. [065](065-conditional-continuation.md) captures the recommendation without selecting its implementation. No benchmark figures, runtime behavior or frozen evidence changed.
+
+October 2 follow-through under selected 065: README now explains Pi 1.0 native Codemode overlap, adds the completed AppWorld comparison with full accounting/missing-usage and timing limits, preserves prior positive/negative evidence, and recommends retaining the pause. No broader feature work selected by that update.
